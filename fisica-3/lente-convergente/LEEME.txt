@@ -1,0 +1,64 @@
+SIMULACIÓN · FÍSICA 3 · LA LENTE CONVERGENTE
+Banco óptico 3D: imagen real y virtual, objeto real y virtual (estilo inspirado en sael.net)
+
+Abrir simulacion-lente.html en Chrome, Edge o Safari. Funciona sin internet
+(three.js va incluido; sin conexión solo cambian las tipografías).
+
+QUÉ REPRODUCE DE LA GUÍA (La lente convergente, Escuela de Física, sede Medellín)
+- Convención DIN 1335: 1/s′ − 1/s = 1/f′, β = s′/s. Distancias desde la lente, positivas en el sentido de la luz.
+- Objeto en el infinito: objeto lejano a D metros, pantalla en el foco → f′∞.
+- Imagen real de objeto real: 5 distancias objeto separadas 5–10 cm, s y s′ con incertidumbre.
+- Gráfica 1/s′ vs 1/s: regresión lineal, pendiente ≈ 1, corte b = 1/f′ → f′ = 1/b, u_f′ = u_b/b².
+- Resultados: %Error entre f′∞ y f′ de la gráfica, y cuántas incertidumbres combinadas los separan.
+
+LOS CUATRO CASOS
+Objeto real (s < 0)      → la F luminosa, los rayos divergen de ella.
+Imagen real (s′ > 0)     → los conos de luz se cruzan de verdad. La imagen flota en el aire (F cian) y
+                           la pantalla solo la muestra nítida en ese plano; fuera de él se ve borrosa.
+Imagen virtual (s′ < 0)  → objeto dentro de f′. Los rayos salen divergentes, la pantalla queda vacía y
+                           las prolongaciones punteadas (violeta) se cruzan detrás del objeto. Vista "Ojo tras la lente".
+Objeto virtual (s > 0)   → la lente auxiliar L₀ (f₀ = 12 cm, a 2f₀–2f₀) manda un haz convergente hacia un
+                           punto detrás de la lente. La lente adelanta el cruce: imagen real entre la lente y F′.
+
+USO
+Arrastra el objeto o la pantalla directamente sobre el riel (o usa los controles).
+Enfocar (E): mueve la pantalla hasta la imagen nítida, con un pequeño error humano dentro de la profundidad de foco.
+Registrar (Enter): anota s y s′. Solo deja anotar si la imagen está nítida en la pantalla.
+Vistas: Banco, Lateral (como el diagrama de rayos), Pantalla, Ojo tras la lente.
+Mostrar: Haz (conos de luz), Rayos (los tres rayos principales), Virtual (prolongaciones e imágenes virtuales).
+Paso a paso (G): 7 pasos (montaje → f′∞ → 5 puntos → gráfica → comparar → imagen virtual → objeto virtual).
+  Es solo una ayuda: "Siguiente" nunca se bloquea y el botón del paso hace "Enfocar y registrar".
+Proyector (P), guía (?), CSV con ; y coma decimal.
+
+INCERTIDUMBRES
+u_s = 0.1 cm (cinta métrica). u_s′ = √(0.1² + δ²), donde δ = 0.05·s′/D_lente es la profundidad de foco:
+el rango de pantalla en el que la mancha de cada punto mide menos de 0.5 mm.
+
+FUENTES DE ERROR (Avanzado)
+Objeto lejano a D (por defecto 8 m): el "infinito" no es infinito y f′∞ sale ≈2.6 % mayor que f′.
+Con datos típicos sale %Error ≈ 2 % y "no compatibles", un buen punto de discusión. Con D = 40 m baja a ≈0.5 %.
+Error al enfocar y diámetro de la lente: cambian la profundidad de foco y la dispersión de s′.
+
+DATOS SUPUESTOS (confirmar con el montaje real)
+f′ = 20 cm (ajustable de 8 a 35 cm), diámetro de la lente 7 cm, F luminosa de 3 cm de alto.
+
+
+======================================================================
+EXPLORADOR · ¿DÓNDE ESTÁ LA IMAGEN?   (explorador-lentes.html)
+======================================================================
+Página libre, sin guía ni tablas, para ver cómo se mueven el objeto y la imagen.
+
+- Entorno distinto: piso holográfico con cuadrícula. La mitad izquierda (ámbar) es por donde llega la luz:
+  objetos reales, s < 0. La mitad derecha (cian) es por donde sale: imágenes reales, s′ > 0.
+- Objeto: flecha luminosa que se arrastra en x y en altura. Si la pasas detrás de la lente se vuelve
+  un OBJETO VIRTUAL (fantasma violeta), y el haz llega convergiendo hacia él.
+- Imagen REAL: flecha cian sólida. Imagen VIRTUAL: fantasma violeta que "respira", con prolongaciones punteadas.
+- Estela: copias que se desvanecen y muestran el recorrido de la imagen (el salto al cruzar F).
+- Lente: 6 tipos (biconvexa, planoconvexa, menisco convergente, bicóncava, planocóncava, menisco
+  divergente), radios R₁ y R₂ (centro = cara plana) y material (agua, acrílico, vidrio, flint, diamante).
+  f′ sale de 1/f′ = (n − 1)(1/R₁ − 1/R₂); ya no es un control.
+- Mapa s′ vs s: curva coloreada (cian = imagen real, violeta = virtual) con los 4 cuadrantes
+  objeto/imagen real/virtual. El punto se puede arrastrar.
+- La lente por dentro: perfil con las circunferencias de curvatura, C₁ y C₂, y la cuenta de f′.
+- "Pon el objeto": lejos, en 2F, entre F y 2F, dentro de F, detrás. "Recorrer" (Espacio) pasea el objeto solo.
+- Vistas: Perspectiva, Lateral, Rasante (para ver los fantasmas superpuestos), Planta. ← → mueven el objeto.

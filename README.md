@@ -28,3 +28,4 @@ Esta habilidad permite a los asistentes de IA generar simulaciones en HTML autó
 - **Brayan Garcia** ([@bgarciab-gb](https://github.com/bgarciab-gb))
 - **Daniel Cuartas** ([@danicuartas](https://github.com/danicuartas))
 - **@mmarinsu-svg** ([@mmarinsu-svg](https://github.com/mmarinsu-svg))
+- **@mpalacioh-bit** ([@mpalacioh-bit](https://github.com/mpalacioh-bit))

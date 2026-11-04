@@ -21,6 +21,16 @@ Esta habilidad permite a los asistentes de IA generar simulaciones en HTML autó
 
 ---
 
+## Simulaciones de Física III
+
+- [Ondas estacionarias en una cuerda](./fisica-3/ondas-estacionarias/README.md):
+  búsqueda manual de resonancias, registro de armónicos y cálculo de la velocidad
+  experimental mediante regresión, con incertidumbres y exportación CSV.
+  Abre el [HTML autónomo](./fisica-3/ondas-estacionarias/simulacion-ondas-cuerda.html)
+  en un navegador; no necesita instalación ni conexión.
+
+---
+
 ## 👥 Colaboradores
 
 - **Juan José Zapata Moreno** ([@jjzm0521](https://github.com/jjzm0521))

@@ -1,0 +1,51 @@
+ONDAS ESTACIONARIAS EN UNA CUERDA · FÍSICA III · UNAL MEDELLÍN
+
+Abre simulacion-ondas-cuerda.html en un navegador moderno. No requiere
+instalación, servidor, internet ni bibliotecas externas.
+
+USO
+1. En Parámetros del montaje puedes editar longitud, masa colgante,
+   densidad lineal e incertidumbres. No hay una etapa de medición de μ.
+2. Barre la frecuencia, busca máximos de amplitud y cuenta los vientres.
+3. Indica el armónico n (1 a 9) y registra la frecuencia observada.
+4. Obtén 8 o 9 modos con el mismo montaje. Revisa f frente a n y v = 2Lb.
+5. Compara con sqrt(mg/μ) y exporta el CSV (Excel: ; y coma decimal).
+
+La frecuencia se registra tal como la seleccionas: no se reemplaza por la
+resonancia teórica ni se corrige el número de armónico. Puedes reemplazar
+o eliminar cada registro. Cambiar un parámetro del montaje borra la serie;
+exporta antes si quieres conservarla. Los registros viven solo en la pestaña:
+recargar o cerrar la página los elimina.
+
+Atajos fuera de los campos: flechas izquierda/derecha ajustan frecuencia,
+espacio pausa/reanuda y P activa el modo proyector.
+
+MODELO Y SUPUESTOS
+Guía: Ondas transversales en una cuerda, Física III ingeniería, UNAL Medellín,
+semestre 02 de 2008; Diego Luis Aristizábal R. y Roberto Restrepo A.
+La guía propone una masa de unos 100 g y 8 o 9 modos con L y tensión fijas.
+Ejemplos editables: L=1,20 m, m=100 g, μ=1,00 g/m. L y μ no proceden de
+mediciones del montaje real. g=9,776 m/s², según la convención del repositorio.
+Incertidumbres iniciales ilustrativas, editables: u(L)=0,001 m, u(m)=0,1 g,
+u(μ)=0,01 g/m y u(f)=0,05 Hz; son incertidumbres estándar.
+
+Cuerda ideal de pequeñas amplitudes, polea ideal y tensión mg uniforme.
+Frecuencias fn=n*sqrt(mg/μ)/(2L). Visualización esquemática en Canvas 2D
+con profundidad, no escena 3D orbital. Combina 16 modos con amortiguamiento
+ζ=0,012 y excitación armónica equivalente; extremos nodales aproximados.
+No reproduce los transitorios ni el movimiento del cono del parlante.
+La envolvente es la amplitud de la respuesta compleja modal. La amplitud
+es relativa; el control visual no modifica frecuencias ni velocidades.
+Cámara lenta: oscilación visual a 1,1 Hz; cálculos con la frecuencia real.
+Tiempo real: el muestreo de la pantalla puede producir aliasing; se recomienda
+cámara lenta. No hay ruido aleatorio añadido a las mediciones.
+
+ANÁLISIS
+Recta f=b*n+c por mínimos cuadrados ponderados, intercepto libre, mínimo
+3 puntos. Covarianza de las incertidumbres declaradas multiplicada por
+max(1, chi²/(N-2)); no desaparece con datos perfectamente alineados.
+v_exp=2Lb; u(v_exp)=sqrt((2L*u(b))²+(2b*u(L))²).
+v_teo=sqrt(mg/μ); u(v_teo)=v_teo/2*sqrt((u(m)/m)²+(u(μ)/μ)²).
+g exacta e incertidumbres de entrada independientes. Error relativo absoluto.
+Compatibilidad a 2 incertidumbres combinadas. El resultado depende de tu
+selección de resonancias y de la asignación del número n.

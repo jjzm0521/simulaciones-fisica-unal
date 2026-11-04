@@ -1,0 +1,38 @@
+SIMULACIÓN · PRÁCTICA 8 · MOVIMIENTO CIRCULAR
+Máquina de Atwood con fotocompuerta y sonoscopio virtual (estilo inspirado en sael.net)
+
+Abrir simulacion-atwood.html en Chrome, Edge o Safari. Funciona sin internet
+(three.js va incluido; sin conexión solo cambian las tipografías).
+
+QUÉ REPRODUCE DE LA GUÍA
+3.1  Medición = Regla: la regla-cebra de acrílico (m2) atraviesa el haz. 15 cauchitos separados 1 cm.
+     Sonoscopio: base plana y 15 picos definidos, todos hacia arriba o todos hacia abajo.
+     Tabla 1 (y vs t), regresión cuadrática, a_l = 2A, u = 2u_A.
+3.2  Medición = Polea: la fotocompuerta pasa al borde de la polea; 10 radios (36° = π/5 rad).
+     Sonoscopio: onda casi sinusoidal cuyo período se acorta (la polea acelera).
+     Tabla 2 (θ vs t), α = 2A, a_T = α r, u_aT = √((r u_α)² + (α u_r)²).
+3.3  Resultados: %Error = |a_l − a_T| / a_l × 100 y compatibilidad en incertidumbres.
+
+USO
+Paso a paso (G): recorrido guiado de 6 pasos (3.1 → 3.2 → 3.3). Se abre al iniciar; se cierra con ✕.
+Proyector (P): letra más grande, más contraste y trazo más grueso en el sonoscopio.
+En celular la página se apila (escena arriba, luego guía, controles, sonoscopio y datos) y admite pellizcar para hacer zoom.
+Soltar (Espacio) · Reiniciar (R) · Rápido = lanzar y registrar sin animación.
+Como en el laboratorio: UN lanzamiento por tabla. t se mide desde el primer pico y
+u_t = resolución del sonoscopio = 1/44100 s ≈ 0.023 ms. Soltar de nuevo reemplaza la tabla.
+Velocidad 1×, ¼× o ⅒× para ver los picos aparecer en el sonoscopio.
+Vistas: Montaje, Polea, Fotocompuerta, Mesa. Arrastrar para girar y usar la rueda para acercarse.
+CSV exporta las tablas y los resultados (separador ; y coma decimal, listo para Excel).
+
+RADIO DE LA POLEA
+r = 0.02465 m (2.465 cm), radio exterior real del montaje. Ajustable con el control deslizante.
+Las masas solo cambian la aceleración; no son centrales para esta práctica.
+
+FUENTES DE ERROR (Avanzado)
+Garganta: la cuerda va a r − garganta. Con 0.30 mm (valor por defecto) el error queda cerca del 1.2–1.4 %
+y los valores NO son compatibles: es un buen punto de discusión.
+Con garganta 0 y sin deslizamiento, el error baja a alrededor del 0.1 %.
+También se pueden ajustar el deslizamiento, la masa de la polea, la fricción del eje y el ruido del cronometraje.
+"Para el monitor" (pestaña Resultados) muestra los valores exactos del modelo.
+
+Modelo: a = [(m2 − m1)g − f] / (m1 + m2 + I/rg²), I = ½ M r², g = 9.776 m/s².

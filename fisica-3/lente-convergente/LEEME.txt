@@ -24,6 +24,8 @@ Vistas: Perspectiva, Lateral, Rasante, Planta. Otros atajos: ← → mover, T es
 
 LABORATORIO (práctica "La lente convergente", Escuela de Física, sede Medellín)
 Riel con cinta métrica, objeto luminoso (una F), lente y pantalla. La imagen en la pantalla se desenfoca de verdad.
+La imagen también es una F: cian si es real (flota en el aire), violeta si es virtual. En la imagen virtual la pantalla queda sin F;
+la vista "Ojo tras la lente" muestra la F derecha y mayor, como en una lupa.
 Objeto en ∞: objeto lejano a D metros → f′∞.
 Objeto real: 5 distancias separadas 5 a 10 cm, s y s′ con incertidumbre. Si la imagen cae fuera del riel no se puede registrar.
 Objeto virtual: lente auxiliar L₀ (f₀ = 12 cm, a 2f₀–2f₀) que manda un haz convergente.

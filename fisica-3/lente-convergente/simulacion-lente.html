@@ -592,7 +592,7 @@ axisLine.computeLineDistances();scene.add(axisLine);
 const lensG=new THREE.Group();lensG.position.y=Y0;scene.add(lensG);
 const stand=mesh(new THREE.CylinderGeometry(.35,.35,1,12),M.alu);scene.add(stand);
 const standBase=mesh(new THREE.CylinderGeometry(3,3.4,.6,40),M.dark);standBase.position.y=.3;scene.add(standBase);
-const lensMat=new THREE.MeshPhysicalMaterial({color:0xe8f6ff,roughness:.04,transmission:1,thickness:1.2,ior:1.52,transparent:true,opacity:.92,clearcoat:1,clearcoatRoughness:.05});
+const lensMat=new THREE.MeshPhysicalMaterial({color:0xe8f6ff,roughness:.04,transmission:1,thickness:1.2,ior:1.52,transparent:true,opacity:.92,clearcoat:1,clearcoatRoughness:.05,depthWrite:false});
 const sag=(c,r)=>{if(Math.abs(c)<1e-6)return 0;const R=1/c;return R-Math.sign(R)*Math.sqrt(Math.max(0,R*R-r*r));};
 function lensProfile(){const e=.25,d=sag(S.c2,AP)-sag(S.c1,AP),tc=Math.max(e,e-d);return {tc,x1:r=>-tc/2+sag(S.c1,r),x2:r=>tc/2+sag(S.c2,r)};}
 function buildLens(){
@@ -620,8 +620,8 @@ function arrow(color,op){
   const ring=mesh(new THREE.RingGeometry(1.2,1.5,40),addMat(color,.7));ring.rotation.x=-Math.PI/2;scene.add(ring);
   const drop=new THREE.Line(new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(0,0,0),new THREE.Vector3(0,1,0)]),new THREE.LineDashedMaterial({color,dashSize:.6,gapSize:.5,transparent:true,opacity:.6}));scene.add(drop);
   scene.add(g);
-  return {g,mat,aMat,gl,ring,drop,set(x,h,vis=true){
-    g.visible=ring.visible=drop.visible=vis;if(!vis)return;
+  return {g,mat,aMat,gl,ring,drop,set(x,h,vis=true,body=true){
+    g.visible=vis&&body;ring.visible=drop.visible=vis;if(!vis)return;
     const A=Math.abs(h),hh=Math.min(2.4,A*.45),w=Math.max(.25,Math.min(.45,A*.08)),hr=Math.min(1.25,A*.25+.4);
     sh.scale.set(w,Math.max(.01,A-hh),w);hd.scale.set(hr,hh,hr);hd.position.y=A-hh;
     aS.scale.set(w*5,Math.max(.01,A-hh),1);aH.scale.set(hr*4.2,hh*1.25,1);aH.position.y=A-hh;
@@ -677,7 +677,11 @@ const objG=new THREE.Group();labG.add(objG);objG.add(rider(),post(RT+2.4,Y0-4.4)
 const box=mesh(new THREE.BoxGeometry(3.4,10,10),M.black);box.position.set(-1.8,Y0+.6,0);objG.add(box);
 const face=mesh(new THREE.PlaneGeometry(9.4,9.4),new THREE.MeshStandardMaterial({color:0x1a1408,emissive:0x3a2208,roughness:.9}));face.rotation.y=Math.PI/2;face.position.set(-.08,Y0+.6,0);objG.add(face);
 const objF=fPlane(0xffc070,1);objF.position.set(0,Y0,0);objG.add(objF);
+const objSide=fPlane(0xffc070,1);objSide.rotation.y=0;objSide.position.set(-1.8,Y0,5.03);objG.add(objSide);
 const objGlow=glow(0xffb454,14,.55);objGlow.position.set(.6,Y0+H/2,0);objG.add(objGlow);
+function ghostF(color,op){const m=fPlane(color,op);m.material.depthTest=false;m.renderOrder=6;labG.add(m);return m;}
+const realF=ghostF(0x7fe3ff,1),virtF=ghostF(0xc4b0ff,.9),vObjF=ghostF(0xc4b0ff,.7);
+function faceCamera(m){if(m.visible)m.rotation.y=Math.atan2(camera.position.x-m.position.x,camera.position.z-m.position.z);}
 const lensRider=rider();labG.add(lensRider);
 const L0G=new THREE.Group();labG.add(L0G);L0G.add(rider(),post(RT+2.4,Y0-4.5));
 (function(){ // lente auxiliar L₀
@@ -776,7 +780,7 @@ const VIEWS={
   low:()=>({target:new THREE.Vector3(-5,Y0,0),dist:150,az:1.18,pol:1.47}),
   top:()=>({target:new THREE.Vector3(0,0,4),dist:260,az:0,pol:.06}),
   screen:()=>({target:new THREE.Vector3(S.xs,Y0,0),dist:30,az:-1.05,pol:1.48}),
-  eye:()=>{const im=image(),xe=Math.min(S.xs-2,Math.max(10,fP()*.75)),tx=Number.isFinite(im.sp)&&im.sp<0?Math.max(-90,im.sp):Math.min(-10,S.mode==='inf'?-10:XD());return {target:new THREE.Vector3(tx,Y0+1.6,0),dist:xe-tx,az:Math.PI/2,pol:Math.PI/2-.02};},
+  eye:()=>{const im=image(),xe=Math.max(24,fP()*1.5),tx=Number.isFinite(im.sp)&&im.sp<0?Math.max(-90,im.sp):Math.min(-10,S.mode==='inf'?-10:XD());return {target:new THREE.Vector3(tx,Y0+.6,0),dist:xe-tx,az:Math.PI/2,pol:Math.PI/2-.01};},
 };
 let view='persp';
 function goView(v,instant){view=v;const t=VIEWS[v]();
@@ -857,11 +861,11 @@ function placeAll(){
   if(lensDirty){buildLens();lensDirty=false;}
   const lab=isLab(),im=image(),f=fP(),o=mainObj();
   objA.set(S.s,S.h,!lab&&S.s<0);
-  vObjA.set(o.s,o.y,o.s>0&&(!lab||S.ext));
+  vObjA.set(o.s,o.y,o.s>0&&(!lab||S.ext),!lab);
   objHit.position.set(S.s,Y0+S.h/2,0);objHit.scale.set(1,Math.max(2,Math.abs(S.h)+2),1);
   const fin=Number.isFinite(im.sp)&&Math.abs(im.yp)<60&&Math.abs(im.sp)<190;
-  realA.set(im.sp,im.yp,fin&&im.real&&(!lab||im.sp<S.xs-.6));
-  virtA.set(im.sp,im.yp,fin&&!im.real&&(!lab||S.ext));
+  realA.set(im.sp,im.yp,fin&&im.real&&(!lab||im.sp<S.xs-.6),!lab);
+  virtA.set(im.sp,im.yp,fin&&!im.real&&(!lab||S.ext),!lab);
   const fv=!lab&&Number.isFinite(f)&&Math.abs(f)<XMAX;
   [Fm,Fp,FmR,FpR].forEach(q=>q.visible=fv);[F2m,F2p].forEach(q=>q.visible=fv&&Math.abs(2*f)<XMAX);
   if(fv){Fm.position.copy(W3(-f,0));Fp.position.copy(W3(f,0));FmR.position.set(-f,.09,0);FpR.position.set(f,.09,0);F2m.position.set(-2*f,.09,0);F2p.position.set(2*f,.09,0);}
@@ -869,6 +873,10 @@ function placeAll(){
   const y0=lab?RT+2.4:.6,y1=Y0-AP-.25;stand.scale.y=y1-y0;stand.position.y=(y0+y1)/2;
   if(lab){
     objG.visible=S.mode!=='inf';objG.position.x=XD();farG.visible=S.mode==='inf';L0G.visible=S.mode==='virt';L0G.position.x=XL0();scrG.position.x=S.xs;
+    const kF=fin?im.yp/H:1;
+    realF.visible=fin&&im.real&&im.sp<S.xs-.6;if(realF.visible){realF.position.set(im.sp,Y0,0);realF.scale.set(kF,kF,1);}
+    virtF.visible=fin&&!im.real&&S.ext;if(virtF.visible){virtF.position.set(im.sp,Y0,0);virtF.scale.set(kF,kF,1);}
+    vObjF.visible=S.mode==='virt'&&S.ext;if(vObjF.visible){vObjF.position.set(S.sv,Y0,0);vObjF.scale.set(-1,-1,1);}
     objLight.position.set(XD()+3,Y0+2,4);objLight.intensity=S.mode==='inf'?0:900;drawScreen();
   }else objLight.intensity=0;
   buildBeams();pushTrail(im);updateHUD();drawDiagram();drawTab();
@@ -896,7 +904,7 @@ function explain(){
     if(S.mode==='inf')return `Los rayos del objeto lejano llegan casi paralelos, así que se cruzan muy cerca de <b class="foc">F′</b>. Como el objeto no está realmente en el infinito, la imagen queda un poco más allá. ${sharpness(scrInfo.blur)>.8?'La pantalla está en ese plano: ya puedes registrar.':`Mueve la pantalla hacia la ${dx>0?'derecha':'izquierda'} hasta verla nítida.`}`;
     if(S.mode==='virt')return `L₀ manda un haz que iba a juntarse detrás de la lente: ese punto es un <b class="virt">objeto virtual</b>. La lente adelanta el cruce y la imagen sale <b class="real">real</b>, más cerca que el objeto virtual.`;
     if(!Number.isFinite(im.sp))return `El objeto está justo en el foco: los rayos salen paralelos y en la pantalla solo hay una mancha.`;
-    if(!im.real)return `Con el objeto dentro de la distancia focal, los rayos salen abiertos y nunca se cruzan. Solo se cruzan sus prolongaciones, por eso la pantalla no la recoge. Mírala con la vista <b>Ojo tras la lente</b>.`;
+    if(!im.real)return `Con el objeto dentro de la distancia focal, los rayos salen abiertos y nunca se cruzan. Solo se cruzan sus prolongaciones, por eso la pantalla no la recoge, pero el ojo sí la ve. Mírala con la vista <b>Ojo tras la lente</b>.`;
     return `Los rayos se cruzan de verdad en el plano de la imagen: en el aire no se ve, pero una pantalla ahí la recoge nítida. ${sharpness(scrInfo.blur)>.8?'La pantalla ya está en ese plano.':dx>0?'La pantalla está antes de ese plano: aléjala de la lente.':'La pantalla ya pasó ese plano: acércala a la lente.'}`;
   }
   if(!Number.isFinite(f))return `Con estos radios la lente no desvía la luz: la imagen coincide con el objeto.`;
@@ -1221,8 +1229,8 @@ const STEPS=[
    do:['Ver gráfica',()=>setTab('plot')],ok:()=>data.rows.length>=3,enter:()=>setTab('plot')},
   {t:'Comparar f′',b:()=>`Compara f′ de la gráfica con f′∞. Si el objeto lejano no está suficientemente lejos, f′∞ sale un poco mayor.`,
    do:['Ver resultados',()=>setTab('res')],ok:()=>results().err!==undefined,enter:()=>setTab('res')},
-  {t:'Imagen virtual (lupa)',b:()=>`Con el objeto dentro de F, en la pantalla solo hay luz difusa. Las prolongaciones se cruzan detrás del objeto: imagen <b class="virt">virtual</b>, derecha y mayor.`,
-   do:['Mirar por la lente',()=>goView('eye')],ok:()=>S.mode==='real'&&image().sp<0,enter:()=>{setMode('real');setPos(-fP()*.6);goView('side');setTab('scr');}},
+  {t:'Imagen virtual (lupa)',b:()=>`Con el objeto dentro de F, mirando por la lente se ve la <b class="obj">F</b> derecha y mayor: es la imagen <b class="virt">virtual</b>. En la pantalla no aparece, porque ahí los rayos no se cruzan: solo llega luz difusa.`,
+   do:['Ver de lado',()=>goView(view==='eye'?'side':'eye')],ok:()=>S.mode==='real'&&image().sp<0,enter:()=>{setMode('real');setPos(-fP()*.6);goView('eye');setTab('scr');}},
   {t:'Objeto virtual',b:()=>`L₀ forma un haz que iba a juntarse detrás de la lente: ese punto es un <b class="virt">objeto virtual</b> (s &gt; 0). La lente adelanta el cruce y la imagen sale <b class="real">real</b>.`,
    do:['Enfocar',()=>focus()],ok:()=>S.mode==='virt'&&sharpness(scrInfo.blur)>.8,enter:()=>{setMode('virt');goView('side');setTab('scr');}},
 ];
@@ -1233,7 +1241,7 @@ function gGo(i,keep){gi=Math.max(0,Math.min(STEPS.length-1,i));const st=STEPS[gi
   $('gDo').textContent=st.do[0];$('gDo').onclick=()=>st.do[1]();
   $('gDots').innerHTML=STEPS.map((_,k)=>`<i class="${k<gi?'done':k===gi?'cur':''}"></i>`).join('');
   $('gPrev').disabled=gi===0;$('gNext').disabled=gi===STEPS.length-1;gTick();placeGuide();}
-function gTick(){if(gOn)$('gOk').textContent=STEPS[gi].ok()?'✓ listo':'';}
+function gTick(){if(!gOn)return;$('gOk').textContent=STEPS[gi].ok()?'✓ listo':'';if(gi===5){const t=view==='eye'?'Ver de lado':'Mirar por la lente';if($('gDo').textContent!==t)$('gDo').textContent=t;}}
 $('gNext').onclick=()=>gGo(gi+1);$('gPrev').onclick=()=>gGo(gi-1);$('gClose').onclick=()=>setGuide(false);$('bGuide').onclick=()=>setGuide(!gOn);
 const isWide=()=>innerWidth>960&&innerHeight>700;
 function placeGuide(){if(!gOn)return;if(!isWide()){$('guide').style.top='';return;}$('guide').style.top=Math.round(document.querySelector('.hero').getBoundingClientRect().bottom+10)+'px';}
@@ -1284,6 +1292,12 @@ function frame(now){
   const br=.5+.5*Math.sin(tt*2.4);
   virtA.mat.opacity=.5+.3*br;vObjA.mat.opacity=.5+.3*br;virtA.aMat.opacity=vObjA.aMat.opacity=.14+.14*br;virtA.gl.material.opacity=vObjA.gl.material.opacity=.4+.3*br;
   objGlow.material.opacity=.5+.05*Math.sin(tt*3.1);
+  if(isLab()){
+    const eye=view==='eye'&&!cam.anim,virt=image().sp<0;
+    beamG.visible=!eye;scrG.visible=!eye;objF.visible=objGlow.visible=!(eye&&virt);
+    virtF.material.opacity=eye?1:.65+.3*br;virtF.material.color.setHex(eye?0xffc070:0xc4b0ff);
+    [realF,virtF,vObjF].forEach(faceCamera);
+  }else{beamG.visible=true;}
   drawTrail();updateCam(dt);renderer.render(scene,camera);updateTags();gTick();
   requestAnimationFrame(frame);
 }

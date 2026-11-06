@@ -17,7 +17,8 @@
   --mono:"DM Mono",ui-monospace,Menlo,monospace;
 }
 *{box-sizing:border-box}
-html,body{margin:0;height:100%;overflow:hidden;background:#04060c;color:var(--ink);font-family:var(--sans);-webkit-font-smoothing:antialiased}
+html,body{margin:0;height:100%;overflow:hidden;background:#04060c;color:var(--ink);font-family:var(--sans);-webkit-font-smoothing:antialiased;-webkit-user-select:none;user-select:none}
+.modal,.tbody table,.eqn{-webkit-user-select:text;user-select:text}
 #gl{position:fixed;inset:0;width:100vw;height:100vh;display:block;cursor:grab;touch-action:none}
 #gl.drag{cursor:grabbing} #gl.can{cursor:move}
 .mono{font-family:var(--mono)}
@@ -172,12 +173,12 @@ td .x{background:none;border:0;color:var(--muted);cursor:pointer;font-size:13px}
 
 /* ---------- barra superior ---------- */
 .foot{position:fixed;left:calc(var(--m) + 460px + 16px);right:calc(var(--m) + 380px + 16px);top:24px;display:flex;gap:6px;z-index:3;flex-wrap:wrap;justify-content:center;align-content:flex-start}
-.fbtn{font-family:var(--sans);font-size:14px;font-weight:600;border:0;border-radius:10px;padding:8px 11px;background:var(--panel);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);color:var(--ink);cursor:pointer;display:inline-flex;gap:6px;align-items:center}
+.fbtn{font-family:var(--sans);font-size:14px;font-weight:600;border:0;border-radius:10px;padding:8px 9px;background:var(--panel);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);color:var(--ink);cursor:pointer;display:inline-flex;gap:6px;align-items:center;white-space:nowrap}
 .fbtn:hover{background:rgba(30,38,58,.95)}
 .fbtn.on{background:#eef4ff;color:#101626}
 .fbtn svg{width:14px;height:14px}
 .seg{display:inline-flex;background:var(--panel);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);border-radius:11px;padding:3px}
-.seg button{font-family:var(--sans);font-size:14.5px;font-weight:700;border:0;border-radius:8px;padding:7px 13px;background:transparent;color:var(--ink2);cursor:pointer}
+.seg button{font-family:var(--sans);font-size:14.5px;font-weight:700;border:0;border-radius:8px;padding:7px 10px;background:transparent;color:var(--ink2);cursor:pointer}
 .seg button.on{background:var(--real);color:#06222c}
 
 /* ---------- avisos y guía ---------- */
@@ -197,31 +198,33 @@ td .x{background:none;border:0;color:var(--muted);cursor:pointer;font-size:13px}
 .modal table{font-family:var(--sans);font-size:14px;margin:6px 0}
 .modal td,.modal th{padding:6px;text-align:left;white-space:normal;background:none;position:static;font-size:14px}
 
-/* ---------- proyector ---------- */
+/* ---------- letra grande: solo tamaños y contraste; los anchos cambian únicamente si hay espacio ---------- */
 body.proj{--panel:rgba(5,8,15,.96);--muted:#ccd4e4;--ink2:#eaeef7}
-body.proj .hero{width:520px}
-body.proj .hero h1 .big{font-size:46px}
-body.proj .hero h1 .sub{font-size:20px}
-body.proj .stat .v{font-size:27px}
-body.proj .stat .k,body.proj .stat .u{font-size:15px}
-body.proj .chip,body.proj .more{font-size:15.5px}
+body.proj .stat .k,body.proj .stat .u{font-size:14.5px}
+body.proj .chip,body.proj .more{font-size:15px}
 body.proj .caption,body.proj .guide .gb{font-size:17px}
-body.proj .guide{width:520px}
-body.proj .controls,body.proj .data{width:430px}
+body.proj .guide h3{font-size:20px}
 body.proj .lab{font-size:14.5px}
-body.proj .pill,body.proj .btn{font-size:15.5px}
-body.proj .ctl .top .val{font-size:15.5px}
-body.proj .diag{width:min(720px,calc(100vw - 430px - 3*var(--m) - 16px))}
-body.proj #diagCv{height:220px}
-body.proj .phead h2{font-size:19px}
+body.proj .pill,body.proj .btn{font-size:15px}
+body.proj .ctl .top .val{font-size:15px}
+body.proj .phead h2{font-size:18px}
 body.proj .phead .read,body.proj .eqn,body.proj table,body.proj th,body.proj .fit{font-size:15px}
-body.proj .card .v{font-size:19px}
-body.proj .card.big .v{font-size:30px}
+body.proj .card .v{font-size:18px}
+body.proj .card.big .v{font-size:28px}
 body.proj .card .k,body.proj .card .s{font-size:15px}
-body.proj .tag{font-size:16.5px;padding:7px 11px}
-body.proj .tag .m{font-size:15px}
-body.proj .fbtn,body.proj .seg button{font-size:15.5px}
-body.proj .foot{left:calc(var(--m) + 520px + 16px);right:calc(var(--m) + 430px + 16px)}
+body.proj .tag{font-size:16px;padding:6px 10px}
+body.proj .tag .m{font-size:14.5px}
+body.proj .fbtn,body.proj .seg button{font-size:15px}
+@media (min-width:1600px) and (min-height:760px){
+  body.proj .hero,body.proj .guide{width:520px}
+  body.proj .hero h1 .big{font-size:46px}
+  body.proj .hero h1 .sub{font-size:20px}
+  body.proj .stat .v{font-size:27px}
+  body.proj .controls,body.proj .data{width:430px}
+  body.proj .diag{width:720px}
+  body.proj #diagCv{height:220px}
+  body.proj .foot{left:calc(var(--m) + 520px + 16px);right:calc(var(--m) + 430px + 16px)}
+}
 
 /* ---------- responsive ---------- */
 @media (max-width:1360px){
@@ -232,7 +235,7 @@ body.proj .foot{left:calc(var(--m) + 520px + 16px);right:calc(var(--m) + 430px +
   .diag{width:min(560px,calc(100vw - 350px - 3*var(--m) - 12px))}
   .foot{left:calc(var(--m) + 400px + 12px);right:calc(var(--m) + 350px + 12px)}
 }
-@media (max-width:960px), (max-height:700px){
+@media (max-width:1100px), (max-height:720px){
   :root{--m:20px}
   html,body{overflow:auto;height:auto}
   #gl{position:relative;height:58vh;width:100%}
@@ -245,6 +248,7 @@ body.proj .foot{left:calc(var(--m) + 520px + 16px);right:calc(var(--m) + 430px +
   .tag{font-size:12.5px;padding:4px 7px}.tag .m{font-size:12px}
   .tag.minor{display:none!important}
   .foot{position:relative;left:auto;right:auto;top:auto;margin:12px var(--m) 0}
+  .controls{overflow:visible}
   .guide,.controls,.diag,.data{position:relative;left:auto;right:auto;top:auto!important;bottom:auto;width:auto;max-width:720px;margin:12px auto;max-height:none}
   .guide,.controls,.diag,.data{margin-left:var(--m);margin-right:var(--m)}
   .caption{position:relative}
@@ -280,7 +284,7 @@ body.proj .foot{left:calc(var(--m) + 520px + 16px);right:calc(var(--m) + 430px +
     <button id="mLab">Laboratorio</button>
   </div>
   <button class="fbtn only-lab" id="bGuide">Paso a paso</button>
-  <button class="fbtn" id="bProj" title="Letra grande y más contraste">Proyector</button>
+  <button class="fbtn" id="bProj" title="Agranda textos y sube el contraste para proyectar en clase">Letra grande</button>
   <button class="fbtn" id="bHelp">Guía</button>
   <button class="fbtn" id="bFull" aria-label="Pantalla completa"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M2.5 6V2.5H6M10 2.5h3.5V6M13.5 10v3.5H10M6 13.5H2.5V10"/></svg></button>
 </nav>
@@ -433,7 +437,7 @@ body.proj .foot{left:calc(var(--m) + 520px + 16px);right:calc(var(--m) + 430px +
     <div class="eq">u(1/s) = u_s / s²      f′ = 1/b      u_f′ = u_b / b²</div>
     <p>u<sub>s</sub> = 0.1 cm (cinta métrica). En s′ se suma la profundidad de foco δ = 0.05·s′/D, con D = 10 cm el diámetro de la lente.</p>
     <h3>Atajos</h3>
-    <p><kbd>L</kbd> cambiar de modo · <kbd>V</kbd> vista · <kbd>P</kbd> proyector · <kbd>?</kbd> guía. En Explorar: <kbd>Espacio</kbd> recorrer, <kbd>←</kbd> <kbd>→</kbd> mover, <kbd>T</kbd> estela. En Laboratorio: <kbd>1</kbd> <kbd>2</kbd> <kbd>3</kbd> caso, <kbd>E</kbd> enfocar, <kbd>Enter</kbd> registrar, <kbd>R</kbd> reiniciar, <kbd>G</kbd> paso a paso.</p>
+    <p><kbd>L</kbd> cambiar de modo · <kbd>V</kbd> vista · <kbd>P</kbd> letra grande (para proyectar en clase) · <kbd>?</kbd> guía. En Explorar: <kbd>Espacio</kbd> recorrer, <kbd>←</kbd> <kbd>→</kbd> mover, <kbd>T</kbd> estela. En Laboratorio: <kbd>1</kbd> <kbd>2</kbd> <kbd>3</kbd> caso, <kbd>E</kbd> enfocar, <kbd>Enter</kbd> registrar, <kbd>R</kbd> reiniciar, <kbd>G</kbd> paso a paso.</p>
   </div>
 </div>
 
@@ -536,7 +540,7 @@ function principalRays(xEnd,xBegin){ // plano z = 0: rayo paralelo, por el centr
 
 /* ================= escena ================= */
 const canvas=$('gl');
-const renderer=new THREE.WebGLRenderer({canvas,antialias:true});
+const renderer=new THREE.WebGLRenderer({canvas,antialias:true,stencil:true});
 renderer.setPixelRatio(Math.min(devicePixelRatio,2));
 renderer.toneMapping=THREE.ACESFilmicToneMapping;renderer.toneMappingExposure=1.2;
 const scene=new THREE.Scene();scene.background=new THREE.Color(0x04060c);scene.fog=new THREE.Fog(0x04060c,280,700);
@@ -672,9 +676,15 @@ const face=mesh(new THREE.PlaneGeometry(9.4,9.4),new THREE.MeshStandardMaterial(
 const objF=fPlane(0xffc070,1);objF.position.set(0,Y0,0);objG.add(objF);
 const objSide=fPlane(0xffc070,1);objSide.rotation.y=0;objSide.position.set(-1.8,Y0,5.03);objG.add(objSide);
 const objGlow=glow(0xffb454,14,.55);objGlow.position.set(.6,Y0+H/2,0);objG.add(objGlow);
-function ghostF(color,op){const m=fPlane(color,op);m.material.depthTest=false;m.renderOrder=6;labG.add(m);return m;}
-const realF=ghostF(0x7fe3ff,1),virtF=ghostF(0xc4b0ff,.9),vObjF=ghostF(0xc4b0ff,.7);
-function faceCamera(m){if(m.visible)m.rotation.y=Math.atan2(camera.position.x-m.position.x,camera.position.z-m.position.z);}
+function ghostF(color,op){const m=fPlane(color,op);m.renderOrder=6;labG.add(m);return m;}
+const realF=ghostF(0x7fe3ff,1),virtF=ghostF(0xffc070,1),vObjF=ghostF(0xc4b0ff,.7);
+// La imagen virtual solo existe para quien mira a través de la lente: el disco marca esa zona en el stencil.
+const lensDisc=mesh(new THREE.CircleGeometry(AP,64),new THREE.MeshBasicMaterial({colorWrite:false,depthWrite:false,transparent:true,side:THREE.DoubleSide,stencilWrite:true,stencilRef:1,stencilFunc:THREE.AlwaysStencilFunc,stencilZPass:THREE.ReplaceStencilOp}));
+lensDisc.rotation.y=Math.PI/2;lensDisc.position.y=Y0;lensDisc.renderOrder=5;labG.add(lensDisc);
+const stencil=(m,fn)=>{m.stencilWrite=true;m.stencilRef=1;m.stencilFunc=fn;m.stencilFail=m.stencilZFail=m.stencilZPass=THREE.KeepStencilOp;};
+stencil(virtF.material,THREE.EqualStencilFunc);virtF.material.depthTest=false;   // se ve por la lente aunque el display esté delante
+[objF,objSide].forEach(m=>{stencil(m.material,THREE.NotEqualStencilFunc);m.renderOrder=6;});  // por la lente no se ve la F directa
+stencil(objGlow.material,THREE.NotEqualStencilFunc);objGlow.renderOrder=6;
 const lensRider=rider();labG.add(lensRider);
 const L0G=new THREE.Group();labG.add(L0G);L0G.add(rider(),post(RT+2.4,Y0-4.5));
 (function(){ // lente auxiliar L₀
@@ -800,7 +810,7 @@ function planePoint(e){setNdc(e);const d=camera.getWorldDirection(new THREE.Vect
   const pl=new THREE.Plane().setFromNormalAndCoplanarPoint(n,n.y?new THREE.Vector3():new THREE.Vector3(0,Y0,0)),p=new THREE.Vector3();
   return ray.ray.intersectPlane(pl,p)?{p,floor:!!n.y}:null;}
 let drag=null;const ptrs=new Map();let pinch0=null;
-canvas.addEventListener('pointerdown',e=>{ptrs.set(e.pointerId,{x:e.clientX,y:e.clientY});
+canvas.addEventListener('pointerdown',e=>{e.preventDefault();ptrs.set(e.pointerId,{x:e.clientX,y:e.clientY});
   if(ptrs.size===2){const [a,b]=[...ptrs.values()];pinch0={d:Math.hypot(a.x-b.x,a.y-b.y),dist:cam.dist};drag=null;return;}
   const what=pickAt(e),q=what&&planePoint(e);
   if(q){stopSweep();focusAnim=null;
@@ -868,7 +878,7 @@ function placeAll(){
     objG.visible=S.mode!=='inf';objG.position.x=XD();farG.visible=S.mode==='inf';L0G.visible=S.mode==='virt';L0G.position.x=XL0();scrG.position.x=S.xs;
     const kF=fin?im.yp/H:1;
     realF.visible=fin&&im.real&&im.sp<S.xs-.6;if(realF.visible){realF.position.set(im.sp,Y0,0);realF.scale.set(kF,kF,1);}
-    virtF.visible=fin&&!im.real&&S.ext;if(virtF.visible){virtF.position.set(im.sp,Y0,0);virtF.scale.set(kF,kF,1);}
+    virtF.userData.on=fin&&!im.real;if(virtF.userData.on){virtF.position.set(im.sp,Y0,0);virtF.scale.set(kF,kF,1);}
     vObjF.visible=S.mode==='virt'&&S.ext;if(vObjF.visible){vObjF.position.set(S.sv,Y0,0);vObjF.scale.set(-1,-1,1);}
     objLight.position.set(XD()+3,Y0+2,4);objLight.intensity=S.mode==='inf'?0:900;drawScreen();
   }else objLight.intensity=0;
@@ -897,7 +907,7 @@ function explain(){
     if(S.mode==='inf')return `Los rayos del objeto lejano llegan casi paralelos, así que se cruzan muy cerca de <b class="foc">F′</b>. Como el objeto no está realmente en el infinito, la imagen queda un poco más allá. ${sharpness(scrInfo.blur)>.8?'La pantalla está en ese plano: ya puedes registrar.':`Mueve la pantalla hacia la ${dx>0?'derecha':'izquierda'} hasta verla nítida.`}`;
     if(S.mode==='virt')return `L₀ manda un haz que iba a juntarse detrás de la lente: ese punto es un <b class="virt">objeto virtual</b>. La lente adelanta el cruce y la imagen sale <b class="real">real</b>, más cerca que el objeto virtual.`;
     if(!Number.isFinite(im.sp))return `El objeto está justo en el foco: los rayos salen paralelos y en la pantalla solo hay una mancha.`;
-    if(!im.real)return `Con el objeto dentro de la distancia focal, los rayos salen abiertos y nunca se cruzan. Solo se cruzan sus prolongaciones, por eso la pantalla no la recoge, pero el ojo sí la ve. Mírala con la vista <b>Ojo tras la lente</b>.`;
+    if(!im.real)return `Con el objeto dentro de la distancia focal, los rayos salen abiertos y nunca se cruzan. Solo se cruzan sus prolongaciones, por eso la pantalla no la recoge. Solo se ve mirando a través de la lente: usa la vista <b>Ojo tras la lente</b>.`;
     return `Los rayos se cruzan de verdad en el plano de la imagen: en el aire no se ve, pero una pantalla ahí la recoge nítida. ${sharpness(scrInfo.blur)>.8?'La pantalla ya está en ese plano.':dx>0?'La pantalla está antes de ese plano: aléjala de la lente.':'La pantalla ya pasó ese plano: acércala a la lente.'}`;
   }
   if(!Number.isFinite(f))return `Con estos radios la lente no desvía la luz: la imagen coincide con el objeto.`;
@@ -1222,7 +1232,7 @@ const STEPS=[
    do:['Ver gráfica',()=>setTab('plot')],ok:()=>data.rows.length>=3,enter:()=>setTab('plot')},
   {t:'Comparar f′',b:()=>`Compara f′ de la gráfica con f′∞. Si el objeto lejano no está suficientemente lejos, f′∞ sale un poco mayor.`,
    do:['Ver resultados',()=>setTab('res')],ok:()=>results().err!==undefined,enter:()=>setTab('res')},
-  {t:'Imagen virtual (lupa)',b:()=>`Con el objeto dentro de F, mirando por la lente se ve la <b class="obj">F</b> derecha y mayor: es la imagen <b class="virt">virtual</b>. En la pantalla no aparece, porque ahí los rayos no se cruzan: solo llega luz difusa.`,
+  {t:'Imagen virtual (lupa)',b:()=>`Mirando <b>a través de la lente</b> se ve la <b class="obj">F</b> derecha y mayor: es la imagen <b class="virt">virtual</b>. Gira la escena: por fuera de la lente desaparece y vuelve a verse la F pequeña. En la pantalla nunca aparece, porque ahí los rayos no se cruzan.`,
    do:['Ver de lado',()=>goView(view==='eye'?'side':'eye')],ok:()=>S.mode==='real'&&image().sp<0,enter:()=>{setMode('real');setPos(-fP()*.6);goView('eye');setTab('scr');}},
   {t:'Objeto virtual',b:()=>`L₀ forma un haz que iba a juntarse detrás de la lente: ese punto es un <b class="virt">objeto virtual</b> (s &gt; 0). La lente adelanta el cruce y la imagen sale <b class="real">real</b>.`,
    do:['Enfocar',()=>focus()],ok:()=>S.mode==='virt'&&sharpness(scrInfo.blur)>.8,enter:()=>{setMode('virt');goView('side');setTab('scr');}},
@@ -1236,7 +1246,7 @@ function gGo(i,keep){gi=Math.max(0,Math.min(STEPS.length-1,i));const st=STEPS[gi
   $('gPrev').disabled=gi===0;$('gNext').disabled=gi===STEPS.length-1;gTick();placeGuide();}
 function gTick(){if(!gOn)return;$('gOk').textContent=STEPS[gi].ok()?'✓ listo':'';if(gi===5){const t=view==='eye'?'Ver de lado':'Mirar por la lente';if($('gDo').textContent!==t)$('gDo').textContent=t;}}
 $('gNext').onclick=()=>gGo(gi+1);$('gPrev').onclick=()=>gGo(gi-1);$('gClose').onclick=()=>setGuide(false);$('bGuide').onclick=()=>setGuide(!gOn);
-const isWide=()=>innerWidth>960&&innerHeight>700;
+const isWide=()=>innerWidth>1100&&innerHeight>720;
 function placeGuide(){if(!gOn)return;if(!isWide()){$('guide').style.top='';return;}$('guide').style.top=Math.round(document.querySelector('.hero').getBoundingClientRect().bottom+10)+'px';}
 
 addEventListener('keydown',e=>{
@@ -1286,10 +1296,9 @@ function frame(now){
   virtA.mat.opacity=.5+.3*br;vObjA.mat.opacity=.5+.3*br;virtA.aMat.opacity=vObjA.aMat.opacity=.14+.14*br;virtA.gl.material.opacity=vObjA.gl.material.opacity=.4+.3*br;
   objGlow.material.opacity=.5+.05*Math.sin(tt*3.1);
   if(isLab()){
-    const eye=view==='eye'&&!cam.anim,virt=image().sp<0;
-    beamG.visible=!eye;scrG.visible=!eye;objF.visible=objGlow.visible=!(eye&&virt);
-    virtF.material.opacity=eye?1:.65+.3*br;virtF.material.color.setHex(eye?0xffc070:0xc4b0ff);
-    [realF,virtF,vObjF].forEach(faceCamera);
+    const eye=view==='eye'&&!cam.anim,seen=!!virtF.userData.on&&camera.position.x>.5;
+    beamG.visible=!eye;scrG.visible=!eye;
+    lensDisc.visible=virtF.visible=seen;
   }else{beamG.visible=true;}
   drawTrail();updateCam(dt);renderer.render(scene,camera);updateTags();gTick();
   requestAnimationFrame(frame);
@@ -1300,7 +1309,7 @@ syncLensUI();syncLabUI();
 setApp(location.hash==='#laboratorio'?'lab':'explore',true);
 document.fonts&&document.fonts.ready.then(()=>{layout();dirty=true;});
 requestAnimationFrame(frame);
-window.__lens={camera,canvas,S,data,image,results,setApp,setMode,setPos,setScr,focus,record,goView,setTab,setProj,P,fP,trail,onScreen:()=>scrInfo,sharpness};
+window.__lens={cam,camera,canvas,layout,S,data,image,results,setApp,setMode,setPos,setScr,focus,record,goView,setTab,setProj,P,fP,trail,onScreen:()=>scrInfo,sharpness};
 })();
 </script>
 </body>

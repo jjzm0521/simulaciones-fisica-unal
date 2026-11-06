@@ -12,7 +12,8 @@ Diagrama de rayos: siempre visible, se redibuja al mover cualquier elemento.
 Panel de pestañas: Mapa s′–s (la curva se puede arrastrar) y Lente por dentro (radios, centros C₁ y C₂, cuenta de f′).
 Colores: ámbar = objeto y luz, cian = real, violeta punteado = virtual, verde = focos.
 La explicación de cada caso está detrás del botón "+ Por qué".
-Atajos: L cambia de modo, V vista, P proyector, ? guía.
+Letra grande (P): agranda textos y sube el contraste para proyectar en clase, sin cambiar la distribución.
+Atajos: L cambia de modo, V vista, P letra grande, ? guía.
 
 EXPLORAR (libre)
 Objeto: flecha que se arrastra a lo largo y en altura. Detrás de la lente se vuelve OBJETO VIRTUAL.
@@ -24,8 +25,8 @@ Vistas: Perspectiva, Lateral, Rasante, Planta. Otros atajos: ← → mover, T es
 
 LABORATORIO (práctica "La lente convergente", Escuela de Física, sede Medellín)
 Riel con cinta métrica, objeto luminoso (una F), lente y pantalla. La imagen en la pantalla se desenfoca de verdad.
-La imagen también es una F: cian si es real (flota en el aire), violeta si es virtual. En la imagen virtual la pantalla queda sin F;
-la vista "Ojo tras la lente" muestra la F derecha y mayor, como en una lupa.
+La imagen real es una F cian en su plano, perpendicular al eje. La imagen virtual solo se ve MIRANDO A TRAVÉS DE LA LENTE: F derecha y mayor;
+por fuera de la lente se ve la F pequeña y la pantalla nunca la recoge. La vista "Ojo tras la lente" lleva directo a ese punto de vista.
 Objeto en ∞: objeto lejano a D metros → f′∞.
 Objeto real: 5 distancias separadas 5 a 10 cm, s y s′ con incertidumbre. Si la imagen cae fuera del riel no se puede registrar.
 Objeto virtual: lente auxiliar L₀ (f₀ = 12 cm, a 2f₀–2f₀) que manda un haz convergente.

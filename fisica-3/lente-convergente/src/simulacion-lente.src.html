@@ -179,6 +179,9 @@ td .x{background:none;border:0;color:var(--muted);cursor:pointer;font-size:13px}
 .fbtn:hover{background:rgba(30,38,58,.95)}
 .fbtn.on{background:#eef4ff;color:#101626}
 .fbtn svg{width:14px;height:14px}
+.fsize{gap:1px;align-items:baseline;line-height:1}
+.fsize .a1{font-size:12px}
+.fsize .a2{font-size:18px}
 .seg{display:inline-flex;background:var(--panel);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);border-radius:11px;padding:3px}
 .seg button{font-family:var(--sans);font-size:14.5px;font-weight:700;border:0;border-radius:8px;padding:7px 10px;background:transparent;color:var(--ink2);cursor:pointer}
 .seg button.on{background:var(--real);color:#06222c}
@@ -317,7 +320,7 @@ html.day .modal .box{background:#fff}
     <button id="mLab">Laboratorio</button>
   </div>
   <button class="fbtn only-lab" id="bGuide">Paso a paso</button>
-  <button class="fbtn" id="bProj" title="Agranda textos y sube el contraste para proyectar en clase">Letra grande</button>
+  <button class="fbtn fsize" id="bProj" title="Letra grande: agranda textos y sube el contraste para proyectar en clase (P)" aria-label="Letra grande"><span class="a1">A</span><span class="a2">A</span></button>
   <button class="fbtn" id="bTheme"></button>
   <button class="fbtn" id="bHelp">Guía</button>
   <button class="fbtn" id="bFull" aria-label="Pantalla completa"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M2.5 6V2.5H6M10 2.5h3.5V6M13.5 10v3.5H10M6 13.5H2.5V10"/></svg></button>

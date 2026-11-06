@@ -13,7 +13,8 @@ Panel de pestañas: Mapa s′–s (la curva se puede arrastrar) y Lente por dent
 Colores: ámbar = objeto y luz, cian = real, violeta punteado = virtual, verde = focos.
 La explicación de cada caso está detrás del botón "+ Por qué".
 Letra grande (P): agranda textos y sube el contraste para proyectar en clase, sin cambiar la distribución.
-Atajos: L cambia de modo, V vista, P letra grande, ? guía.
+Modo día/noche (botón sol/luna o N): se recuerda al volver a abrir. En día, la F luminosa y la pantalla siguen oscuras porque emiten o recogen luz.
+Atajos: L cambia de modo, V vista, P letra grande, N día/noche, ? guía.
 
 EXPLORAR (libre)
 Objeto: flecha que se arrastra a lo largo y en altura. Detrás de la lente se vuelve OBJETO VIRTUAL.

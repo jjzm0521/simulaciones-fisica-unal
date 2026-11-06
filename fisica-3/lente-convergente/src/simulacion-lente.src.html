@@ -590,8 +590,8 @@ function principalRays(xEnd,xBegin){ // plano z = 0: rayo paralelo, por el centr
 const canvas=$('gl');
 const renderer=new THREE.WebGLRenderer({canvas,antialias:true,stencil:true});
 renderer.setPixelRatio(Math.min(devicePixelRatio,2));
-renderer.toneMapping=THREE.ACESFilmicToneMapping;renderer.toneMappingExposure=1.2;
-const scene=new THREE.Scene();scene.background=new THREE.Color(0x04060c);scene.fog=new THREE.Fog(0x04060c,280,700);
+renderer.toneMapping=THREE.ACESFilmicToneMapping;renderer.toneMappingExposure=1.2;renderer.autoClear=false;renderer.setClearColor(0x04060c,1);
+const scene=new THREE.Scene();scene.fog=new THREE.Fog(0x04060c,280,700);
 const camera=new THREE.PerspectiveCamera(32,1,1,3000);
 const hemi=new THREE.HemisphereLight(0x9fb8ff,0x1a1208,.7);scene.add(hemi);
 const key=new THREE.DirectionalLight(0xffffff,1);key.position.set(40,120,90);scene.add(key);
@@ -612,23 +612,28 @@ const GT=glowTex();
 function glow(color,size,op=1){const s=new THREE.Sprite(new THREE.SpriteMaterial({map:GT,color:tc(color),transparent:true,opacity:day?op*.35:op,blending:BL(),depthWrite:false,toneMapped:false}));s.scale.set(size,size,1);return s;}
 
 /* ---------- mesa: piso con ejes (común a los dos modos) ---------- */
+const floorL=[];
 (function floor(){
   const base=mesh(new THREE.PlaneGeometry(700,420),new THREE.MeshStandardMaterial({color:0x070b14,roughness:.8,metalness:.15}));base.rotation.x=-Math.PI/2;scene.add(base);
+  const baseL=mesh(new THREE.PlaneGeometry(350,420),base.material);baseL.rotation.x=-Math.PI/2;baseL.position.x=-175;floorL.push(baseL);
   const zone=(x0,x1,col)=>{const cv=document.createElement('canvas');cv.width=256;cv.height=4;const c=cv.getContext('2d');const g=c.createLinearGradient(0,0,256,0);
     const c0=col.replace(/[\d.]+\)$/,'0)');if(x0<0){g.addColorStop(0,c0);g.addColorStop(1,col);}else{g.addColorStop(0,col);g.addColorStop(1,c0);}c.fillStyle=g;c.fillRect(0,0,256,4);
-    const m=mesh(new THREE.PlaneGeometry(x1-x0,70),new THREE.MeshBasicMaterial({map:new THREE.CanvasTexture(cv),transparent:true,blending:THREE.AdditiveBlending,depthWrite:false}));m.rotation.x=-Math.PI/2;m.position.set((x0+x1)/2,.02,0);scene.add(m);};
+    const m=mesh(new THREE.PlaneGeometry(x1-x0,70),new THREE.MeshBasicMaterial({map:new THREE.CanvasTexture(cv),transparent:true,blending:THREE.AdditiveBlending,depthWrite:false}));m.rotation.x=-Math.PI/2;m.position.set((x0+x1)/2,.02,0);scene.add(m);if(x0<0){m.renderOrder=1;floorL.push(m);}};
   zone(XMIN,0,'rgba(255,180,84,.16)');zone(0,XMAX,'rgba(127,227,255,.14)');
   const pts=[],pts2=[];
   for(let x=-110;x<=120;x+=5)(x%10===0?pts2:pts).push(new THREE.Vector3(x,.04,-35),new THREE.Vector3(x,.04,35));
   for(let z=-35;z<=35;z+=5)(z%10===0?pts2:pts).push(new THREE.Vector3(XMIN,.04,z),new THREE.Vector3(XMAX,.04,z));
   scene.add(new THREE.LineSegments(new THREE.BufferGeometry().setFromPoints(pts),new THREE.LineBasicMaterial({color:0x2a3550,transparent:true,opacity:.4})));
   scene.add(new THREE.LineSegments(new THREE.BufferGeometry().setFromPoints(pts2),new THREE.LineBasicMaterial({color:0x3c4c70,transparent:true,opacity:.65})));
+  const cut=[pts,pts2].map(p=>{const q=[];for(let i=0;i<p.length;i+=2){const a=p[i],b=p[i+1];if(Math.min(a.x,b.x)>0)continue;q.push(a,new THREE.Vector3(Math.min(b.x,0),b.y,b.z));}return q;});
+  [[cut[0],0x2a3550,.4],[cut[1],0x3c4c70,.65]].forEach(([q,color,opacity])=>{const l=new THREE.LineSegments(new THREE.BufferGeometry().setFromPoints(q),new THREE.LineBasicMaterial({color,transparent:true,opacity}));l.renderOrder=2;floorL.push(l);});
+  const axL=mesh(new THREE.BoxGeometry(-XMIN,.06,.35),new THREE.MeshBasicMaterial({color:0x8f9ab3,transparent:true,opacity:.5}));axL.position.set(XMIN/2,.06,0);axL.renderOrder=2;floorL.push(axL);
   const ax=mesh(new THREE.BoxGeometry(XMAX-XMIN,.06,.35),new THREE.MeshBasicMaterial({color:0x8f9ab3,transparent:true,opacity:.5}));ax.position.set((XMAX+XMIN)/2,.06,0);scene.add(ax);
   const lp=mesh(new THREE.BoxGeometry(.35,.06,70),new THREE.MeshBasicMaterial({color:0x7fe3ff}));lp.position.set(0,.07,0);scene.add(lp);
   for(let x=-100;x<=100;x+=20){if(!x)continue;const cv=document.createElement('canvas');cv.width=128;cv.height=64;const c=cv.getContext('2d');c.font='500 44px "DM Mono", Menlo, monospace';c.fillStyle='#fff';c.textAlign='center';c.textBaseline='middle';c.fillText((x>0?'+':'−')+Math.abs(x),64,32);
-    const m=mesh(new THREE.PlaneGeometry(9,4.5),new THREE.MeshBasicMaterial({map:new THREE.CanvasTexture(cv),color:x<0?0xffb454:0x7fe3ff,transparent:true,opacity:.9,depthWrite:false}));m.rotation.x=-Math.PI/2;m.position.set(x,.08,26);scene.add(m);}
+    const m=mesh(new THREE.PlaneGeometry(9,4.5),new THREE.MeshBasicMaterial({map:new THREE.CanvasTexture(cv),color:x<0?0xffb454:0x7fe3ff,transparent:true,opacity:.9,depthWrite:false}));m.rotation.x=-Math.PI/2;m.position.set(x,.08,26);scene.add(m);if(x<0){m.renderOrder=3;floorL.push(m);}}
   const word=(txt,x,col)=>{const cv=document.createElement('canvas');cv.width=1024;cv.height=96;const c=cv.getContext('2d');c.font='700 56px Outfit, Arial';c.fillStyle='#fff';c.textAlign='center';c.textBaseline='middle';c.fillText(txt,512,48);
-    const m=mesh(new THREE.PlaneGeometry(68,6.4),new THREE.MeshBasicMaterial({map:new THREE.CanvasTexture(cv),color:col,transparent:true,opacity:.7,depthWrite:false}));m.rotation.x=-Math.PI/2;m.position.set(x,.08,32);scene.add(m);};
+    const m=mesh(new THREE.PlaneGeometry(68,6.4),new THREE.MeshBasicMaterial({map:new THREE.CanvasTexture(cv),color:col,transparent:true,opacity:.7,depthWrite:false}));m.rotation.x=-Math.PI/2;m.position.set(x,.08,32);scene.add(m);if(x<0){m.renderOrder=3;floorL.push(m);}};
   word('LA LUZ LLEGA  ·  s < 0',-50,0xffb454);word('LA LUZ SALE  ·  s′ > 0',50,0x7fe3ff);
 })();
 const axisLine=new THREE.Line(new THREE.BufferGeometry().setFromPoints([W3(XMIN,0),W3(XMAX,0)]),new THREE.LineDashedMaterial({color:0xb4bed3,dashSize:1.4,gapSize:1.1,transparent:true,opacity:.6}));
@@ -703,6 +708,7 @@ const F2m=mesh(new THREE.RingGeometry(.7,.9,32),addMat(0x7dffb0,.45)),F2p=F2m.cl
 const labG=new THREE.Group();scene.add(labG);
 const rail=mesh(new THREE.BoxGeometry(XMAX-XMIN,RT,6),M.alu);rail.position.set((XMIN+XMAX)/2,RT/2,0);labG.add(rail);
 const groove=mesh(new THREE.BoxGeometry(XMAX-XMIN,.3,1.6),M.black);groove.position.set((XMIN+XMAX)/2,RT+.05,0);labG.add(groove);
+let tapeL;
 (function tape(){
   const L=XMAX-XMIN,ppc=18,cv=document.createElement('canvas');cv.width=Math.round(L*ppc);cv.height=64;const c=cv.getContext('2d');
   c.fillStyle='#e9c44a';c.fillRect(0,0,cv.width,64);c.fillStyle='#1b1406';
@@ -711,6 +717,8 @@ const groove=mesh(new THREE.BoxGeometry(XMAX-XMIN,.3,1.6),M.black);groove.positi
   for(let cm=0;cm<=L;cm+=10)c.fillText(String(cm),cm*ppc+4,62);
   const t=new THREE.CanvasTexture(cv);t.colorSpace=THREE.SRGBColorSpace;t.anisotropy=8;
   const m=mesh(new THREE.PlaneGeometry(L,2.6),new THREE.MeshStandardMaterial({map:t,roughness:.6,emissive:0xffffff,emissiveMap:t,emissiveIntensity:.25}));m.position.set((XMIN+XMAX)/2,RT/2,3.02);labG.add(m);
+  const gL=new THREE.PlaneGeometry(-XMIN,2.6),uv=gL.attributes.uv;for(let i=0;i<uv.count;i++)uv.setX(i,uv.getX(i)*(-XMIN/L));
+  tapeL=mesh(gL,new THREE.MeshBasicMaterial({map:t}));tapeL.position.set(XMIN/2,RT/2,3.02);
 })();
 function rider(){const g=new THREE.Group(),b=mesh(new THREE.BoxGeometry(6,2.4,9),M.dark);b.position.y=RT+1.2;g.add(b);const k=mesh(new THREE.CylinderGeometry(.8,.8,1.6,16),M.alu);k.rotation.x=Math.PI/2;k.position.set(0,RT+1.2,5.2);g.add(k);return g;}
 function post(y0,y1){const p=mesh(new THREE.CylinderGeometry(.5,.5,y1-y0,16),M.alu);p.position.y=(y0+y1)/2;return p;}
@@ -726,14 +734,10 @@ const objF=fPlane(0xffc070,1);objF.position.set(0,Y0,0);objG.add(objF);
 const objSide=fPlane(0xffc070,1);objSide.rotation.y=0;objSide.position.set(-1.8,Y0,5.03);objG.add(objSide);
 const objGlow=glow(0xffb454,14,.55);objGlow.position.set(.6,Y0+H/2,0);objG.add(objGlow);
 function ghostF(color,op){const m=fPlane(color,op);m.renderOrder=6;labG.add(m);return m;}
-const virtF=ghostF(0xffc070,1),vObjF=ghostF(0xc4b0ff,.7);virtF.material.fog=false;
-// Lo que se ve a través de la lente: el disco marca esa zona en el stencil y ahí se dibuja la F que ve el ojo.
-const lensDisc=mesh(new THREE.CircleGeometry(AP,64),new THREE.MeshBasicMaterial({color:0x070a12,opacity:.86,toneMapped:false,depthWrite:false,transparent:true,side:THREE.DoubleSide,stencilWrite:true,stencilRef:1,stencilFunc:THREE.AlwaysStencilFunc,stencilZPass:THREE.ReplaceStencilOp}));
-lensDisc.rotation.y=Math.PI/2;lensDisc.position.y=Y0;lensDisc.renderOrder=5;labG.add(lensDisc);
-const stencil=(m,fn)=>{m.stencilWrite=true;m.stencilRef=1;m.stencilFunc=fn;m.stencilFail=m.stencilZFail=m.stencilZPass=THREE.KeepStencilOp;};
-stencil(virtF.material,THREE.EqualStencilFunc);virtF.material.depthTest=false;   // se ve por la lente aunque el display esté delante
-[objF,objSide].forEach(m=>{stencil(m.material,THREE.NotEqualStencilFunc);m.renderOrder=6;});  // por la lente no se ve la F directa
-stencil(objGlow.material,THREE.NotEqualStencilFunc);objGlow.renderOrder=6;
+const vObjF=ghostF(0xc4b0ff,.7);
+// Tapa de profundidad: por detrás de ella no se dibuja la escena, ahí queda lo que se ve a través de la lente.
+const lensDisc=mesh(new THREE.CircleGeometry(AP,64),new THREE.MeshBasicMaterial({colorWrite:false,side:THREE.DoubleSide}));
+lensDisc.rotation.y=Math.PI/2;lensDisc.position.y=Y0;lensDisc.renderOrder=-10;labG.add(lensDisc);
 [objF,objSide,objGlow].forEach(m=>{m.material.userData.keep=true;});
 const lensRider=rider();labG.add(lensRider);
 const L0G=new THREE.Group();labG.add(L0G);L0G.add(rider(),post(RT+2.4,Y0-4.5));
@@ -753,6 +757,77 @@ const farG=new THREE.Group();labG.add(farG);
 const farF=fPlane(0xffc070,1);farF.scale.set(9,9,1);farF.material.fog=false;farG.add(farF);
 const farGlow=glow(0xffb454,60,.35);farGlow.material.fog=false;farGlow.position.set(0,14,0);farG.add(farGlow);
 farG.position.set(-300,8,-40);
+
+/* ---------- lo que se ve a través de la lente ----------
+   Una lente delgada transforma todo el espacio con la misma regla: s′ = s/(1 + P·s), y′ = y/(1 + P·s), z′ = z/(1 + P·s).
+   Es una matriz 4×4, así que se aplica a una copia de lo que está antes de la lente (panel, riel, cinta, piso, L₀).
+   Por eso el panel y la F crecen, se voltean y se mueven juntos, y la vista es correcta desde cualquier ángulo. */
+const thruScene=new THREE.Scene();
+const THRU_COL=new Map([[M.alu,0x59616e],[M.dark,0x1c2333],[M.black,0x0e121b]]);
+DAY3[0x59616e]=0x9aa4b3;
+const thruMats=[],thruCache=new Map();
+function thruM(m){
+  if(thruCache.has(m))return thruCache.get(m);
+  const o={transparent:m.transparent,opacity:m.opacity,blending:m.blending,depthWrite:m.depthWrite,toneMapped:false,fog:false,stencilWrite:true,stencilRef:1,stencilFunc:THREE.EqualStencilFunc,stencilFail:THREE.KeepStencilOp,stencilZFail:THREE.KeepStencilOp,stencilZPass:THREE.KeepStencilOp};
+  let n;
+  if(m.isLineBasicMaterial)n=new THREE.LineBasicMaterial({...o,color:m.color.getHex()});
+  else{const c=THRU_COL.has(m)?THRU_COL.get(m):m===face.material?0x2a1c0a:m.color.getHex();n=new THREE.MeshBasicMaterial({...o,color:c,map:m.map||null,side:THREE.DoubleSide});}
+  if(m.userData.keep)n.userData.keep=true;
+  thruCache.set(m,n);thruMats.push(n);return n;
+}
+function thruClone(o){
+  const c=o.clone(true),drop=[];
+  c.traverse(q=>{q.frustumCulled=false;if(q.isSprite||(q.material&&q.material.isMeshPhysicalMaterial))drop.push(q);else if(q.material)q.material=thruM(q.material);});
+  drop.forEach(q=>q.parent&&q.parent.remove(q));return c;
+}
+const tCommon=new THREE.Group(),tObj=new THREE.Group(),tHole=new THREE.Group();thruScene.add(tCommon,tObj,tHole);
+floorL.forEach(o=>tCommon.add(thruClone(o)));
+(function(){const a=mesh(new THREE.BoxGeometry(-XMIN,RT,6),M.alu),b=mesh(new THREE.BoxGeometry(-XMIN,.3,1.6),M.black);a.position.set(XMIN/2,RT/2,0);b.position.set(XMIN/2,RT+.05,0);tCommon.add(thruClone(a),thruClone(b),thruClone(tapeL));})();
+const tObjG=thruClone(objG),tL0=thruClone(L0G),tFar=thruClone(farF);tCommon.add(tL0);tObj.add(tObjG,tFar);
+const stencilDisc=mesh(new THREE.CircleGeometry(AP,64),new THREE.MeshBasicMaterial({colorWrite:false,depthWrite:false,depthTest:false,side:THREE.DoubleSide,stencilWrite:true,stencilRef:1,stencilFunc:THREE.AlwaysStencilFunc,stencilZPass:THREE.ReplaceStencilOp}));
+stencilDisc.rotation.y=Math.PI/2;stencilDisc.position.y=Y0;stencilDisc.frustumCulled=false;thruScene.add(stencilDisc);
+const L0Hole=new THREE.MeshBasicMaterial({color:0x04060c,toneMapped:false,fog:false,depthWrite:false,side:THREE.DoubleSide,stencilWrite:true,stencilRef:1,stencilFunc:THREE.EqualStencilFunc,stencilZPass:THREE.IncrementWrapStencilOp});
+const L0Disc=mesh(new THREE.CircleGeometry(3.5,48),L0Hole);L0Disc.rotation.y=Math.PI/2;L0Disc.position.y=Y0;L0Disc.frustumCulled=false;tHole.add(L0Disc);
+const lensCam=new THREE.PerspectiveCamera();lensCam.matrixWorldAutoUpdate=false;
+const elemMat=(x,p)=>new THREE.Matrix4().makeTranslation(x,Y0,0).multiply(new THREE.Matrix4().set(1,0,0,0,0,1,0,0,0,0,1,0,p,0,0,1)).multiply(new THREE.Matrix4().makeTranslation(-x,-Y0,0));
+function showThru(common,obj,hole,disc){tCommon.visible=common;tObj.visible=obj;tHole.visible=hole;stencilDisc.visible=disc;}
+/* Tres zonas, de la más lejana a la más cercana a la lente:
+   imagen real delante del ojo (invertida), imagen real detrás del ojo (derecha) e imagen virtual (derecha). */
+function passes(T){
+  const V=camera.matrixWorldInverse,M_=new THREE.Matrix4().multiplyMatrices(V,T),e=lensCam.projectionMatrix.elements;
+  lensCam.projectionMatrix.copy(camera.projectionMatrix);
+  renderer.clearDepth();lensCam.matrixWorldInverse.copy(M_).multiplyScalar(-1);renderer.render(thruScene,lensCam);
+  e[10]=1;e[14]=-2;   // detrás del ojo: la profundidad se invierte porque lo más cercano a la lente queda más lejos
+  renderer.clearDepth();lensCam.matrixWorldInverse.copy(M_);renderer.render(thruScene,lensCam);
+  lensCam.projectionMatrix.copy(camera.projectionMatrix);
+  renderer.clearDepth();lensCam.matrixWorldInverse.copy(M_);renderer.render(thruScene,lensCam);
+}
+function renderThrough(){
+  camera.updateMatrixWorld();
+  showThru(false,false,false,true);renderer.render(thruScene,camera);
+  const inf=S.mode==='inf',virt=S.mode==='virt';
+  tObjG.visible=!inf;tObjG.position.x=XD();tL0.visible=virt;tL0.position.x=XL0();L0Disc.position.x=XL0();
+  tFar.visible=inf;if(inf){const o=mainObj(),k=o.y/H;tFar.position.set(o.s,Y0,0);tFar.scale.set(k,k,1);}
+  lensCam.matrixWorld.copy(camera.matrixWorld);
+  thruMats.forEach(m=>{m.stencilRef=1;});
+  const Tm=elemMat(0,P());
+  showThru(true,true,false,false);passes(Tm);
+  if(virt){ // por L₀ se ve el display con las dos lentes; alrededor de L₀, solo con la principal
+    lensCam.projectionMatrix.copy(camera.projectionMatrix);lensCam.matrixWorldInverse.multiplyMatrices(camera.matrixWorldInverse,Tm);
+    showThru(false,false,true,false);renderer.clearDepth();renderer.render(thruScene,lensCam);
+    thruMats.forEach(m=>{m.stencilRef=2;});
+    showThru(false,true,false,false);passes(new THREE.Matrix4().multiplyMatrices(Tm,elemMat(XL0(),1/F0)));
+  }
+  renderer.clearDepth();renderer.clearStencil();
+}
+let glassThin=false;
+function setGlass(thin){if(glassThin!==thin){glassThin=thin;lensMat.transmission=thin?0:1;lensMat.needsUpdate=true;}lensMat.opacity=thin?.12:.92;}
+function renderAll(){
+  const thru=isLab()&&camera.position.x>2;
+  lensDisc.visible=thru;setGlass(thru);renderer.clear();
+  if(thru)renderThrough();
+  renderer.render(scene,camera);
+}
 
 /* ---------- haces y rayos ---------- */
 const beamG=new THREE.Group();scene.add(beamG);
@@ -931,17 +1006,6 @@ function placeAll(){
   }else objLight.intensity=0;
   buildBeams();pushTrail(im);updateHUD();drawDiagram();drawTab();
   dirty=false;
-}
-/* La misma fórmula para imagen virtual, real delante del ojo y real detrás del ojo.
-   Una homotecia de factor k respecto al ojo no cambia lo que este ve: permite acercar una imagen muy lejana
-   sin alterar su tamaño aparente, que tiende a h/f′ por ambos lados de F. Con k < 0 (imagen detrás del ojo)
-   la F se ve derecha; al pasar la imagen por el ojo se voltea, como en una lente real. */
-function placeThrough(){
-  const C=camera.position,seen=C.x>.5;lensDisc.visible=virtF.visible=seen;if(!seen)return;
-  const o=mainObj(),i0=P()+1/o.s,inv=Math.abs(i0)<1e-6?1e-6:i0,sp=1/inv,yp=sp/o.s*o.y,gap=C.x-sp,D=150;
-  const k=gap>0?Math.min(1,D/gap):Math.max(-40,D/gap);
-  virtF.position.set(C.x+(sp-C.x)*k,C.y+(Y0-C.y)*k,C.z-C.z*k);
-  const e=yp/H*k;virtF.scale.set(e,e,1);virtF.material.opacity=Math.min(1,Math.abs(gap)/6);
 }
 function setPos(x,h){
   if(isLab()){
@@ -1267,7 +1331,7 @@ const ICON={sun:'<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stro
 function setTheme(d,save){
   day=d;document.documentElement.classList.toggle('day',d);Object.assign(COL,d?COLD:COLN);
   renderer.toneMapping=d?THREE.NoToneMapping:THREE.ACESFilmicToneMapping;
-  const bg=d?0xe9edf3:0x04060c;scene.background.setHex(bg);scene.fog.color.setHex(bg);
+  const bg=d?0xe9edf3:0x04060c;renderer.setClearColor(bg,1);scene.fog.color.setHex(bg);L0Hole.color.setHex(bg);
   hemi.color.setHex(d?0xffffff:0x9fb8ff);hemi.groundColor.setHex(d?0xd8dde6:0x1a1208);hemi.intensity=d?2.4:.7;
   key.intensity=d?1.4:1;rim.intensity=d?.3:.8;M.alu.metalness=d?.25:.85;
   // Los materiales fijos guardan su versión de noche; haces y lente se reconstruyen con el tema nuevo.
@@ -1280,7 +1344,7 @@ function setTheme(d,save){
     m.opacity=d&&m.isSpriteMaterial?n.o*.35:n.o;m.needsUpdate=true;};
   scene.traverse(o=>{if(o.parent===beamG||o.parent===lensG)return;apply(o.material);});
   apply(lensMat);
-  lensDisc.material.opacity=d?.97:.86; // sobre fondo claro, un velo traslúcido deja ver la caja oscura del objeto
+  thruScene.traverse(o=>apply(o.material));L0Hole.color.setHex(bg);
   $('bTheme').innerHTML=d?ICON.moon:ICON.sun;
   const lab=d?'Cambiar a modo noche':'Cambiar a modo día';$('bTheme').title=lab+' (N)';$('bTheme').setAttribute('aria-label',lab);
   if(save)try{localStorage.setItem('lentes-tema',d?'dia':'noche');}catch(e){}
@@ -1314,7 +1378,7 @@ const STEPS=[
    do:['Ver gráfica',()=>setTab('plot')],ok:()=>data.rows.length>=3,enter:()=>setTab('plot')},
   {t:'Comparar f′',b:()=>`Compara f′ de la gráfica con f′∞. Si el objeto lejano no está suficientemente lejos, f′∞ sale un poco mayor.`,
    do:['Ver resultados',()=>setTab('res')],ok:()=>results().err!==undefined,enter:()=>setTab('res')},
-  {t:'Imagen virtual (lupa)',b:()=>`Mirando <b>a través de la lente</b> se ve la <b class="obj">F</b> derecha y mayor: es la imagen <b class="virt">virtual</b>. Gira la escena: por fuera de la lente se ve la F pequeña. Aleja el objeto: la F crece sin saltos al pasar F y se voltea cuando la imagen real se forma delante del ojo.`,
+  {t:'Imagen virtual (lupa)',b:()=>`Mirando <b>a través de la lente</b> se ve la <b class="obj">F</b> derecha y mayor: es la imagen <b class="virt">virtual</b>. Por la lente cambia todo lo que está detrás de ella: panel, riel y piso. Gira la escena y mira desde arriba: el panel y la F se mueven juntos. Aleja el objeto: todo se voltea cuando la imagen real se forma delante del ojo.`,
    do:['Ver de lado',()=>goView(view==='eye'?'side':'eye')],ok:()=>S.mode==='real'&&image().sp<0,enter:()=>{setMode('real');setPos(-fP()*.6);goView('eye');setTab('scr');}},
   {t:'Objeto virtual',b:()=>`L₀ forma un haz que iba a juntarse detrás de la lente: ese punto es un <b class="virt">objeto virtual</b> (s &gt; 0). La lente adelanta el cruce y la imagen sale <b class="real">real</b>.`,
    do:['Enfocar',()=>focus()],ok:()=>S.mode==='virt'&&sharpness(scrInfo.blur)>.8,enter:()=>{setMode('virt');goView('side');setTab('scr');}},
@@ -1380,10 +1444,9 @@ function frame(now){
   objGlow.material.opacity=.5+.05*Math.sin(tt*3.1);
   if(isLab()){
     const eye=view==='eye'&&!cam.anim;
-    beamG.visible=!eye;scrG.visible=!eye;
-    placeThrough();
+    beamG.visible=!eye;scrG.visible=!eye;vObjF.visible=S.mode==='virt'&&S.ext&&!eye;
   }else{beamG.visible=true;}
-  drawTrail();updateCam(dt);renderer.render(scene,camera);updateTags();gTick();
+  drawTrail();updateCam(dt);renderAll();updateTags();gTick();
   requestAnimationFrame(frame);
 }
 
@@ -1393,7 +1456,7 @@ setTheme(document.documentElement.classList.contains('day'));
 setApp(location.hash==='#laboratorio'?'lab':'explore',true);
 document.fonts&&document.fonts.ready.then(()=>{layout();dirty=true;});
 requestAnimationFrame(frame);
-window.__lens={setTheme,DAY3,scene,placeThrough,virtF,cam,camera,canvas,layout,S,data,image,results,setApp,setMode,setPos,setScr,focus,record,goView,setTab,setProj,P,fP,trail,onScreen:()=>scrInfo,sharpness};
+window.__lens={setTheme,DAY3,scene,renderAll,lensCam,tObjG,elemMat,cam,camera,canvas,layout,S,data,image,results,setApp,setMode,setPos,setScr,focus,record,goView,setTab,setProj,P,fP,trail,onScreen:()=>scrInfo,sharpness};
 })();
 </script>
 </body>

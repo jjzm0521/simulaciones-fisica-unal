@@ -26,7 +26,8 @@ Vistas: Perspectiva, Lateral, Rasante, Planta. Otros atajos: ← → mover, T es
 
 LABORATORIO (práctica "La lente convergente", Escuela de Física, sede Medellín)
 Riel con cinta métrica, objeto luminoso (una F), lente y pantalla. La imagen en la pantalla se desenfoca de verdad.
-La imagen solo se ve MIRANDO A TRAVÉS DE LA LENTE; por fuera de ella se ve la F pequeña del objeto. La pantalla solo recoge la imagen real.
+Por la lente se ve TODO lo que está antes de ella transformado con s′ = s/(1 + P·s), y′ = y/(1 + P·s): panel, F, riel, cinta y piso, desde cualquier ángulo.
+Por fuera de la lente se ve el objeto real. La pantalla solo recoge la imagen real.
 Con el ojo fijo, al alejar el objeto: dentro de F se ve derecha y mayor; al cruzar F el tamaño aparente no salta (tiende a h/f′);
 sigue derecha mientras la imagen real se forme detrás del ojo; cuando llega al ojo la F se pierde y luego aparece invertida.
 Es un ojo puntual: no se simula el desenfoque de la imagen cuando se forma detrás del ojo.

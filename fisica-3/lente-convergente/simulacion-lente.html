@@ -436,6 +436,8 @@ body.proj .fbtn,body.proj .seg button{font-size:15px}
     </ol>
     <div class="eq">u(1/s) = u_s / s²      f′ = 1/b      u_f′ = u_b / b²</div>
     <p>u<sub>s</sub> = 0.1 cm (cinta métrica). En s′ se suma la profundidad de foco δ = 0.05·s′/D, con D = 10 cm el diámetro de la lente.</p>
+    <h3>Lo que se ve a través de la lente</h3>
+    <p>Con el ojo en un lugar fijo y el objeto alejándose desde la lente: dentro de F se ve derecha y mayor. Al cruzar F el tamaño aparente no salta, aunque la imagen pase de −∞ a +∞. Sigue derecha mientras la imagen real se forme detrás del ojo. Cuando esa imagen llega al ojo, la F se ve enorme y se pierde; después aparece invertida, porque la imagen real ya está delante del ojo.</p>
     <h3>Atajos</h3>
     <p><kbd>L</kbd> cambiar de modo · <kbd>V</kbd> vista · <kbd>P</kbd> letra grande (para proyectar en clase) · <kbd>?</kbd> guía. En Explorar: <kbd>Espacio</kbd> recorrer, <kbd>←</kbd> <kbd>→</kbd> mover, <kbd>T</kbd> estela. En Laboratorio: <kbd>1</kbd> <kbd>2</kbd> <kbd>3</kbd> caso, <kbd>E</kbd> enfocar, <kbd>Enter</kbd> registrar, <kbd>R</kbd> reiniciar, <kbd>G</kbd> paso a paso.</p>
   </div>
@@ -684,9 +686,9 @@ const objF=fPlane(0xffc070,1);objF.position.set(0,Y0,0);objG.add(objF);
 const objSide=fPlane(0xffc070,1);objSide.rotation.y=0;objSide.position.set(-1.8,Y0,5.03);objG.add(objSide);
 const objGlow=glow(0xffb454,14,.55);objGlow.position.set(.6,Y0+H/2,0);objG.add(objGlow);
 function ghostF(color,op){const m=fPlane(color,op);m.renderOrder=6;labG.add(m);return m;}
-const realF=ghostF(0x7fe3ff,1),virtF=ghostF(0xffc070,1),vObjF=ghostF(0xc4b0ff,.7);
-// La imagen virtual solo existe para quien mira a través de la lente: el disco marca esa zona en el stencil.
-const lensDisc=mesh(new THREE.CircleGeometry(AP,64),new THREE.MeshBasicMaterial({colorWrite:false,depthWrite:false,transparent:true,side:THREE.DoubleSide,stencilWrite:true,stencilRef:1,stencilFunc:THREE.AlwaysStencilFunc,stencilZPass:THREE.ReplaceStencilOp}));
+const virtF=ghostF(0xffc070,1),vObjF=ghostF(0xc4b0ff,.7);virtF.material.fog=false;
+// Lo que se ve a través de la lente: el disco marca esa zona en el stencil y ahí se dibuja la F que ve el ojo.
+const lensDisc=mesh(new THREE.CircleGeometry(AP,64),new THREE.MeshBasicMaterial({color:0x070a12,opacity:.86,toneMapped:false,depthWrite:false,transparent:true,side:THREE.DoubleSide,stencilWrite:true,stencilRef:1,stencilFunc:THREE.AlwaysStencilFunc,stencilZPass:THREE.ReplaceStencilOp}));
 lensDisc.rotation.y=Math.PI/2;lensDisc.position.y=Y0;lensDisc.renderOrder=5;labG.add(lensDisc);
 const stencil=(m,fn)=>{m.stencilWrite=true;m.stencilRef=1;m.stencilFunc=fn;m.stencilFail=m.stencilZFail=m.stencilZPass=THREE.KeepStencilOp;};
 stencil(virtF.material,THREE.EqualStencilFunc);virtF.material.depthTest=false;   // se ve por la lente aunque el display esté delante
@@ -790,7 +792,7 @@ const VIEWS={
   low:()=>({target:new THREE.Vector3(-5,Y0,0),dist:150,az:1.18,pol:1.47}),
   top:()=>({target:new THREE.Vector3(0,0,4),dist:260,az:0,pol:.06}),
   screen:()=>({target:new THREE.Vector3(S.xs,Y0,0),dist:30,az:-1.05,pol:1.48}),
-  eye:()=>{const im=image(),xe=Math.max(24,fP()*1.5),tx=Number.isFinite(im.sp)&&im.sp<0?Math.max(-90,im.sp):Math.min(-10,S.mode==='inf'?-10:XD());return {target:new THREE.Vector3(tx,Y0+.6,0),dist:xe-tx,az:Math.PI/2,pol:Math.PI/2-.01};},
+  eye:()=>{const im=image(),xe=Math.max(24,fP()*1.8),tx=Number.isFinite(im.sp)&&im.sp<0?Math.max(-90,im.sp):Math.min(-10,S.mode==='inf'?-10:XD());return {target:new THREE.Vector3(tx,Y0,0),dist:xe-tx,az:Math.PI/2,pol:Math.PI/2};},
 };
 let view='persp';
 function goView(v,instant){view=v;const t=VIEWS[v]();
@@ -883,14 +885,22 @@ function placeAll(){
   const y0=lab?RT+2.4:.6,y1=Y0-AP-.25;stand.scale.y=y1-y0;stand.position.y=(y0+y1)/2;
   if(lab){
     objG.visible=S.mode!=='inf';objG.position.x=XD();farG.visible=S.mode==='inf';L0G.visible=S.mode==='virt';L0G.position.x=XL0();scrG.position.x=S.xs;
-    const kF=fin?im.yp/H:1;
-    realF.visible=fin&&im.real&&im.sp<S.xs-.6;if(realF.visible){realF.position.set(im.sp,Y0,0);realF.scale.set(kF,kF,1);}
-    virtF.userData.on=fin&&!im.real;if(virtF.userData.on){virtF.position.set(im.sp,Y0,0);virtF.scale.set(kF,kF,1);}
     vObjF.visible=S.mode==='virt'&&S.ext;if(vObjF.visible){vObjF.position.set(S.sv,Y0,0);vObjF.scale.set(-1,-1,1);}
     objLight.position.set(XD()+3,Y0+2,4);objLight.intensity=S.mode==='inf'?0:900;drawScreen();
   }else objLight.intensity=0;
   buildBeams();pushTrail(im);updateHUD();drawDiagram();drawTab();
   dirty=false;
+}
+/* La misma fórmula para imagen virtual, real delante del ojo y real detrás del ojo.
+   Una homotecia de factor k respecto al ojo no cambia lo que este ve: permite acercar una imagen muy lejana
+   sin alterar su tamaño aparente, que tiende a h/f′ por ambos lados de F. Con k < 0 (imagen detrás del ojo)
+   la F se ve derecha; al pasar la imagen por el ojo se voltea, como en una lente real. */
+function placeThrough(){
+  const C=camera.position,seen=C.x>.5;lensDisc.visible=virtF.visible=seen;if(!seen)return;
+  const o=mainObj(),i0=P()+1/o.s,inv=Math.abs(i0)<1e-6?1e-6:i0,sp=1/inv,yp=sp/o.s*o.y,gap=C.x-sp,D=150;
+  const k=gap>0?Math.min(1,D/gap):Math.max(-40,D/gap);
+  virtF.position.set(C.x+(sp-C.x)*k,C.y+(Y0-C.y)*k,C.z-C.z*k);
+  const e=yp/H*k;virtF.scale.set(e,e,1);virtF.material.opacity=Math.min(1,Math.abs(gap)/6);
 }
 function setPos(x,h){
   if(isLab()){
@@ -1239,7 +1249,7 @@ const STEPS=[
    do:['Ver gráfica',()=>setTab('plot')],ok:()=>data.rows.length>=3,enter:()=>setTab('plot')},
   {t:'Comparar f′',b:()=>`Compara f′ de la gráfica con f′∞. Si el objeto lejano no está suficientemente lejos, f′∞ sale un poco mayor.`,
    do:['Ver resultados',()=>setTab('res')],ok:()=>results().err!==undefined,enter:()=>setTab('res')},
-  {t:'Imagen virtual (lupa)',b:()=>`Mirando <b>a través de la lente</b> se ve la <b class="obj">F</b> derecha y mayor: es la imagen <b class="virt">virtual</b>. Gira la escena: por fuera de la lente desaparece y vuelve a verse la F pequeña. En la pantalla nunca aparece, porque ahí los rayos no se cruzan.`,
+  {t:'Imagen virtual (lupa)',b:()=>`Mirando <b>a través de la lente</b> se ve la <b class="obj">F</b> derecha y mayor: es la imagen <b class="virt">virtual</b>. Gira la escena: por fuera de la lente se ve la F pequeña. Aleja el objeto: la F crece sin saltos al pasar F y se voltea cuando la imagen real se forma delante del ojo.`,
    do:['Ver de lado',()=>goView(view==='eye'?'side':'eye')],ok:()=>S.mode==='real'&&image().sp<0,enter:()=>{setMode('real');setPos(-fP()*.6);goView('eye');setTab('scr');}},
   {t:'Objeto virtual',b:()=>`L₀ forma un haz que iba a juntarse detrás de la lente: ese punto es un <b class="virt">objeto virtual</b> (s &gt; 0). La lente adelanta el cruce y la imagen sale <b class="real">real</b>.`,
    do:['Enfocar',()=>focus()],ok:()=>S.mode==='virt'&&sharpness(scrInfo.blur)>.8,enter:()=>{setMode('virt');goView('side');setTab('scr');}},
@@ -1303,9 +1313,9 @@ function frame(now){
   virtA.mat.opacity=.5+.3*br;vObjA.mat.opacity=.5+.3*br;virtA.aMat.opacity=vObjA.aMat.opacity=.14+.14*br;virtA.gl.material.opacity=vObjA.gl.material.opacity=.4+.3*br;
   objGlow.material.opacity=.5+.05*Math.sin(tt*3.1);
   if(isLab()){
-    const eye=view==='eye'&&!cam.anim,seen=!!virtF.userData.on&&camera.position.x>.5;
+    const eye=view==='eye'&&!cam.anim;
     beamG.visible=!eye;scrG.visible=!eye;
-    lensDisc.visible=virtF.visible=seen;
+    placeThrough();
   }else{beamG.visible=true;}
   drawTrail();updateCam(dt);renderer.render(scene,camera);updateTags();gTick();
   requestAnimationFrame(frame);
@@ -1316,7 +1326,7 @@ syncLensUI();syncLabUI();
 setApp(location.hash==='#laboratorio'?'lab':'explore',true);
 document.fonts&&document.fonts.ready.then(()=>{layout();dirty=true;});
 requestAnimationFrame(frame);
-window.__lens={cam,camera,canvas,layout,S,data,image,results,setApp,setMode,setPos,setScr,focus,record,goView,setTab,setProj,P,fP,trail,onScreen:()=>scrInfo,sharpness};
+window.__lens={placeThrough,virtF,cam,camera,canvas,layout,S,data,image,results,setApp,setMode,setPos,setScr,focus,record,goView,setTab,setProj,P,fP,trail,onScreen:()=>scrInfo,sharpness};
 })();
 </script>
 </body>

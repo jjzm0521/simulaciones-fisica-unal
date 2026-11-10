@@ -5,8 +5,8 @@ Uso:
   python3 -I empaquetar.py fuente.html salida.html [--three three.min.js]
 
 En la fuente, cada recurso local se marca así (rutas relativas a la fuente):
-  <script data-inline="../../../vendor/three-r128.min.js"></script>
-  <link rel="stylesheet" data-inline="../../../vendor/fuentes-parabolico.css">
+  <script data-inline="../../biblioteca/nucleo/three-r159.min.js"></script>
+  <link rel="stylesheet" data-inline="../../biblioteca/fuentes/fuentes.css">
 y queda copiado dentro del HTML. También acepta el marcador /*__THREE__*/ de
 build.py (prácticas de Física 3) si se pasa --three, así un mismo script sirve
 para las dos formas de escribir la fuente.

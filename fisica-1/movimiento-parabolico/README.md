@@ -54,9 +54,9 @@ En Montaje, Vuelo y Explorar se pueden invertir los ejes x y y. Cambian los sign
 
 La fuente está en `src/index.src.html`. Después de editarla, desde esta carpeta:
 
-    python3 -I ../../../skills/simulacion-practica-lab/scripts/empaquetar.py src/index.src.html index.html
+    python3 -I ../../herramientas/empaquetar.py src/index.src.html index.html
 
-El motor y la cámara compartidos están en `vendor/` (raíz del repositorio).
+El motor, la cámara y las fuentes compartidos están en `biblioteca/` (raíz del repositorio).
 
 ## Teclado
 

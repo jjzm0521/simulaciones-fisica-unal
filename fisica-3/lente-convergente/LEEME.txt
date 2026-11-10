@@ -1,7 +1,7 @@
 SIMULACIÓN · FÍSICA 3 · LENTES: IMAGEN Y OBJETO, REALES Y VIRTUALES
 Una sola página con dos modos: Explorar y Laboratorio (estilo inspirado en sael.net).
 
-Abrir simulacion-lente.html en Chrome, Edge o Safari. Funciona sin internet
+Abrir index.html en Chrome, Edge o Safari. Funciona sin internet
 (three.js va incluido; sin conexión solo cambian las tipografías).
 Se puede entrar directo a un modo con #explorar o #laboratorio al final de la dirección.
 
@@ -55,5 +55,4 @@ Lente biconvexa R = ±25 cm, n = 1.52 (f′ ≈ 24 cm), diámetro 10 cm, F lumin
 
 PARA EDITAR
 La fuente es src/simulacion-lente.src.html. Después de editarla, desde la raíz del repositorio:
-  sh skills/simulacion-practica-lab/scripts/get_three.sh <carpeta>
-  python3 -I skills/simulacion-practica-lab/scripts/build.py fisica-3/lente-convergente/src/simulacion-lente.src.html <ruta three.min.js> fisica-3/lente-convergente/simulacion-lente.html
+  cd fisica-3/lente-convergente && python3 -I ../../herramientas/empaquetar.py src/index.src.html index.html

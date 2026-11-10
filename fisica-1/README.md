@@ -16,6 +16,6 @@
 | 8 | [Movimiento parabólico](movimiento-parabolico/) | Lista · diseño aprobado (pantalla completa) | [abrir](movimiento-parabolico/index.html) |
 | 9 | [Segunda ley de Newton · movimiento rectilíneo](segunda-ley-rectilineo/) | Pendiente | — |
 | 10 | [Segunda ley de Newton · movimiento circular](segunda-ley-circular/) | Pendiente | — |
-| 11 | [Movimiento circular (Atwood, práctica 8)](movimiento-circular/) | Hecha · diseño anterior (sael), falta pasarla al diseño aprobado | [abrir](movimiento-circular/index.html) |
+| 11 | [Movimiento circular](movimiento-circular/) | Pendiente | — |
 | 12 | [Conservación de la energía](conservacion-energia/) | Pendiente | — |
 | 13 | [Colisiones en dos dimensiones](colisiones-2d/) | Pendiente | — |

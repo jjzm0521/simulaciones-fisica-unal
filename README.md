@@ -27,7 +27,6 @@ Para reconstruir una práctica después de editar su fuente, desde su carpeta:
 ## Simulaciones listas
 
 - [Movimiento parabólico](fisica-1/movimiento-parabolico/) (F1) · diseño aprobado
-- [Movimiento circular · Atwood](fisica-1/movimiento-circular/) (F1) · diseño anterior
 - [Lente convergente](fisica-3/lente-convergente/) (F3) · diseño anterior
 
 ## 👥 Colaboradores

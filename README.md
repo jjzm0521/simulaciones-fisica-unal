@@ -24,6 +24,12 @@ Para reconstruir una práctica después de editar su fuente, desde su carpeta:
 
     python3 -I ../../herramientas/empaquetar.py src/index.src.html index.html
 
+Después de cambiar algo en `biblioteca/`, vuelve a armar **todas** las prácticas de una vez (desde la raíz):
+
+    python3 -I herramientas/empaquetar-todo.py
+
+Cada `index.html` sigue siendo un solo archivo independiente: trae adentro todo lo que usa de la biblioteca, así que se puede enviar y abrir sin el resto de las carpetas y sin internet.
+
 ## Simulaciones listas
 
 - [Movimiento parabólico](fisica-1/movimiento-parabolico/) (F1) · diseño aprobado

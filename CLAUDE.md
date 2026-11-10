@@ -64,7 +64,7 @@ El empaquetador avisa si quedan recursos externos: ese aviso es un error que hay
 
 ## Cómo probar
 
-- Servidor local en el puerto 8765 sirviendo la carpeta padre del repo (`.claude/launch.json`, nombre `simulaciones`); URL: `http://localhost:8765/simulaciones-fisica-unal/<ruta>/index.html`.
+- Servidor local que sirva la carpeta padre del repo, por ejemplo `python3 -m http.server 8765 --directory ".."` desde la raíz (en la máquina del monitor ya existe la configuración `simulaciones` en `~/01_Trabajo/Monitoria/.claude/launch.json`); URL: `http://localhost:8765/simulaciones-fisica-unal/<ruta>/index.html`. También se puede abrir el `index.html` directo con doble clic.
 - Consola sin errores; física verificada con números; incertidumbres con una cifra significativa.
 - Sin paneles superpuestos en anchos de 360 a 1440 px (computador, celular), en Explorar, Laboratorio y Paso a paso, con y sin panel, y en vista limpia.
 - Teclado: Espacio lanza, flechas cambian parámetros, H vista limpia, P panel, S sensor, E rótulos, Esc sale.

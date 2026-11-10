@@ -183,6 +183,79 @@ ul.tight{margin:0;padding-left:18px;display:flex;flex-direction:column;gap:4px}
   .live{grid-template-columns:repeat(3,minmax(0,1fr))}
   .card{padding:16px}
 }
+/* ===== Entorno a pantalla completa: la escena ocupa todo y los paneles flotan alrededor ===== */
+html,body{height:100%}
+body{padding:0!important;overflow:hidden;background:#dfe6ee}
+.wrap{max-width:none;display:block}
+.fl,header.top>div:first-child,.modes,.speed,nav.steps ol,#card,.pswin,.dock,.viewbtns,.unclean{
+  background:color-mix(in srgb,var(--surface) 90%,transparent);-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);
+  border:1px solid var(--line);border-radius:12px;box-shadow:0 6px 22px rgba(20,40,60,.10)}
+.viewpanel{position:fixed!important;inset:0;border:0!important;border-radius:0!important;z-index:0;background:#dfe6ee}
+#view{width:100%;height:100%!important;aspect-ratio:auto!important;min-height:0;background:transparent}
+.stage>.note,.viewhint{display:none!important}
+header.top{position:fixed;top:12px;left:12px;right:12px;z-index:6;display:flex;flex-wrap:nowrap;align-items:center;justify-content:flex-start;gap:8px;pointer-events:none}
+header.top>*{pointer-events:auto}
+header.top>div:first-child{padding:6px 14px;min-width:0}
+header.top .eyebrow{font-size:10px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+header.top h1{font-size:18px;margin:1px 0 0;white-space:nowrap}
+.modes{padding:4px;margin-left:auto}
+.mode{border-color:transparent;background:transparent}
+.speed{padding:4px 4px 4px 10px;font-size:12px}
+.speed select{border:0;background:transparent}
+nav.steps{position:fixed;top:70px;left:12px;right:440px;z-index:6;display:flex;justify-content:center;pointer-events:none;padding:0}
+nav.steps ol{pointer-events:auto;padding:4px;overflow-x:auto;max-width:100%}
+nav.steps button{border-color:transparent;background:transparent}
+#card{position:fixed;top:70px;right:12px;bottom:12px;width:min(410px,calc(100vw - 24px));overflow:auto;z-index:5;padding:18px;gap:12px}
+#card h2{font-size:21px}
+.viewbtns{position:fixed!important;top:auto!important;right:auto!important;bottom:12px;left:64px;padding:4px;gap:2px;z-index:5}
+.viewbtns .vb{border-color:transparent;background:transparent}
+.viewbtns .vb:hover{background:var(--surface3)}
+#scopeWrap{position:fixed;left:64px;bottom:60px;width:min(500px,calc(100vw - 500px));z-index:4;gap:4px}
+#scopeWrap .pswin{border-radius:6px}
+#scopeWrap .ps-menu,#scopeWrap .ps-slider{display:none}
+#scope{height:150px}
+#scopeWrap .ps-row{padding:4px 6px 5px;gap:5px}
+#scopeWrap .ps-btn[disabled]{display:none}
+#scopeInfo{background:color-mix(in srgb,var(--surface) 88%,transparent);border-radius:8px;padding:4px 8px;margin:0}
+/* barra de "qué mostrar" */
+.dock{position:fixed;left:12px;top:50%;transform:translateY(-50%);z-index:6;display:flex;flex-direction:column;gap:2px;padding:4px}
+.dk{display:flex;flex-direction:column;align-items:center;gap:2px;width:44px;padding:6px 0 5px;border:0;border-radius:8px;background:transparent;cursor:pointer;color:var(--muted);font-size:9.5px;line-height:1}
+.dk svg{width:18px;height:18px}
+.dk:hover{background:var(--surface3);color:var(--ink)}
+.dk[aria-pressed="true"]{color:var(--accent);background:color-mix(in srgb,var(--accent) 12%,transparent)}
+.dk.sep{margin-top:4px;border-top:1px solid var(--line);border-radius:0 0 8px 8px;padding-top:8px}
+.unclean{display:none;position:fixed;top:12px;right:12px;z-index:7;padding:8px 14px;font-weight:500;cursor:pointer;color:var(--ink)}
+body.no-card #card,body.no-scope #scopeWrap{display:none!important}
+body.no-card nav.steps{right:12px}
+body.navon #card{top:118px}
+@media (max-width:760px){ body.navon #card{top:52vh;top:52dvh} }
+body.no-card #scopeWrap{width:min(560px,calc(100vw - 90px))}
+body.clean header.top,body.clean nav.steps,body.clean #card,body.clean #scopeWrap,body.clean .viewbtns,body.clean .dock{display:none!important}
+body.clean .unclean{display:block}
+@media (max-width:1100px){ header.top>div:first-child .eyebrow{display:none} .speed label{display:none} #card{width:350px} nav.steps{right:380px} #scopeWrap{width:min(460px,calc(100vw - 440px))} }
+@media (max-width:900px){ header.top>div:first-child{display:none} .modes{margin-left:0} #card{width:330px} nav.steps{right:360px} #scopeWrap{width:calc(100vw - 420px)} }
+/* celular: escena arriba, panel abajo como hoja */
+@media (max-width:760px){
+  .viewpanel{bottom:auto;height:52vh;height:52dvh}
+  body.no-card .viewpanel,body.clean .viewpanel{height:100vh;height:100dvh}
+  header.top{top:8px;left:8px;right:8px;gap:6px}
+  .modes{flex-wrap:nowrap}
+  .mode{padding:6px 10px;font-size:12.5px;white-space:nowrap}
+  .speed{display:none}
+  nav.steps{top:56px;left:8px;right:8px}
+  #card{top:52vh;top:52dvh;left:0;right:0;bottom:0;width:auto;border-radius:14px 14px 0 0;padding:14px 16px}
+  .dock{left:auto;right:8px;top:26vh;top:26dvh}
+  body.no-card .dock{top:50%}
+  .dk{width:38px;font-size:0;gap:0;padding:8px 0}
+  .viewbtns{left:8px;bottom:calc(48vh + 8px);bottom:calc(48dvh + 8px);flex-wrap:nowrap}
+  body.no-card .viewbtns{bottom:8px}
+  .viewbtns .vb{padding:5px 8px;font-size:0}
+  .viewbtns .vb::after{content:attr(data-s);font-size:12px}
+  #scopeWrap{left:8px;right:8px;width:auto;bottom:auto;top:104px}
+  #scope{height:105px}
+  .ps-menu,.ps-slider,.ps-group:last-child{display:none}
+  #scopeInfo{display:none}
+}
 @media (prefers-reduced-motion:reduce){*{scroll-behavior:auto!important}}
 </style>
 
@@ -208,16 +281,23 @@ ul.tight{margin:0;padding-left:18px;display:flex;flex-direction:column;gap:4px}
   </header>
 
   <nav class="steps" aria-label="Pasos de la práctica"><ol id="steps"></ol></nav>
+  <div class="dock" role="toolbar" aria-label="Qué mostrar">
+    <button class="dk" type="button" data-ui="card" title="Panel de la práctica (P)"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="2.5" y="3.5" width="15" height="13" rx="2"/><path d="M12 3.5v13"/></svg>Panel</button>
+    <button class="dk" type="button" data-ui="scope" title="Ventana del PhysicsSensor (S)"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"><rect x="2.5" y="3.5" width="15" height="13" rx="2"/><path d="M4.5 12h3l1-4h3l1 4h3"/></svg>Sensor</button>
+    <button class="dk" type="button" data-ui="labels" title="Etiquetas y medidas en la escena (E)"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M3 10.5 9.5 4H16v6.5L9.5 17z"/><circle cx="13" cy="7" r="1.2"/></svg>Rótulos</button>
+    <button class="dk sep" type="button" data-ui="clean" title="Ver solo la escena (H)"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M3 7V3h4M13 3h4v4M17 13v4h-4M7 17H3v-4"/></svg>Limpia</button>
+  </div>
+  <button class="unclean" type="button" id="unclean">Mostrar paneles · H</button>
 
   <main class="layout">
     <section class="stage">
       <div class="panel viewpanel">
         <div id="view" role="img" aria-label="Escena 3D: esfera que baja por una rampa, sale por el borde de la mesa y cae al piso describiendo una parábola"></div>
         <div class="viewbtns" role="group" aria-label="Cámara">
-          <button class="vb" type="button" data-v="iso">Vista 3D</button>
-          <button class="vb" type="button" data-v="side">Lateral</button>
-          <button class="vb" type="button" data-v="top">Superior</button>
-          <button class="vb" type="button" data-v="gate">Fotocompuerta</button>
+          <button class="vb" type="button" data-v="iso" data-s="3D">Vista 3D</button>
+          <button class="vb" type="button" data-v="side" data-s="Lado">Lateral</button>
+          <button class="vb" type="button" data-v="top" data-s="Arriba">Superior</button>
+          <button class="vb" type="button" data-v="gate" data-s="Compuerta">Fotocompuerta</button>
         </div>
         <span class="viewhint">Arrastra para girar · rueda o pellizco para acercar</span>
       </div>
@@ -274,6 +354,10 @@ const U={H:0.001,d:0.00005,D:0.001,tau:AP,h:0.001};
 let seed=11, trials=[], path=[], Troll=0, recorded=[], speed=0.5, cur=0, seen=new Set([0]);
 let anim=null, chainToken=0, busy=false, scopeTau=null;
 let app='explore', guide=true, page='', curPage=null, expN=0, answers={}, showSol=false;
+const UI={card:true,scope:true,labels:true,clean:false,scopeX:false};
+try{ Object.assign(UI,JSON.parse(localStorage.getItem('parabolico-ui')||'{}'),{clean:false}); }catch(e){}
+if(window.matchMedia&&matchMedia('(max-width:760px)').matches&&!localStorage.getItem('parabolico-ui')) UI.scope=false;
+let lastCfg=null;
 const AX={x:1,y:1};   // x: +1 hacia la derecha · y: +1 hacia abajo (marco de la guía); −1 invierte el eje
 
 const fx=(x,dec)=>x.toFixed(dec).replace('.',',');
@@ -774,11 +858,16 @@ function setView(n){
   else if(n==='top'){ camera.position.set(0.35,3.3,0.0001); controls.target.set(0.35,0,0); }
   else if(n==='gate'){ camera.position.set(0.30,H+0.17,0.40); controls.target.set(-0.03,H+0.025,0); }
   else { camera.position.set(1.35,H*0.75+0.55,2.2); controls.target.set(0.22,H*0.42,0); }
+  // a pantalla completa la escena tiene más espacio: la cámara se aleja un poco (menos en el acercamiento a la fotocompuerta)
+  const k={iso:1.3,side:1.15,top:1.1,gate:1}[n]||1.3; camera.position.sub(controls.target).multiplyScalar(k).add(controls.target);
   controls.update(); dirty=true;
 }
 function resize3D(){
   const w=view.clientWidth, h=view.clientHeight; if(!w||!h) return;
-  renderer.setSize(w,h,false); camera.aspect=w/h; camera.updateProjectionMatrix(); dirty=true;
+  renderer.setSize(w,h,false); camera.aspect=w/h;
+  const card=$('#card'), side=window.innerWidth>760&&UI.card&&!UI.clean&&card?card.offsetWidth+24:0, left=window.innerWidth>760&&!UI.clean?56:0;
+  if(side||left) camera.setViewOffset(w,h,(side-left)/2,0,w,h); else camera.clearViewOffset();
+  camera.updateProjectionMatrix(); dirty=true;
 }
 (function loop(){ requestAnimationFrame(loop); if(dirty){ dirty=false; renderer.render(scene,camera); } })();
 
@@ -1104,7 +1193,9 @@ const EXPLORE={title:'Explora: cambia el montaje y observa',
          const Vt=P.d/t, uVt=Math.sqrt(Math.pow(U.d/t,2)+Math.pow(P.d*U.tau/(t*t),2)), Ve=D*Math.sqrt(G/(2*P.H)), uVe=Math.sqrt(G/(2*P.H)*U.D*U.D+G*D*D/(8*Math.pow(P.H,3))*U.H*U.H);
          const o=$('#xRes'); if(o) o.innerHTML=row('Tiempo en la fotocompuerta','τ',pair(t,U.tau).join(' ± ')+' s')+row('Alcance','D',pair(D,U.D).join(' ± ')+' m')+
            row('Con la fotocompuerta','V₀ₓ = d / τ',pair(Vt,uVt).join(' ± ')+' m/s',true)+row('Con la parábola','V₀ₓ = D·√(g / 2H)',pair(Ve,uVe).join(' ± ')+' m/s',true)+
-           '<p class="small">Tiempo de vuelo √(2H/g) = '+fx(TF(),3)+' s. Cada lanzamiento sale un poco distinto, como en el laboratorio.</p>';
+           '<p class="small">Tiempo de vuelo √(2H/g) = '+fx(TF(),3)+' s. Cada lanzamiento sale un poco distinto, como en el laboratorio.</p>'+
+           (UI.scopeX?'':'<div class="row"><button class="btn" id="xScope" type="button">Ver la señal del PhysicsSensor</button></div>');
+         const xs=$('#xScope'); if(xs) xs.onclick=()=>{ toggleUI('scope'); xs.remove(); };
          const b=$('#xLaunch'); if(b){ b.disabled=false; b.textContent='Lanzar de nuevo'; } } }); };
  }};
 
@@ -1115,11 +1206,22 @@ const LABFREE={title:'Laboratorio: toma los datos y calcula',
    '<p class="small">¿Quieres la explicación de cada etapa? Activa <b>Paso a paso</b> arriba.</p>'; },
  mount(){ STEPS[4].mount(); mountCalc(); }};
 
+function applyUI(){
+  const b=document.body;
+  b.classList.toggle('no-card',!UI.card); b.classList.toggle('no-scope',!UI.scope); b.classList.toggle('clean',UI.clean);
+  document.querySelectorAll('[data-ui]').forEach(x=>x.setAttribute('aria-pressed',String(!!UI[x.dataset.ui])));
+  try{ localStorage.setItem('parabolico-ui',JSON.stringify({card:UI.card,scope:UI.scope,labels:UI.labels})); }catch(e){}
+  const sb=$('[data-ui="scope"]'); if(sb) sb.setAttribute('aria-pressed',String(page==='explore'?UI.scopeX:UI.scope));
+  if(lastCfg) applyScene(lastCfg);
+  resize3D(); requestAnimationFrame(drawScope);
+}
+function toggleUI(k){ if(k==='scope'&&page==='explore') k='scopeX'; UI[k]=!UI[k]; if(k!=='clean'&&UI.clean) UI.clean=false; applyUI(); }
 function refreshPage(){ if(page.startsWith('s')) go(cur); else if(curPage) show(curPage,page); }
 function syncModes(){
   document.querySelectorAll('.mode[data-app]').forEach(b=>b.classList.toggle('on',b.dataset.app===app));
   const g=$('#bGuide'); g.hidden=app!=='lab'; g.setAttribute('aria-pressed',String(guide));
   $('nav.steps').hidden=!(app==='lab'&&guide);
+  document.body.classList.toggle('navon',app==='lab'&&guide);
   try{ history.replaceState(null,'',app==='lab'?'#laboratorio':'#explorar'); }catch(e){}
 }
 function setApp(a){ app=a; syncModes(); if(a==='explore') show(EXPLORE,'explore'); else if(guide) go(cur); else show(LABFREE,'labfree'); }
@@ -1130,7 +1232,11 @@ function resetData(){ chainToken++; stopAnim(); busy=false; recorded=[]; scopeTa
 
 function applyScene(cfg){
   G_('gGhost').visible=!!cfg.ghost; G_('gAxes').visible=!!cfg.axes; G_('gDimH').visible=!!cfg.dimH; G_('gLabels').visible=!!cfg.labels;
-  G_('gMarks').visible=true; $('#scopeWrap').hidden=!cfg.scope; dirty=true;
+  lastCfg=cfg;
+  if(!UI.labels||UI.clean){ G_('gLabels').visible=false; G_('gDimH').visible=false; G_('gDimD').visible=false; if(UI.clean) G_('gAxes').visible=false; }
+  else G_('gDimD').visible=true;
+  const hideTags=!UI.labels||UI.clean; scene.traverse(o=>{ if(o.isSprite&&o.parent!==G_('gAxes')){ if(o.userData.v0===undefined) o.userData.v0=o.visible; o.visible=hideTags?false:o.userData.v0; } });
+  G_('gMarks').visible=true; $('#scopeWrap').hidden=page==='explore'?!UI.scopeX:!cfg.scope; document.body.classList.toggle('no-scope',page==='explore'?false:!UI.scope); dirty=true;
   if(cfg.dimD==='ghost') drawDimD(V0model()*TF()*0.985);
   else if(cfg.dimD==='mean'&&recorded.length>=5) drawDimD(stats().Dm);
   else drawDimD(null);
@@ -1177,6 +1283,12 @@ function go(i){
   setBallSize(); genTrials(); buildPath(); drawStatic(); ballAt('a'); drawScope();
   document.querySelectorAll('.mode[data-app]').forEach(b=>b.onclick=()=>setApp(b.dataset.app));
   $('#bGuide').onclick=()=>{ guide=!guide; setApp('lab'); };
+  document.querySelectorAll('[data-ui]').forEach(x=>x.onclick=()=>toggleUI(x.dataset.ui));
+  $('#unclean').onclick=()=>toggleUI('clean');
+  document.addEventListener('keydown',e=>{ if(e.target.closest&&e.target.closest('input,select,textarea')) return; if(e.metaKey||e.ctrlKey||e.altKey) return;
+    const k={h:'clean',p:'card',s:'scope',e:'labels'}[e.key.toLowerCase()]; if(k){ toggleUI(k); e.preventDefault(); }
+    else if(e.key==='Escape'&&UI.clean) toggleUI('clean'); });
+  applyUI();
   setApp(/laboratorio/.test(location.hash)?'lab':'explore');
   window.addEventListener('resize',drawScope);
   if(window.ResizeObserver) new ResizeObserver(drawScope).observe($('#scope'));

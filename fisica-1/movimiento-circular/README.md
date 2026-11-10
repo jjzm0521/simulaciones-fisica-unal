@@ -2,7 +2,7 @@
 
 Física 1 · Laboratorio de Física Mecánica · UNAL Medellín
 
-- **Estado:** Hecha · diseño anterior (sael), falta pasarla al diseño aprobado
+- **Estado:** Pendiente (hubo una prueba con Atwood, fuera del repositorio)
 - **Guía:** `Monitoria/Guías de laboratorio/Guía. Movimiento Circular.md` (fuera del repositorio)
 
 ## Cómo se organiza esta carpeta

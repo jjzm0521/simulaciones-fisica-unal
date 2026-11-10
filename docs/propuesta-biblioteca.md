@@ -101,10 +101,10 @@ simulaciones-fisica-unal/
 | Fase | Qué se hace | Resultado |
 |---|---|---|
 | **0** · hecho | Organizar carpetas; motor y cámara en `biblioteca/nucleo` | Esta rama |
-| **1** | Sacar la interfaz aprobada del parabólico a `biblioteca/interfaz/` y armar `plantilla/practica/` | Diseño aprobado reutilizable |
+| **1** · hecho | Sacar la interfaz aprobada del parabólico a `biblioteca/interfaz/` y armar `plantilla/practica/` | Diseño aprobado reutilizable |
 | **2** | Sacar las piezas del parabólico (mesa, rampa, esfera, cinta, sensor) y **rehacer la fotocompuerta** con fotos y medidas reales; armar `catalogo.html` | Primeras piezas aprobadas |
 | **3** | Rehacer parabólico usando la biblioteca y comprobar que se ve y funciona igual | Prueba de que el sistema sirve |
-| **4** | Pasar lente (F3) y Atwood (F1) al diseño aprobado; sacar sus piezas (lente, banco óptico, pantalla, polea, regla cebra) | Tres prácticas con el mismo diseño |
+| **4** | Pasar lente (F3) al diseño aprobado; sacar sus piezas (lente, banco óptico, pantalla) | F1 y F3 con el mismo diseño |
 | **5** | Prácticas nuevas desde la plantilla | Cada práctica nueva es más rápida |
 
 ## Lo que necesitamos decidir

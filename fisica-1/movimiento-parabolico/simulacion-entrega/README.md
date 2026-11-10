@@ -10,7 +10,7 @@ Simulación 3D de la práctica de movimiento parabólico, ambientada en un labor
 
 ## Modos
 
-- **Explorar**: modo libre. Se cambian d, H y h, se lanza las veces que se quiera y se comparan V₀ₓ por fotocompuerta y por parábola. Incluye la opción de invertir los ejes y una lista de ideas para probar.
+- **Explorar**: modo libre con cuatro tipos de lanzamiento: rampa del montaje (V₀ₓ por fotocompuerta y por parábola), horizontal desde la mesa, oblicuo desde la mesa y desde el piso (ángulo θ y rapidez V₀). Muestra trayectoria prevista, vectores de velocidad, tiempo de vuelo, alcance, altura máxima y velocidad al llegar. Incluye la opción de invertir los ejes y una lista de ideas para probar.
 - **Laboratorio**: se toman los cinco lanzamientos y el estudiante escribe sus resultados (promedios, velocidades con su incertidumbre y % de error); la simulación los verifica y puede mostrar la solución.
 - **Paso a paso** (botón en Laboratorio, opcional): la guía de siete pasos de abajo.
 
@@ -57,3 +57,10 @@ La fuente está en `src/index.src.html`. Después de editarla, desde esta carpet
     python3 -I ../../../skills/simulacion-practica-lab/scripts/empaquetar.py src/index.src.html index.html
 
 El motor y la cámara compartidos están en `vendor/` (raíz del repositorio).
+
+## Teclado
+
+- **Espacio / Enter**: lanzar (en Laboratorio, el botón principal del paso).
+- **← →**: ángulo de lanzamiento (Shift: de 5 en 5). **↑ ↓**: rapidez V₀ (en la rampa, altura de la rampa).
+- **1–4**: tipo de lanzamiento. **V** vectores · **T** trayectoria prevista · **C** borrar la traza.
+- **H** vista limpia (solo la escena, con un indicador de θ, V₀ y las teclas) · **P** panel · **S** sensor · **E** rótulos · **Esc** sale de la vista limpia.

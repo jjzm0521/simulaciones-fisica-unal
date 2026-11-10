@@ -2,7 +2,7 @@
 <html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"></head><body>
 <title>Laboratorio de movimiento parabólico</title>
 <meta name="claude:viewport-fit-sides" content="cover">
-<link rel="stylesheet" data-inline="../../../../vendor/fuentes-parabolico.css">
+<link rel="stylesheet" data-inline="../../../biblioteca/fuentes/fuentes.css">
 <style>
 /* Layout: escena del montaje (rampa, fotocompuerta, vuelo) a la izquierda, guía paso a paso a la derecha; en pantallas angostas se apilan. */
 :root{
@@ -183,6 +183,105 @@ ul.tight{margin:0;padding-left:18px;display:flex;flex-direction:column;gap:4px}
   .live{grid-template-columns:repeat(3,minmax(0,1fr))}
   .card{padding:16px}
 }
+/* ===== Entorno a pantalla completa: la escena ocupa todo y los paneles flotan alrededor ===== */
+html,body{height:100%}
+body{padding:0!important;overflow:hidden;background:#dfe6ee}
+.wrap{max-width:none;display:block}
+.fl,header.top>div:first-child,.modes,.speed,nav.steps ol,#card,.pswin,.dock,.viewbtns,.unclean{
+  background:color-mix(in srgb,var(--surface) 90%,transparent);-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);
+  border:1px solid var(--line);border-radius:12px;box-shadow:0 6px 22px rgba(20,40,60,.10)}
+.viewpanel{position:fixed!important;inset:0;border:0!important;border-radius:0!important;z-index:0;background:#dfe6ee}
+#view{width:100%;height:100%!important;aspect-ratio:auto!important;min-height:0;background:transparent}
+.stage>.note,.viewhint{display:none!important}
+header.top{position:fixed;top:12px;left:12px;right:12px;z-index:6;display:flex;flex-wrap:nowrap;align-items:center;justify-content:flex-start;gap:8px;pointer-events:none}
+header.top>*{pointer-events:auto}
+header.top>div:first-child{padding:6px 14px;min-width:0;flex:0 1 auto;overflow:hidden}
+header.top .eyebrow{font-size:10px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+header.top h1{font-size:18px;margin:1px 0 0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.modes{padding:4px;margin-left:auto;flex-wrap:nowrap;flex-shrink:0}
+.mode{white-space:nowrap}
+.mode{border-color:transparent;background:transparent}
+.speed{padding:4px 4px 4px 10px;font-size:12px;flex-shrink:0;white-space:nowrap}
+.speed select{border:0;background:transparent}
+nav.steps{position:fixed;top:var(--navt,70px);left:12px;right:440px;z-index:6;display:flex;justify-content:center;pointer-events:none;padding:0}
+nav.steps ol{pointer-events:auto;padding:4px;overflow-x:auto;max-width:100%;min-width:0}
+nav.steps button{border-color:transparent;background:transparent}
+#card{position:fixed;top:var(--cardt,70px);right:12px;bottom:12px;width:min(410px,calc(100vw - 24px));overflow:auto;z-index:5;padding:18px;gap:12px}
+#card h2{font-size:21px}
+.viewbtns{position:fixed!important;top:auto!important;right:auto!important;bottom:12px;left:64px;padding:4px;gap:2px;z-index:5}
+.viewbtns .vb{border-color:transparent;background:transparent}
+.viewbtns .vb:hover{background:var(--surface3)}
+#scopeWrap{position:fixed;left:64px;bottom:60px;width:min(500px,calc(100vw - 500px));z-index:4;gap:4px}
+#scopeWrap .pswin{border-radius:6px}
+#scopeWrap .ps-menu,#scopeWrap .ps-slider{display:none}
+#scope{height:150px}
+#scopeWrap .ps-row{padding:4px 6px 5px;gap:5px}
+#scopeWrap .ps-btn[disabled]{display:none}
+#scopeInfo{background:color-mix(in srgb,var(--surface) 88%,transparent);border-radius:8px;padding:4px 8px;margin:0}
+/* barra de "qué mostrar" */
+.dock{position:fixed;left:12px;top:50%;transform:translateY(-50%);z-index:6;display:flex;flex-direction:column;gap:2px;padding:4px}
+.dk{display:flex;flex-direction:column;align-items:center;gap:2px;width:44px;padding:6px 0 5px;border:0;border-radius:8px;background:transparent;cursor:pointer;color:var(--muted);font-size:9.5px;line-height:1}
+.dk svg{width:18px;height:18px}
+.dk:hover{background:var(--surface3);color:var(--ink)}
+.dk[aria-pressed="true"]{color:var(--accent);background:color-mix(in srgb,var(--accent) 12%,transparent)}
+.dk.sep{margin-top:4px;border-top:1px solid var(--line);border-radius:0 0 8px 8px;padding-top:8px}
+.unclean{display:none;position:fixed;top:12px;right:12px;z-index:7;padding:8px 14px;font-weight:500;cursor:pointer;color:var(--ink)}
+body.no-card #card,body.no-scope #scopeWrap{display:none!important}
+.hud{position:fixed;left:50%;bottom:14px;transform:translateX(-50%);z-index:7;display:flex;flex-wrap:wrap;gap:6px 14px;align-items:center;justify-content:center;max-width:calc(100vw - 140px);
+  padding:8px 14px;font-size:13px;background:color-mix(in srgb,var(--surface) 90%,transparent);-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);border:1px solid var(--line);border-radius:12px;box-shadow:0 6px 22px rgba(20,40,60,.10)}
+.hud span{font-family:var(--font-mono);font-size:12.5px}
+.hud .keys{font-family:var(--font-body);color:var(--muted);font-size:12px}
+kbd{font-family:var(--font-mono);font-size:11px;padding:1px 5px;border:1px solid var(--line);border-bottom-width:2px;border-radius:4px;background:var(--surface);color:var(--ink)}
+body:not(.clean) .hud{bottom:62px}
+/* control táctil: lo mismo que el teclado, para celular y pantallas táctiles */
+.pad{position:fixed;left:50%;bottom:14px;transform:translateX(-50%);z-index:7;display:flex;flex-direction:column;gap:6px;padding:8px;
+  background:color-mix(in srgb,var(--surface) 92%,transparent);-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);border:1px solid var(--line);border-radius:16px;box-shadow:0 6px 22px rgba(20,40,60,.14);touch-action:manipulation;user-select:none;-webkit-user-select:none}
+.pad-top{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.pad-type{border:1px solid var(--line);background:var(--surface2);border-radius:999px;padding:5px 12px;font-size:12.5px;font-weight:600;cursor:pointer;color:var(--ink)}
+.pad-type::after{content:" ⟳";color:var(--muted);font-weight:400}
+.pad-val{font-family:var(--font-mono);font-size:12.5px;color:var(--ink);white-space:nowrap}
+.pad-row{display:flex;align-items:center;justify-content:center;gap:8px}
+.pad-grp{display:flex;gap:4px}
+.pb{min-width:46px;height:44px;border:1px solid var(--line);background:var(--surface);border-radius:12px;font-family:var(--font-mono);font-size:14px;font-weight:500;color:var(--ink);cursor:pointer}
+.pb:active{background:var(--surface3)}
+.pb.go{min-width:96px;background:var(--accent);border-color:var(--accent);color:var(--accent-ink);font-family:var(--font-body);font-size:15px;font-weight:600}
+.pb.go:disabled{opacity:.55}
+@media (max-width:760px){
+  body:not(.no-card):not(.clean) .pad{bottom:calc(48vh + 8px);bottom:calc(48dvh + 8px);padding:6px}
+  body:not(.no-card):not(.clean) .pad-top{display:none}
+  .pb{height:42px}
+  .viewbtns{top:var(--navt,56px)!important;bottom:auto!important}
+  body.navon .viewbtns{top:calc(var(--navt,56px) + 50px)!important}
+}
+body.no-card nav.steps{right:12px}
+body.no-card #scopeWrap{width:min(560px,calc(100vw - 90px))}
+body.clean header.top,body.clean nav.steps,body.clean #card,body.clean #scopeWrap,body.clean .viewbtns,body.clean .dock{display:none!important}
+body.clean .unclean{display:block}
+@media (max-width:1320px){ header.top>div:first-child .eyebrow{display:none} .speed label{display:none} }
+@media (max-width:1100px){ #card{width:350px} nav.steps{right:380px} #scopeWrap{width:min(460px,calc(100vw - 440px))} }
+@media (max-width:900px){ header.top>div:first-child{display:none} .modes{margin-left:0} #card{width:330px} nav.steps{right:360px} #scopeWrap{width:calc(100vw - 420px)} }
+/* celular: escena arriba, panel abajo como hoja */
+@media (max-width:760px){
+  .viewpanel{bottom:auto;height:52vh;height:52dvh}
+  body.no-card .viewpanel,body.clean .viewpanel{height:100vh;height:100dvh}
+  header.top{top:8px;left:8px;right:8px;gap:6px}
+  .modes{flex-wrap:nowrap}
+  .mode{padding:6px 10px;font-size:12.5px;white-space:nowrap}
+  .speed{display:none}
+  nav.steps{left:8px;right:8px}
+  #card{top:52vh;top:52dvh;left:0;right:0;bottom:0;width:auto;border-radius:14px 14px 0 0;padding:14px 16px}
+  .dock{left:auto;right:8px;top:26vh;top:26dvh}
+  body.no-card .dock{top:50%}
+  .dk{width:38px;font-size:0;gap:0;padding:8px 0}
+  .viewbtns{left:8px;bottom:calc(48vh + 8px);bottom:calc(48dvh + 8px);flex-wrap:nowrap}
+  body.no-card .viewbtns{bottom:8px}
+  .viewbtns .vb{padding:5px 8px;font-size:0}
+  .viewbtns .vb::after{content:attr(data-s);font-size:12px}
+  #scopeWrap{left:8px;right:8px;width:auto;bottom:auto;top:104px}
+  #scope{height:105px}
+  .ps-menu,.ps-slider,.ps-group:last-child{display:none}
+  #scopeInfo{display:none}
+}
 @media (prefers-reduced-motion:reduce){*{scroll-behavior:auto!important}}
 </style>
 
@@ -208,16 +307,32 @@ ul.tight{margin:0;padding-left:18px;display:flex;flex-direction:column;gap:4px}
   </header>
 
   <nav class="steps" aria-label="Pasos de la práctica"><ol id="steps"></ol></nav>
+  <div class="dock" role="toolbar" aria-label="Qué mostrar">
+    <button class="dk" type="button" data-ui="card" title="Panel de la práctica (P)"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="2.5" y="3.5" width="15" height="13" rx="2"/><path d="M12 3.5v13"/></svg>Panel</button>
+    <button class="dk" type="button" data-ui="scope" title="Ventana del PhysicsSensor (S)"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"><rect x="2.5" y="3.5" width="15" height="13" rx="2"/><path d="M4.5 12h3l1-4h3l1 4h3"/></svg>Sensor</button>
+    <button class="dk" type="button" data-ui="labels" title="Etiquetas y medidas en la escena (E)"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M3 10.5 9.5 4H16v6.5L9.5 17z"/><circle cx="13" cy="7" r="1.2"/></svg>Rótulos</button>
+    <button class="dk sep" type="button" data-ui="clean" title="Ver solo la escena (H)"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M3 7V3h4M13 3h4v4M17 13v4h-4M7 17H3v-4"/></svg>Limpia</button>
+  </div>
+  <button class="unclean" type="button" id="unclean">Mostrar paneles · H</button>
+  <div class="hud" id="hud" hidden aria-live="polite"></div>
+  <div class="pad" id="pad" hidden role="group" aria-label="Controles del lanzamiento">
+    <div class="pad-top"><button class="pad-type" type="button" id="padType" title="Cambiar el tipo de lanzamiento"></button><span class="pad-val" id="padVal"></span></div>
+    <div class="pad-row">
+      <span class="pad-grp" id="padTh"><button class="pb" type="button" data-pad="th-" aria-label="Bajar el ángulo">θ−</button><button class="pb" type="button" data-pad="th+" aria-label="Subir el ángulo">θ+</button></span>
+      <button class="pb go" type="button" id="padGo">Lanzar</button>
+      <span class="pad-grp" id="padV"><button class="pb" type="button" data-pad="v-" aria-label="Bajar la rapidez">V−</button><button class="pb" type="button" data-pad="v+" aria-label="Subir la rapidez">V+</button></span>
+    </div>
+  </div>
 
   <main class="layout">
     <section class="stage">
       <div class="panel viewpanel">
         <div id="view" role="img" aria-label="Escena 3D: esfera que baja por una rampa, sale por el borde de la mesa y cae al piso describiendo una parábola"></div>
         <div class="viewbtns" role="group" aria-label="Cámara">
-          <button class="vb" type="button" data-v="iso">Vista 3D</button>
-          <button class="vb" type="button" data-v="side">Lateral</button>
-          <button class="vb" type="button" data-v="top">Superior</button>
-          <button class="vb" type="button" data-v="gate">Fotocompuerta</button>
+          <button class="vb" type="button" data-v="iso" data-s="3D">Vista 3D</button>
+          <button class="vb" type="button" data-v="side" data-s="Lado">Lateral</button>
+          <button class="vb" type="button" data-v="top" data-s="Arriba">Superior</button>
+          <button class="vb" type="button" data-v="gate" data-s="Compuerta">Fotocompuerta</button>
         </div>
         <span class="viewhint">Arrastra para girar · rueda o pellizco para acercar</span>
       </div>
@@ -254,8 +369,8 @@ ul.tight{margin:0;padding-left:18px;display:flex;flex-direction:column;gap:4px}
   </main>
 </div>
 
-<script data-inline="../../../../vendor/three-r159.min.js"></script>
-<script data-inline="../../../../vendor/camara.js"></script>
+<script data-inline="../../../biblioteca/nucleo/three-r159.min.js"></script>
+<script data-inline="../../../biblioteca/nucleo/camara.js"></script>
 <script>
 (function(){
 'use strict';
@@ -274,6 +389,10 @@ const U={H:0.001,d:0.00005,D:0.001,tau:AP,h:0.001};
 let seed=11, trials=[], path=[], Troll=0, recorded=[], speed=0.5, cur=0, seen=new Set([0]);
 let anim=null, chainToken=0, busy=false, scopeTau=null;
 let app='explore', guide=true, page='', curPage=null, expN=0, answers={}, showSol=false;
+const UI={card:true,scope:true,labels:true,clean:false,scopeX:false};
+try{ Object.assign(UI,JSON.parse(localStorage.getItem('parabolico-ui')||'{}'),{clean:false}); }catch(e){}
+if(window.matchMedia&&matchMedia('(max-width:760px)').matches&&!localStorage.getItem('parabolico-ui')) UI.scope=false;
+let lastCfg=null;
 const AX={x:1,y:1};   // x: +1 hacia la derecha · y: +1 hacia abajo (marco de la guía); −1 invierte el eje
 
 const fx=(x,dec)=>x.toFixed(dec).replace('.',',');
@@ -737,7 +856,7 @@ function gateCheck(a,xpx){
   const blocked=Math.abs(xpx-XG)<=R;
   if(blocked!==a.blocked){ a.blocked=blocked; setBeam(blocked); if(!blocked && a.onGate){ const f=a.onGate; a.onGate=null; f(a.k); } }
 }
-function finish(){ const a=anim; anim=null; if(a&&a.done) a.done(); }
+function finish(){ const a=anim; anim=null; if(a&&a.done) a.done(); setTimeout(()=>{ if(typeof padUpdate==='function') padUpdate(); },30); }
 function tick(ts){
   const a=anim; if(!a) return;
   if(a.last==null) a.last=ts;
@@ -774,11 +893,20 @@ function setView(n){
   else if(n==='top'){ camera.position.set(0.35,3.3,0.0001); controls.target.set(0.35,0,0); }
   else if(n==='gate'){ camera.position.set(0.30,H+0.17,0.40); controls.target.set(-0.03,H+0.025,0); }
   else { camera.position.set(1.35,H*0.75+0.55,2.2); controls.target.set(0.22,H*0.42,0); }
+  // a pantalla completa la escena tiene más espacio: la cámara se aleja un poco (menos en el acercamiento a la fotocompuerta)
+  const k={iso:1.3,side:1.15,top:1.1,gate:1}[n]||1.3; camera.position.sub(controls.target).multiplyScalar(k).add(controls.target);
   controls.update(); dirty=true;
 }
 function resize3D(){
   const w=view.clientWidth, h=view.clientHeight; if(!w||!h) return;
-  renderer.setSize(w,h,false); camera.aspect=w/h; camera.updateProjectionMatrix(); dirty=true;
+  renderer.setSize(w,h,false); camera.aspect=w/h;
+  const card=$('#card'), side=window.innerWidth>760&&UI.card&&!UI.clean&&card?card.offsetWidth+24:0, left=window.innerWidth>760&&!UI.clean?56:0;
+  const pd=$('#pad'), padH=pd&&!pd.hidden?pd.offsetHeight+12:0;
+  // en celular la escena se centra entre las barras de arriba y el control táctil
+  let topH=0; if(window.innerWidth<=760&&!UI.clean){ const vb=$('.viewbtns'); if(vb&&getComputedStyle(vb).display!=='none') topH=vb.getBoundingClientRect().bottom; }
+  const oy=(padH-topH)/2;
+  if(side||left||oy) camera.setViewOffset(w,h,(side-left)/2,oy,w,h); else camera.clearViewOffset();
+  camera.updateProjectionMatrix(); dirty=true;
 }
 (function loop(){ requestAnimationFrame(loop); if(dirty){ dirty=false; renderer.render(scene,camera); } })();
 
@@ -892,7 +1020,7 @@ function paramField(id,lab,sym,val,lim,k,dec,unit,hint){
   return '<div class="field"><label for="'+id+'">'+lab+' <var>'+sym+'</var></label><output id="'+id+'o">'+fx(val,dec)+' '+unit+'</output>'+
     '<input type="range" id="'+id+'" min="'+(lim[0]*k).toFixed(3)+'" max="'+(lim[1]*k).toFixed(3)+'" step="'+(lim[2]*k).toFixed(3)+'" value="'+val.toFixed(3)+'"><span class="u">'+hint+'</span></div>';
 }
-function applyParams(){ setBallSize(); resetData(); setView(lastView); if(curPage) applyScene(curPage.scene); }
+function applyParams(){ setBallSize(); resetData(); setView(lastView); if(curPage) applyScene(curPage.scene); if(page==='explore') xDraw(); }
 /* Ejes: el origen sigue en b; invertir un eje solo cambia signos, y el resultado para V₀ₓ es el mismo. */
 function axesHTML(){
   const b=(k,txt)=>'<button class="check" type="button" data-ax="'+k+'" aria-pressed="'+(AX[k]<0)+'"><span class="box">'+(AX[k]<0?'✓':'')+'</span><span>'+txt+'</span></button>';
@@ -1076,26 +1204,118 @@ STEPS.splice(5,0,{label:'Tus cálculos',title:'Calcula y verifica',
    row('Altura de la mesa H','',pair(P.H,U.H).join(' ± ')+' m')+row('Diámetro de la esfera d','',pair(P.d,U.d).join(' ± ')+' m')+row('Gravedad g','Medellín','9,77 m/s²')+tableHTML()+calcHTML(); },
  mount(){ const b=$('#goData'); if(b) b.onclick=()=>go(4); mountCalc(); }});
 
-const EXPLORE={title:'Explora: cambia el montaje y observa',
- scene:{ghost:true,dimH:true,dimD:null,labels:true,axes:true,scope:true},
- render(){ return `
-  <p class="lead">Modo libre: cambia el diámetro, la altura de la mesa o de la rampa, lanza las veces que quieras y compara las dos formas de medir V₀ₓ. Nada se califica.</p>
-  ${paramsHTML()}
-  <div class="row"><button class="btn primary" id="xLaunch">Lanzar</button><button class="btn" id="xGate" type="button">Ver la fotocompuerta</button></div>
+/* ---------- Explorar: varios tipos de lanzamiento ---------- */
+const XT={
+  ramp:{n:'Rampa del montaje',k:'1',sh:'Rampa'},
+  horiz:{n:'Horizontal desde la mesa',k:'2',sh:'Horizontal'},
+  obl:{n:'Oblicuo desde la mesa',k:'3',sh:'Oblicuo'},
+  floor:{n:'Desde el piso',k:'4',sh:'Desde el piso'}};
+const XL={type:'obl',v0:2.0,th:35,vec:true,pred:true};
+const xG=new THREE.Group(); scene.add(xG);
+function xOrigin(){ return XL.type==='floor'?{x:0.02,y:0}:{x:0,y:P.H}; }      // centro de la esfera: y + RM
+function xAngle(){ return XL.type==='horiz'?0:XL.th; }
+function xKin(){ const o=xOrigin(), a=xAngle()*Math.PI/180, vx=XL.v0*Math.cos(a), vy=XL.v0*Math.sin(a);
+  const tf=(vy+Math.sqrt(vy*vy+2*G*o.y))/G; return {o,a,vx,vy,tf,D:vx*tf,ymax:o.y+(vy>0?vy*vy/(2*G):0),tup:vy>0?vy/G:0}; }
+function arrowW(dir,len,color){ const a=new THREE.ArrowHelper(dir.clone().normalize(),new THREE.Vector3(),Math.max(len,1e-3),color,Math.min(0.06,len*0.35),Math.min(0.035,len*0.22));
+  a.line.material.depthTest=false; a.cone.material.depthTest=false; a.renderOrder=10; return a; }
+let xVec=null;
+function xDraw(){                    // flecha de V₀ y trayectoria prevista
+  clear(xG); if(app!=='explore'||XL.type==='ramp') return;
+  const k=xKin(), p0=new THREE.Vector3(k.o.x,k.o.y+RM,0);
+  const a=arrowW(new THREE.Vector3(k.vx,k.vy,0),0.07*XL.v0,0xe4580b); a.position.copy(p0); xG.add(a);
+  if(XL.pred){ const pts=[]; for(let i=0;i<=60;i++){ const t=k.tf*i/60; pts.push([k.o.x+k.vx*t,k.o.y+RM+k.vy*t-0.5*G*t*t,0]); } xG.add(poly(pts,sv('--muted'),true)); }
+  if(XL.type==='floor'){ const pad=new THREE.Mesh(new THREE.CylinderGeometry(0.035,0.04,0.012,24),new THREE.MeshStandardMaterial({color:0x2b3542,roughness:0.5})); pad.position.set(k.o.x,0.006,0); xG.add(pad); }
+  ball.position.set(k.o.x,k.o.y+RM,0); dirty=true;
+}
+function xVectors(x,y,vx,vy){        // vectores de velocidad que siguen a la esfera
+  if(!xVec){ xVec={vx:arrowW(new THREE.Vector3(1,0,0),0.1,0x0a7d4a),vy:arrowW(new THREE.Vector3(0,1,0),0.1,0x2563d1)}; scene.add(xVec.vx,xVec.vy); }
+  const on=XL.vec&&x!=null; xVec.vx.visible=on&&Math.abs(vx)>1e-3; xVec.vy.visible=on&&Math.abs(vy)>1e-3; if(!on){ dirty=true; return; }
+  const s=0.07;
+  xVec.vx.position.set(x,y,0); xVec.vx.setDirection(new THREE.Vector3(Math.sign(vx)||1,0,0)); xVec.vx.setLength(Math.abs(vx)*s,Math.min(0.05,Math.abs(vx)*s*0.35),0.03);
+  xVec.vy.position.set(x,y,0); xVec.vy.setDirection(new THREE.Vector3(0,Math.sign(vy)||1,0)); xVec.vy.setLength(Math.max(Math.abs(vy)*s,1e-3),Math.min(0.05,Math.abs(vy)*s*0.35),0.03);
+  dirty=true;
+}
+function xLive(t,x,y,vx,vy){ if(!$('#lt')) return; const o=xOrigin();
+  $('#lt').textContent=fx(t,3); $('#lx').textContent=fx(AX.x*(x-o.x),3); $('#ly').textContent=fx(AX.y*(o.y-y),3); $('#lvx').textContent=fx(AX.x*vx,2); $('#lvy').textContent=fx(-AX.y*vy,2); }
+function xLaunchFree(){
+  const k=xKin(); busy=true; clearTransient(); trailN=0; trailGeo.setDrawRange(0,0); xDraw();
+  let sim=0, last=performance.now(); const sp=Math.min(speed,1);
+  const step=now=>{ const dt=Math.min(0.05,(now-last)/1000)*sp; last=now; sim=Math.min(k.tf,sim+dt);
+    const x=k.o.x+k.vx*sim, y=k.o.y+k.vy*sim-0.5*G*sim*sim, vy=k.vy-G*sim;
+    ball.position.set(x,y+RM,0); ball.rotation.z-=k.vx*dt/RM;
+    trailPos[trailN*3]=x; trailPos[trailN*3+1]=y+RM; trailPos[trailN*3+2]=0; if(trailN<TRN-1) trailN++; trailGeo.setDrawRange(0,trailN); trailGeo.attributes.position.needsUpdate=true;
+    xVectors(x,y+RM,k.vx,vy); xLive(sim,x,y,k.vx,vy); dirty=true;
+    if(sim<k.tf){ anim.raf=requestAnimationFrame(step); return; }
+    anim=null; busy=false; drawDimD(null); xResult(k); padUpdate(); const b=$('#xLaunch'); if(b){ b.disabled=false; b.textContent='Lanzar de nuevo'; }
+  };
+  stopAnim(); anim={raf:requestAnimationFrame(step),free:true};
+}
+function xResult(k){
+  const o=$('#xRes'); if(!o) return;
+  const vyf=k.vy-G*k.tf, vf=Math.hypot(k.vx,vyf), af=Math.atan2(-vyf,k.vx)*180/Math.PI;
+  // la cota del alcance en el piso, medida desde la vertical del punto de lanzamiento
+  const g=G_('gDimD'); clear(g); const z=0.13, c=sv('--muted'), x0=k.o.x, x1=k.o.x+k.D;
+  g.add(poly([[x0,0.003,z],[x1,0.003,z]],c)); g.add(poly([[x0,0.003,0],[x0,0.003,z]],c,true)); g.add(poly([[x1,0.003,0],[x1,0.003,z]],c,true));
+  const l=labelSprite('D = '+fx(k.D,3)+' m',sv('--ink'),0.085,true); l.position.set((x0+x1)/2,0.08,z); g.add(l); dirty=true;
+  o.innerHTML=row('Tiempo de vuelo','t',fx(k.tf,3)+' s')+row('Alcance','D',fx(k.D,3)+' m',true)+
+    (k.vy>0?row('Altura máxima sobre el piso','y₀ + V₀²·sen²θ / 2g',fx(k.ymax,3)+' m')+row('Tiempo hasta la cima','V₀·senθ / g',fx(k.tup,3)+' s'):'')+
+    row('Rapidez al llegar','√(Vₓ² + V_y²)',fx(vf,2)+' m/s')+row('Ángulo al llegar','bajo la horizontal',fx(af,1)+'°')+
+    '<p class="small">Vₓ se mantiene en '+fx(k.vx,2)+' m/s todo el vuelo; solo cambia V<sub>y</sub>.</p>';
+}
+function xEqHTML(){
+  if(XL.type==='ramp') return eqHTML();
+  const sx=AX.x>0?'':'−', sy=AX.y>0?'−':'', sy2=AX.y>0?'':'−', h0=XL.type==='floor'?'0':'H';
+  return '<div class="eq">Origen en el punto de lanzamiento<br>x = '+sx+'V₀·cosθ·t<br>y = '+sy+'V₀·senθ·t '+(AX.y>0?'+':'−')+' ½·g·t²<br>'+
+    'Vₓ = '+sx+'V₀·cosθ (constante)<br>V<sub>y</sub> = '+sy+'V₀·senθ '+(AX.y>0?'+':'−')+' g·t<br>Llega al piso cuando y = '+sy2+(h0==='0'?'0':'H')+'</div>';
+}
+function xSet(k,v){
+  if(k==='type'){ XL.type=v; }
+  if(k==='th'){ XL.th=Math.max(XL.type==='floor'?5:-45,Math.min(85,Math.round(v))); }
+  if(k==='v0'){ XL.v0=Math.max(0.3,Math.min(4,Math.round(v*10)/10)); }
+  if(page==='explore'&&!busy){ if(k==='type') refreshPage(); else { const a=$('#xth'),b=$('#xv0'); if(a){a.value=XL.th;$('#xtho').textContent=XL.th+'°';} if(b){b.value=XL.v0;$('#xv0o').textContent=fx(XL.v0,1)+' m/s';} xDraw(); hud(); } }
+  else hud();
+}
+const EXPLORE={title:'Explora el movimiento parabólico',
+ scene:{ghost:false,dimH:true,dimD:null,labels:true,axes:true,scope:false},
+ render(){ const t=XL.type, free=t!=='ramp';
+  return `
+  <p class="lead">Modo libre: elige cómo lanzar la esfera, cambia las condiciones y observa. Nada se califica.</p>
+  <div class="pills" role="group" aria-label="Tipo de lanzamiento" style="display:grid;grid-template-columns:1fr 1fr;gap:6px">
+    ${Object.keys(XT).map(k=>'<button class="check" type="button" data-xt="'+k+'" aria-pressed="'+(k===t)+'"><span class="box">'+XT[k].k+'</span><span>'+XT[k].n+'</span></button>').join('')}
+  </div>
+  ${free?`<fieldset class="params"><legend>Condiciones del lanzamiento</legend>
+    ${t!=='horiz'?'<div class="field"><label for="xth">Ángulo de lanzamiento θ</label><output id="xtho">'+XL.th+'°</output><input type="range" id="xth" min="'+(t==='floor'?5:-45)+'" max="85" step="1" value="'+XL.th+'"><span class="u">sobre la horizontal · teclas ← →</span></div>':''}
+    <div class="field"><label for="xv0">Rapidez de lanzamiento V₀</label><output id="xv0o">${fx(XL.v0,1)} m/s</output><input type="range" id="xv0" min="0.3" max="4" step="0.1" value="${XL.v0}"><span class="u">teclas ↑ ↓</span></div>
+    ${t!=='floor'?paramField('pH','Altura de la mesa','H',P.H*100,LIM.H,100,1,'cm','punto de lanzamiento a la altura H'):''}
+    <div class="row"><button class="check" type="button" id="xVec" aria-pressed="${XL.vec}" style="width:auto"><span class="box">${XL.vec?'✓':''}</span><span>Vectores de velocidad (V)</span></button><button class="check" type="button" id="xPred" aria-pressed="${XL.pred}" style="width:auto"><span class="box">${XL.pred?'✓':''}</span><span>Trayectoria prevista (T)</span></button></div>
+  </fieldset>`:paramsHTML()}
+  <div class="row"><button class="btn primary" id="xLaunch">Lanzar <span class="small" style="color:inherit;opacity:.8">· Espacio</span></button>${t==='ramp'?'<button class="btn" id="xGate" type="button">Ver la fotocompuerta</button>':''}</div>
   <div class="live" aria-label="Valores en vivo">
     <div><span>t (s)</span><b id="lt">0,000</b></div><div><span>x (m)</span><b id="lx">0,000</b></div><div><span>y (m)</span><b id="ly">0,000</b></div><div><span>Vₓ (m/s)</span><b id="lvx">—</b></div><div><span>V<sub>y</sub> (m/s)</span><b id="lvy">0,00</b></div>
   </div>
-  <div id="xRes"><p class="small">Lanza la esfera para ver τ, el alcance D y las dos velocidades.</p></div>
-  <details><summary>Marco de referencia</summary><div style="display:flex;flex-direction:column;gap:8px;margin-top:8px">${axesHTML()}${eqHTML()}</div></details>
+  <div id="xRes"><p class="small">${free?'Lanza la esfera para ver el tiempo de vuelo, el alcance y la altura máxima.':'Lanza la esfera para ver τ, el alcance D y las dos velocidades.'}</p></div>
+  <details><summary>Marco de referencia y ecuaciones</summary><div style="display:flex;flex-direction:column;gap:8px;margin-top:8px">${axesHTML()}${xEqHTML()}</div></details>
+  <details><summary>Teclado</summary><ul class="tight" style="margin-top:8px">
+    <li><b>Espacio</b> o <b>Enter</b>: lanzar</li><li><b>← →</b>: ángulo (con Shift, de 5 en 5)</li><li><b>↑ ↓</b>: rapidez V₀ (en la rampa: altura de la rampa)</li>
+    <li><b>1–4</b>: tipo de lanzamiento</li><li><b>V</b> vectores · <b>T</b> trayectoria prevista · <b>C</b> borrar la traza</li><li><b>H</b> vista limpia · <b>P</b> panel · <b>S</b> sensor · <b>E</b> rótulos</li></ul></details>
   <details><summary>Ideas para probar</summary><ul class="tight" style="margin-top:8px">
-    <li>Duplica la altura de la rampa: ¿cuánto cambia V₀ₓ?</li>
-    <li>Cambia solo el diámetro: τ cambia, pero ¿cambia V₀ₓ = d/τ?</li>
-    <li>Sube la mesa: el vuelo dura más, ¿y la velocidad horizontal?</li>
+    <li>Desde el piso, ¿qué ángulo da el mayor alcance? ¿Y desde la mesa?</li>
+    <li>30° y 60° desde el piso con la misma V₀: compara los alcances.</li>
+    <li>Lanzamiento horizontal: duplica V₀. ¿Cambia el tiempo de vuelo?</li>
+    <li>Rampa: cambia solo el diámetro. τ cambia, pero ¿cambia V₀ₓ = d/τ?</li>
     <li>Invierte un eje y comprueba que el resultado no cambia.</li></ul></details>`; },
  mount(){
+   const t=XL.type, free=t!=='ramp';
+   document.querySelectorAll('[data-xt]').forEach(b=>b.onclick=()=>xSet('type',b.dataset.xt));
    mountParams(); mountAxes(); const det=document.querySelectorAll('#card details')[0]; if(det&&(AX.x<0||AX.y<0)) det.open=true;
-   $('#xGate').onclick=()=>setView(lastView==='gate'?'iso':'gate');
-   $('#xLaunch').onclick=()=>{ if(busy)return; busy=true; $('#xLaunch').disabled=true; clearMarksView(); scopeTau=null; drawScope();
+   const th=$('#xth'), v0=$('#xv0'); if(th) th.oninput=()=>xSet('th',+th.value); if(v0) v0.oninput=()=>xSet('v0',+v0.value);
+   const xv=$('#xVec'); if(xv) xv.onclick=()=>{ XL.vec=!XL.vec; refreshPage(); };
+   const xp=$('#xPred'); if(xp) xp.onclick=()=>{ XL.pred=!XL.pred; refreshPage(); };
+   const xg=$('#xGate'); if(xg) xg.onclick=()=>setView(lastView==='gate'?'iso':'gate');
+   xVectors(null); xDraw(); hud();
+   $('#xLaunch').onclick=()=>{ if(busy)return; $('#xLaunch').disabled=true;
+     if(free){ xLaunchFree(); return; }
+     busy=true; clearMarksView(); scopeTau=null; drawScope();
      const k=expN++%trials.length;
      start('full',k,{
        onGate:j=>{ scopeTau=trials[j].tau; sweepScope(); },
@@ -1104,10 +1324,36 @@ const EXPLORE={title:'Explora: cambia el montaje y observa',
          const Vt=P.d/t, uVt=Math.sqrt(Math.pow(U.d/t,2)+Math.pow(P.d*U.tau/(t*t),2)), Ve=D*Math.sqrt(G/(2*P.H)), uVe=Math.sqrt(G/(2*P.H)*U.D*U.D+G*D*D/(8*Math.pow(P.H,3))*U.H*U.H);
          const o=$('#xRes'); if(o) o.innerHTML=row('Tiempo en la fotocompuerta','τ',pair(t,U.tau).join(' ± ')+' s')+row('Alcance','D',pair(D,U.D).join(' ± ')+' m')+
            row('Con la fotocompuerta','V₀ₓ = d / τ',pair(Vt,uVt).join(' ± ')+' m/s',true)+row('Con la parábola','V₀ₓ = D·√(g / 2H)',pair(Ve,uVe).join(' ± ')+' m/s',true)+
-           '<p class="small">Tiempo de vuelo √(2H/g) = '+fx(TF(),3)+' s. Cada lanzamiento sale un poco distinto, como en el laboratorio.</p>';
+           '<p class="small">Tiempo de vuelo √(2H/g) = '+fx(TF(),3)+' s. Cada lanzamiento sale un poco distinto, como en el laboratorio.</p>'+
+           (UI.scopeX?'':'<div class="row"><button class="btn" id="xScope" type="button">Ver la señal del PhysicsSensor</button></div>');
+         const xs=$('#xScope'); if(xs) xs.onclick=()=>{ toggleUI('scope'); xs.remove(); };
          const b=$('#xLaunch'); if(b){ b.disabled=false; b.textContent='Lanzar de nuevo'; } } }); };
  }};
-
+/* indicador flotante con el tipo, el ángulo, la rapidez y las teclas (se ve en vista limpia o sin panel) */
+const isTouch=()=>(window.matchMedia&&matchMedia('(pointer:coarse)').matches)||window.innerWidth<=760;
+function padUpdate(){ const pd=$('#pad'); if(!pd) return; const was=pd.hidden;
+  const ex=app==='explore', on=isTouch()&&!UI.clean?(ex||!UI.card):isTouch()&&UI.clean;
+  pd.hidden=!on; if(was!==pd.hidden) requestAnimationFrame(resize3D); if(!on) return;
+  const t=XL.type, free=t!=='ramp';
+  $('#padType').hidden=!ex; $('#padType').textContent=ex?XT[t].sh:'';
+  $('#padTh').hidden=!ex||!free||t==='horiz'; $('#padV').hidden=!ex;
+  $('#padVal').textContent=ex?(free?(t!=='horiz'?'θ '+XL.th+'° · ':'')+'V₀ '+fx(XL.v0,1)+' m/s':'h '+fx(P.h*100,1)+' cm'):'';
+  const b=ex?$('#xLaunch'):$('#card .btn.primary:not(#next)'); const g=$('#padGo');
+  g.textContent=ex?'Lanzar':(b?b.textContent.replace(/·.*$/,'').trim():'Lanzar'); g.disabled=busy||!b||b.disabled;
+}
+function padAct(a){
+  if(a==='go'){ const b=app==='explore'?$('#xLaunch'):$('#card .btn.primary:not(#next):not(:disabled)'); if(b&&!b.disabled) b.click(); setTimeout(padUpdate,30); return; }
+  if(app!=='explore') return; const free=XL.type!=='ramp';
+  if(a==='th+'||a==='th-'){ if(free&&XL.type!=='horiz') xSet('th',XL.th+(a==='th+'?1:-1)); }
+  else if(a==='v+'||a==='v-'){ const d=a==='v+'?1:-1; if(free) xSet('v0',XL.v0+d*0.1); else if(!busy){ P.h=Math.max(LIM.h[0],Math.min(LIM.h[1],Math.round((P.h+d*0.005)*1000)/1000)); applyParams(); refreshPage(); } }
+  padUpdate();
+}
+function hud(){ padUpdate(); const h=$('#hud'); if(!h) return;
+  const on=app==='explore'&&(UI.clean||!UI.card)&&!isTouch(); h.hidden=!on; if(!on) return;
+  const t=XL.type, free=t!=='ramp';
+  h.innerHTML='<b>'+XT[t].sh+'</b>'+(free?(t!=='horiz'?'<span>θ = '+XL.th+'°</span>':'')+'<span>V₀ = '+fx(XL.v0,1)+' m/s</span>':'<span>h = '+fx(P.h*100,1)+' cm</span>')+
+    '<span class="keys"><kbd>Espacio</kbd> lanzar'+(free&&t!=='horiz'?' · <kbd>←</kbd><kbd>→</kbd> ángulo':'')+' · <kbd>↑</kbd><kbd>↓</kbd> '+(free?'rapidez':'rampa')+' · <kbd>1</kbd>–<kbd>4</kbd> tipo</span>';
+}
 const LABFREE={title:'Laboratorio: toma los datos y calcula',
  scene:{ghost:false,dimH:true,dimD:null,labels:false,axes:false,scope:true},
  render(){ return row('Altura de la mesa H','cinta métrica',pair(P.H,U.H).join(' ± ')+' m')+row('Diámetro de la esfera d','calibrador',pair(P.d,U.d).join(' ± ')+' m')+
@@ -1115,14 +1361,32 @@ const LABFREE={title:'Laboratorio: toma los datos y calcula',
    '<p class="small">¿Quieres la explicación de cada etapa? Activa <b>Paso a paso</b> arriba.</p>'; },
  mount(){ STEPS[4].mount(); mountCalc(); }};
 
+function layoutTop(){
+  const hd=$('header.top'); if(!hd) return; let hb=0;
+  [...hd.children].forEach(c=>{ if(getComputedStyle(c).display!=='none'){ const r=c.getBoundingClientRect(); if(r.height) hb=Math.max(hb,r.bottom); } });
+  const nav=$('nav.steps'), st=document.documentElement.style; st.setProperty('--navt',(hb+8)+'px');
+  let ct=hb+8; if(nav&&!nav.hidden){ const ol=nav.querySelector('ol'); ct=hb+8+(ol?ol.getBoundingClientRect().height:44)+8; }
+  st.setProperty('--cardt',ct+'px');
+}
+function applyUI(){
+  const b=document.body;
+  b.classList.toggle('no-card',!UI.card); b.classList.toggle('no-scope',!UI.scope); b.classList.toggle('clean',UI.clean);
+  document.querySelectorAll('[data-ui]').forEach(x=>x.setAttribute('aria-pressed',String(!!UI[x.dataset.ui])));
+  try{ localStorage.setItem('parabolico-ui',JSON.stringify({card:UI.card,scope:UI.scope,labels:UI.labels})); }catch(e){}
+  const sb=$('[data-ui="scope"]'); if(sb) sb.setAttribute('aria-pressed',String(page==='explore'?UI.scopeX:UI.scope));
+  if(lastCfg) applyScene(lastCfg);
+  layoutTop(); resize3D(); requestAnimationFrame(drawScope); hud();
+}
+function toggleUI(k){ if(k==='scope'&&page==='explore') k='scopeX'; UI[k]=!UI[k]; if(k!=='clean'&&UI.clean) UI.clean=false; applyUI(); }
 function refreshPage(){ if(page.startsWith('s')) go(cur); else if(curPage) show(curPage,page); }
 function syncModes(){
   document.querySelectorAll('.mode[data-app]').forEach(b=>b.classList.toggle('on',b.dataset.app===app));
   const g=$('#bGuide'); g.hidden=app!=='lab'; g.setAttribute('aria-pressed',String(guide));
   $('nav.steps').hidden=!(app==='lab'&&guide);
+  document.body.classList.toggle('navon',app==='lab'&&guide); layoutTop();
   try{ history.replaceState(null,'',app==='lab'?'#laboratorio':'#explorar'); }catch(e){}
 }
-function setApp(a){ app=a; syncModes(); if(a==='explore') show(EXPLORE,'explore'); else if(guide) go(cur); else show(LABFREE,'labfree'); }
+function setApp(a){ app=a; syncModes(); if(a!=='explore'){ clear(xG); xVectors(null); } hud(); if(a==='explore') show(EXPLORE,'explore'); else if(guide) go(cur); else show(LABFREE,'labfree'); }
 
 /* ---------- navegación ---------- */
 function clearMarksView(){ clear(G_('gMarks')); drawDimD(null); }
@@ -1130,7 +1394,11 @@ function resetData(){ chainToken++; stopAnim(); busy=false; recorded=[]; scopeTa
 
 function applyScene(cfg){
   G_('gGhost').visible=!!cfg.ghost; G_('gAxes').visible=!!cfg.axes; G_('gDimH').visible=!!cfg.dimH; G_('gLabels').visible=!!cfg.labels;
-  G_('gMarks').visible=true; $('#scopeWrap').hidden=!cfg.scope; dirty=true;
+  lastCfg=cfg;
+  if(!UI.labels||UI.clean){ G_('gLabels').visible=false; G_('gDimH').visible=false; G_('gDimD').visible=false; if(UI.clean) G_('gAxes').visible=false; }
+  else G_('gDimD').visible=true;
+  const hideTags=!UI.labels||UI.clean; scene.traverse(o=>{ if(o.isSprite&&o.parent!==G_('gAxes')){ if(o.userData.v0===undefined) o.userData.v0=o.visible; o.visible=hideTags?false:o.userData.v0; } });
+  G_('gMarks').visible=true; $('#scopeWrap').hidden=page==='explore'?!UI.scopeX:!cfg.scope; document.body.classList.toggle('no-scope',page==='explore'?false:!UI.scope); dirty=true;
   if(cfg.dimD==='ghost') drawDimD(V0model()*TF()*0.985);
   else if(cfg.dimD==='mean'&&recorded.length>=5) drawDimD(stats().Dm);
   else drawDimD(null);
@@ -1144,7 +1412,7 @@ function show(st,id){
   else { if(lastView==='gate') setView('iso'); drawMarks(); if(k!=null) ballAt('c',k); else ballAt('a'); }
   $('#card').innerHTML='<p class="kicker">'+(id==='explore'?'Modo explorar':'Modo laboratorio')+'</p><h2>'+st.title+'</h2>'+st.render();
   if(st.mount) st.mount();
-  applyScene(st.scene);
+  applyScene(st.scene); padUpdate();
 }
 function go(i){
   if(app!=='lab'||!guide){ app='lab'; guide=true; syncModes(); }
@@ -1177,8 +1445,35 @@ function go(i){
   setBallSize(); genTrials(); buildPath(); drawStatic(); ballAt('a'); drawScope();
   document.querySelectorAll('.mode[data-app]').forEach(b=>b.onclick=()=>setApp(b.dataset.app));
   $('#bGuide').onclick=()=>{ guide=!guide; setApp('lab'); };
+  document.querySelectorAll('[data-ui]').forEach(x=>x.onclick=()=>toggleUI(x.dataset.ui));
+  $('#unclean').onclick=()=>toggleUI('clean');
+  $('#padType').onclick=()=>{ const ks=Object.keys(XT); xSet('type',ks[(ks.indexOf(XL.type)+1)%ks.length]); padUpdate(); };
+  $('#padGo').onclick=()=>padAct('go');
+  document.querySelectorAll('[data-pad]').forEach(b=>{ let t1=0,t2=0; const stop=()=>{ clearTimeout(t1); clearInterval(t2); };
+    b.addEventListener('pointerdown',e=>{ e.preventDefault(); padAct(b.dataset.pad); t1=setTimeout(()=>{ t2=setInterval(()=>padAct(b.dataset.pad),70); },380); });
+    ['pointerup','pointerleave','pointercancel'].forEach(ev=>b.addEventListener(ev,stop)); b.addEventListener('contextmenu',e=>e.preventDefault()); });
+  window.addEventListener('resize',hud);
+  document.addEventListener('keydown',e=>{ if(e.target.closest&&e.target.closest('input,select,textarea')) return; if(e.metaKey||e.ctrlKey||e.altKey) return;
+    if(e.target.closest&&e.target.closest('button')&&(e.key===' '||e.key==='Enter')) return;
+    const key=e.key, lk=key.toLowerCase(), st=e.shiftKey?5:1;
+    const k={h:'clean',p:'card',s:'scope',e:'labels'}[lk]; if(k){ toggleUI(k); e.preventDefault(); return; }
+    if(key==='Escape'&&UI.clean){ toggleUI('clean'); return; }
+    if(key===' '||key==='Enter'){ const b=app==='explore'?$('#xLaunch'):$('#card .btn.primary:not(#next):not(:disabled)'); if(b&&!b.disabled){ b.click(); e.preventDefault(); } return; }
+    if(app!=='explore') return;
+    const free=XL.type!=='ramp';
+    if(key==='ArrowLeft'||key==='ArrowRight'){ if(free&&XL.type!=='horiz') xSet('th',XL.th+(key==='ArrowRight'?st:-st)); e.preventDefault(); }
+    else if(key==='ArrowUp'||key==='ArrowDown'){ const d=key==='ArrowUp'?1:-1;
+      if(free) xSet('v0',XL.v0+d*0.1*st); else if(!busy){ P.h=Math.max(LIM.h[0],Math.min(LIM.h[1],Math.round((P.h+d*0.01*st)*1000)/1000)); applyParams(); refreshPage(); hud(); }
+      e.preventDefault(); }
+    else if('1234'.includes(key)&&key.length===1){ xSet('type',['ramp','horiz','obl','floor'][+key-1]); }
+    else if(lk==='v'){ XL.vec=!XL.vec; refreshPage(); }
+    else if(lk==='t'){ XL.pred=!XL.pred; refreshPage(); }
+    else if(lk==='c'){ clearTransient(); trailN=0; trailGeo.setDrawRange(0,0); clear(G_('gDimD')); dirty=true; }
+  });
+  applyUI();
   setApp(/laboratorio/.test(location.hash)?'lab':'explore');
-  window.addEventListener('resize',drawScope);
+  window.addEventListener('resize',()=>{ drawScope(); layoutTop(); resize3D(); });
+  if(document.fonts&&document.fonts.ready) document.fonts.ready.then(layoutTop);
   if(window.ResizeObserver) new ResizeObserver(drawScope).observe($('#scope'));
   const onTheme=()=>{ drawScope(); drawStatic(true); };
   window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change',onTheme);

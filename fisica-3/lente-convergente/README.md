@@ -1,5 +1,9 @@
-# Física 3 · Práctica de lente convergente
+# Lente convergente
 
-Carpeta para la simulación de la práctica de **lente convergente** (Física 3, UNAL).
+Física 3 · UNAL Medellín
 
-Aquí van el HTML de la simulación y su `LEEME.txt`.
+- **Estado:** lista · diseño anterior (falta pasarla al diseño aprobado de parabólico)
+- `index.html`: simulación (Explorar y Laboratorio, modo día, vista a través de la lente)
+- `src/index.src.html`: fuente · `LEEME.txt`: uso y detalles
+
+Reconstruir: `python3 -I ../../herramientas/empaquetar.py src/index.src.html index.html`

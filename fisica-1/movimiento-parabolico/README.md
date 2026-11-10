@@ -10,7 +10,7 @@ Simulación 3D de la práctica de movimiento parabólico, ambientada en un labor
 
 ## Modos
 
-- **Explorar**: modo libre. Se cambian d, H y h, se lanza las veces que se quiera y se comparan V₀ₓ por fotocompuerta y por parábola. Incluye la opción de invertir los ejes y una lista de ideas para probar.
+- **Explorar**: modo libre con cuatro tipos de lanzamiento: rampa del montaje (V₀ₓ por fotocompuerta y por parábola), horizontal desde la mesa, oblicuo desde la mesa y desde el piso (ángulo θ y rapidez V₀). Muestra trayectoria prevista, vectores de velocidad, tiempo de vuelo, alcance, altura máxima y velocidad al llegar. Incluye la opción de invertir los ejes y una lista de ideas para probar.
 - **Laboratorio**: se toman los cinco lanzamientos y el estudiante escribe sus resultados (promedios, velocidades con su incertidumbre y % de error); la simulación los verifica y puede mostrar la solución.
 - **Paso a paso** (botón en Laboratorio, opcional): la guía de siete pasos de abajo.
 
@@ -54,6 +54,17 @@ En Montaje, Vuelo y Explorar se pueden invertir los ejes x y y. Cambian los sign
 
 La fuente está en `src/index.src.html`. Después de editarla, desde esta carpeta:
 
-    python3 -I ../../../skills/simulacion-practica-lab/scripts/empaquetar.py src/index.src.html index.html
+    python3 -I ../../herramientas/empaquetar.py src/index.src.html index.html
 
-El motor y la cámara compartidos están en `vendor/` (raíz del repositorio).
+El motor, la cámara y las fuentes compartidos están en `biblioteca/` (raíz del repositorio).
+
+## Teclado
+
+- **Espacio / Enter**: lanzar (en Laboratorio, el botón principal del paso).
+- **← →**: ángulo de lanzamiento (Shift: de 5 en 5). **↑ ↓**: rapidez V₀ (en la rampa, altura de la rampa).
+- **1–4**: tipo de lanzamiento. **V** vectores · **T** trayectoria prevista · **C** borrar la traza.
+- **H** vista limpia (solo la escena, con un indicador de θ, V₀ y las teclas) · **P** panel · **S** sensor · **E** rótulos · **Esc** sale de la vista limpia.
+
+## Celular y pantallas táctiles
+
+En Explorar aparece un control táctil con los mismos controles del teclado: **θ− θ+**, **Lanzar**, **V− V+** (mantener presionado repite) y el botón del tipo de lanzamiento, que cambia en cada toque. Con el panel abierto queda en una sola fila, sobre la escena; sin panel o en vista limpia muestra también el tipo, θ y V₀. En Laboratorio, en vista limpia, el botón hace lo del botón principal del paso.

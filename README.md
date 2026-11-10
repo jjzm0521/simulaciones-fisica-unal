@@ -1,25 +1,34 @@
 # simulaciones-fisica-unal
 
-Skill de Antigravity / Gemini para la creación y desarrollo de simulaciones 3D interactivas del **Laboratorio de Física Mecánica** (Universidad Nacional de Colombia, Sede Medellín).
+Simulaciones 3D interactivas de los laboratorios de física de la **Universidad Nacional de Colombia, Sede Medellín**. Cada simulación es un solo archivo HTML que funciona sin internet, en computador, celular y proyector.
 
----
+## Organización
 
-## 🤖 Skill: `simulacion-practica-lab`
+| Carpeta | Qué hay |
+|---|---|
+| [`fisica-1/`](fisica-1/) | Física Mecánica: una carpeta por práctica (13) y un índice con el estado de cada una |
+| [`fisica-3/`](fisica-3/) | Ondas y óptica |
+| [`biblioteca/`](biblioteca/) | Lo compartido: motor 3D, cámara, fuentes; luego interfaz aprobada y piezas (fotocompuerta, rampa, esfera…) |
+| [`herramientas/`](herramientas/) | `empaquetar.py`: arma el HTML final de cualquier práctica |
+| [`docs/`](docs/) | Propuestas y decisiones del equipo ([biblioteca de piezas](docs/propuesta-biblioteca.md)) |
+| [`skills/`](skills/) | Instrucciones para el agente de IA (`simulacion-practica-lab`) |
 
-Esta habilidad permite a los asistentes de IA generar simulaciones en HTML autónomo (sin conexión a internet) siguiendo el estilo visual de *sael.net*, los datos reales de los montajes de la UNAL, sonoscopio virtual con señales fidedignas, tablas de datos y cálculo riguroso de incertidumbres.
+Cada práctica tiene la misma forma:
 
-### Contenido
+    index.html          simulación lista (la que se abre y se envía)
+    src/index.src.html  fuente editable
+    README.md           ficha de la práctica
+    guia/  archivo/     guía en PDF y versiones anteriores (opcionales)
 
-- [`skills/simulacion-practica-lab.skill`](./skills/simulacion-practica-lab.skill): Paquete comprimido de la skill para instalación directa.
-- [`.gemini/skills/simulacion-practica-lab/`](./.gemini/skills/simulacion-practica-lab/): Directorio de la skill listo para usar al abrir este repositorio en Antigravity.
-  - `SKILL.md`: Directrices, flujo de trabajo y reglas aprobadas.
-  - `references/catalogo-practicas.md`: Catálogo y propuestas para cada práctica del laboratorio.
-  - `references/estilo-sael.md`: Guía de diseño visual y paleta de colores.
-  - `references/fisica-y-datos.md`: Fórmulas, señales del sonoscopio y tratamiento de incertidumbres.
-  - `assets/plantilla-practica08-atwood.html`: Plantilla base con el diorama 3D y la estructura de datos.
-  - `scripts/build.py` y `scripts/get_three.sh`: Scripts para empaquetar three.js e integrar las simulaciones offline.
+Para reconstruir una práctica después de editar su fuente, desde su carpeta:
 
----
+    python3 -I ../../herramientas/empaquetar.py src/index.src.html index.html
+
+## Simulaciones listas
+
+- [Movimiento parabólico](fisica-1/movimiento-parabolico/) (F1) · diseño aprobado
+- [Movimiento circular · Atwood](fisica-1/movimiento-circular/) (F1) · diseño anterior
+- [Lente convergente](fisica-3/lente-convergente/) (F3) · diseño anterior
 
 ## 👥 Colaboradores
 

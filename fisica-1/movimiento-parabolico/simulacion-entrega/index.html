@@ -162,6 +162,24 @@ ul.tight{margin:0;padding-left:18px;display:flex;flex-direction:column;gap:4px}
 .ball-m{stroke:var(--steel2);stroke-width:2;stroke-linecap:round}
 .mk{fill:var(--path)}
 [hidden]{display:none!important}
+/* modos y paso a paso */
+.modes{display:flex;gap:6px;flex-wrap:wrap;align-items:center}
+.mode{background:var(--surface);border:1px solid var(--line);border-radius:999px;padding:7px 14px;font-size:13.5px;font-weight:500;cursor:pointer;color:var(--muted)}
+.mode:hover{border-color:var(--accent)}
+.mode.on{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.mode.guide[aria-pressed="true"]{background:color-mix(in srgb,var(--accent) 14%,var(--surface));border-color:var(--accent);color:var(--ink)}
+.axes2{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.calcf{display:grid;grid-template-columns:minmax(0,1fr) 88px 14px 70px auto;gap:6px 6px;align-items:center}
+.calcf .h{font-size:11.5px;color:var(--muted);letter-spacing:.04em}
+.calcf input{width:100%;font-family:var(--font-mono);font-size:13px;padding:6px 7px;border:1px solid var(--line);border-radius:6px;background:var(--surface)}
+.calcf input.ok{border-color:var(--ok);background:color-mix(in srgb,var(--ok) 8%,var(--surface))}
+.calcf input.bad{border-color:var(--bad);background:color-mix(in srgb,var(--bad) 7%,var(--surface))}
+.calcf .lab{font-weight:500;font-size:13.5px}
+.calcf .pm{text-align:center;color:var(--muted)}
+.calcf .un{font-size:12px;color:var(--muted);font-family:var(--font-mono)}
+.calcf .msg{grid-column:1/-1;font-size:12.5px;margin:-2px 0 4px}
+.calcf .msg.ok{color:var(--ok)} .calcf .msg.bad{color:var(--bad)}
+@media (max-width:520px){ .calcf{grid-template-columns:minmax(0,1fr) 76px 12px 62px} .calcf .un{display:none} .axes2{grid-template-columns:1fr} }
 
 @media (max-width:920px){
   main.layout{grid-template-columns:minmax(0,1fr)}
@@ -181,6 +199,11 @@ ul.tight{margin:0;padding-left:18px;display:flex;flex-direction:column;gap:4px}
     <div>
       <div class="eyebrow">Universidad Nacional de Colombia · Sede Medellín · Física Mecánica · Práctica 7</div>
       <h1>Laboratorio de movimiento parabólico</h1>
+    </div>
+    <div class="modes" role="group" aria-label="Modo">
+      <button class="mode" type="button" data-app="explore">Explorar</button>
+      <button class="mode" type="button" data-app="lab">Laboratorio</button>
+      <button class="mode guide" type="button" id="bGuide" aria-pressed="true" title="Mostrar u ocultar la guía de la práctica">Paso a paso</button>
     </div>
     <div class="speed">
       <label for="speed">Velocidad de la simulación</label>
@@ -397,9 +420,11 @@ const AP=1/3648, AP_TXT='2.7412280701754384E-4';   // apreciación del PhysicsSe
 const NOM={H:0.950,h:0.100,d:0.0160};
 const LIM={d:[0.0120,0.0250,0.00005],H:[0.700,1.150,0.001],h:[0.050,0.250,0.001]};
 const P={H:NOM.H,h:NOM.h,d:NOM.d};
-const U={H:0.001,d:0.00005,D:0.001,tau:AP};
+const U={H:0.001,d:0.00005,D:0.001,tau:AP,h:0.001};
 let seed=11, trials=[], path=[], Troll=0, recorded=[], speed=0.5, cur=0, seen=new Set([0]);
 let anim=null, chainToken=0, busy=false, scopeTau=null;
+let app='explore', guide=true, page='', curPage=null, expN=0, answers={}, showSol=false;
+const AX={x:1,y:1};   // x: +1 hacia la derecha · y: +1 hacia abajo (marco de la guía); −1 invierte el eje
 
 const fx=(x,dec)=>x.toFixed(dec).replace('.',',');
 /* incertidumbre con UNA cifra significativa y el valor redondeado a la misma posición decimal */
@@ -451,8 +476,8 @@ if(typeof THREE==='undefined'||!THREE.CamaraOrbita){
 let renderer;
 try{ renderer=new THREE.WebGLRenderer({antialias:true,alpha:true}); }
 catch(e){ view.innerHTML='<p style="padding:24px;color:var(--muted)">Este navegador no puede mostrar gráficos 3D (WebGL).</p>'; return; }
-// r159 con el aspecto de r128: sin gestión de color y con la iluminación clásica
-THREE.ColorManagement.enabled=false; renderer.outputColorSpace=THREE.LinearSRGBColorSpace; renderer.useLegacyLights=true;
+// r159 con el aspecto de r128: sin gestión de color; las luces van ×π (equivale a la iluminación clásica)
+THREE.ColorManagement.enabled=false; renderer.outputColorSpace=THREE.LinearSRGBColorSpace;
 renderer.setPixelRatio(Math.min(window.devicePixelRatio||1,2));
 renderer.shadowMap.enabled=true; renderer.shadowMap.type=THREE.PCFSoftShadowMap;
 view.appendChild(renderer.domElement);
@@ -466,8 +491,8 @@ let dirty=true;
 controls.addEventListener('change',()=>{dirty=true;});
 
 scene.background=new THREE.Color(0xdfe6ee);
-scene.add(new THREE.HemisphereLight(0xffffff,0xb9c4d0,0.9));
-const sun=new THREE.DirectionalLight(0xfff6e6,0.65);
+scene.add(new THREE.HemisphereLight(0xffffff,0xb9c4d0,0.9*Math.PI));
+const sun=new THREE.DirectionalLight(0xfff6e6,0.65*Math.PI);
 sun.position.set(1.4,3.2,2.0); sun.castShadow=true; sun.shadow.mapSize.set(2048,2048);
 {const c=sun.shadow.camera; c.left=-2;c.right=2;c.top=2;c.bottom=-2;c.near=0.5;c.far=9;} sun.shadow.bias=-0.0005;
 scene.add(sun);
@@ -774,11 +799,11 @@ function drawStatic(keep){
   G_('gGhost').add(poly(pts,sv('--path'),true));
   // ejes
   const O=new THREE.Vector3(0,H+RM,0);
-  const ax=new THREE.ArrowHelper(new THREE.Vector3(1,0,0),O,0.4,sv('--x'),0.07,0.04);
-  const ay=new THREE.ArrowHelper(new THREE.Vector3(0,-1,0),O,0.32,sv('--y'),0.07,0.04);
+  const ax=new THREE.ArrowHelper(new THREE.Vector3(AX.x,0,0),O,0.4,sv('--x'),0.07,0.04);
+  const ay=new THREE.ArrowHelper(new THREE.Vector3(0,-AX.y,0),O,0.32,sv('--y'),0.07,0.04);
   [ax,ay].forEach(r=>{ r.line.material.depthTest=false; r.cone.material.depthTest=false; r.renderOrder=9; G_('gAxes').add(r); });
-  const lx=labelSprite('x',sv('--x'),0.12); lx.position.set(0.47,H+RM,0); G_('gAxes').add(lx);
-  const ly=labelSprite('y',sv('--y'),0.12); ly.position.set(0.06,H+RM-0.37,0); G_('gAxes').add(ly);
+  const lx=labelSprite('x',sv('--x'),0.12); lx.position.set(0.47*AX.x,H+RM,0); G_('gAxes').add(lx);
+  const ly=labelSprite('y',sv('--y'),0.12); ly.position.set(0.06,H+RM-0.37*AX.y,0); G_('gAxes').add(ly);
   const lo=labelSprite('O',sv('--ink'),0.1); lo.position.set(-0.06,H+RM+0.07,0); G_('gAxes').add(lo);
   drawMarks(); drawDimD(keep?lastDimD:null); dirty=true;
 }
@@ -885,7 +910,7 @@ function tick(ts){
       while(a.nextStrobe<=t+1e-9){const tn=a.nextStrobe; addStrobe(tn,X0+vx*S*tn,yr()-R+0.5*G*tn*tn*S); a.nextStrobe+=0.05;}
       updateProj(x,y);
     }
-    if(a.onFrame) a.onFrame({t,x:vx*t,y:0.5*G*t*t,vx,vy:G*t});
+    if(a.onFrame) a.onFrame({t,x:AX.x*vx*t,y:AX.y*0.5*G*t*t,vx:AX.x*vx,vy:AX.y*G*t});
     if(a.sim>=tf){ if(a.strobe) updateProj(X0+vx*S*tf,YF-R); finish(); return; }
   }
   a.raf=requestAnimationFrame(tick);
@@ -911,15 +936,32 @@ function resize3D(){
 /* Forma de la señal tomada del sonograma real (carpeta adicional): la señal sube rápido y de forma cóncava al
    interrumpirse el haz, se queda casi plana mientras la esfera tapa el haz y, cuando el haz se libera, baja con una
    cola exponencial. τ se mide entre el punto donde la gráfica EMPIEZA A SUBIR y el punto donde EMPIEZA A BAJAR. */
-const TW0=0.30; let ex=1, ey=1, scopeF=1;
+const TW0=0.12; let ex=1, ey=1, scopeF=1;
 const tauTxt=t=>String(Number(t.toPrecision(15)));
 function sweepScope(){ scopeF=0; const t0=performance.now(); (function f(now){ scopeF=Math.min(1,(now-t0)/800); drawScope(); if(scopeF<1) requestAnimationFrame(f); })(t0); }
 function hash(i){ const v=Math.sin(i*12.9898+78.233)*43758.5453; return v-Math.floor(v); }
-function pulse(u){                       // u = (t − t_subida)/τ ; amplitud normalizada
-  if(u<0) return 0;
-  if(u<=1) return (1-Math.exp(-u/0.15))/(1-Math.exp(-1/0.15));
-  const v=u-1;
-  return Math.exp(-Math.pow(v/0.17,1.2)) - 0.10*(1-Math.exp(-v/0.25))*Math.exp(-v/3);
+/* La señal se genera con la geometría real: el haz es un disco de radio RB a la altura del centro de la esfera,
+   y la señal es la fracción del haz que tapa la silueta de la esfera (radio d/2) mientras avanza a v = d/τ.
+   · Empieza a subir cuando el borde delantero toca el haz y empieza a bajar cuando el borde trasero llega a él:
+     entre esos dos puntos pasan exactamente d/v = τ, para cualquier diámetro.
+   · La subida y la bajada duran 2·RB/v (no dependen de d), así que una esfera grande da una meseta más larga.
+   · Filtro pasa-bajos (respuesta del fotodiodo) y pasa-altos (entrada de audio del computador): caída suave de la
+     meseta y la pequeña cola por debajo de la base al final, como en el sonograma real. */
+const RB=0.0010, T_LP=0.0004, T_HP=0.15;
+function beamFrac(dc,r,rb){
+  dc=Math.abs(dc); if(dc>=r+rb) return 0; if(dc<=r-rb) return 1;
+  const r2=r*r,b2=rb*rb;
+  const a=r2*Math.acos((dc*dc+r2-b2)/(2*dc*r))+b2*Math.acos((dc*dc+b2-r2)/(2*dc*rb))-0.5*Math.sqrt((-dc+r+rb)*(dc+r-rb)*(dc-r+rb)*(dc+r+rb));
+  return a/(Math.PI*b2);
+}
+function signal(T,tau,t1,n){            // n+1 muestras de la señal normalizada en t = i·T/n
+  const r=P.d/2, v=P.d/tau, dt=Math.min(2e-5,T/n/4), N=Math.ceil(T/dt), out=new Float32Array(n+1);
+  const aL=dt/(T_LP+dt), aH=T_HP/(T_HP+dt); let lp=0,prev=0,hp=0,j=0;
+  for(let k=0;k<=N&&j<=n;k++){ const t=k*dt;
+    lp+=aL*(beamFrac(-(r+RB)+v*(t-t1),r,RB)-lp); hp=aH*(hp+lp-prev); prev=lp;
+    while(j<=n&&j*T/n<=t) out[j++]=hp; }
+  while(j<=n) out[j++]=hp;
+  return out;
 }
 function drawScope(){
   const c=$('#scope'); if(!c) return; const w=c.clientWidth,h=c.clientHeight; if(!w) return;
@@ -939,13 +981,14 @@ function drawScope(){
   ctx.strokeStyle='#e8383d'; ctx.lineWidth=1; ctx.beginPath(); ctx.moveTo(0,yr0); ctx.lineTo(w,yr0); ctx.stroke();
   // señal: línea base con deriva lenta y pequeños escalones, más el pulso
   const tcut = !has||scopeF>=1 ? T : T*(0.45+0.55*scopeF);
+  const sig = has ? signal(T,tau,t1,w) : null;
   ctx.strokeStyle='#2a2a2a'; ctx.lineWidth=1.1; ctx.lineJoin='round'; ctx.beginPath();
   for(let i=0;i<=w;i++){
     const t=i/w*T; if(t>tcut) break;
     const drift=(0.5-i/w)*0.32*h*0.30;                         // la base sube suavemente de izquierda a derecha
     const step=Math.round(drift/1.5)*1.5;
     const blip=hash(i)>0.94?(hash(i+7)>0.5?1.2:-1.2):0;
-    const y=yb+step+blip-(has?pulse((t-t1)/tau)*amp:0);
+    const y=yb+step+blip-(has?sig[i]*amp:0);
     if(i===0) ctx.moveTo(i,y+0.5); else ctx.lineTo(i,y+0.5);
   }
   ctx.stroke();
@@ -961,7 +1004,7 @@ function drawScope(){
   ctx.fillText('Autor:  Diego L. Aristizábal R.   Copyright 2010-2013',6,h-9);
   const [tv,tu]=pair(tau,U.tau);
   $('#scopeInfo').textContent = !has ? 'Sin señal: suelta la esfera para registrar el pulso.'
-    : 'Cursores en el inicio de la subida y en el inicio de la bajada: τ = '+tv+' ± '+tu+' s (la incertidumbre es la apreciación del programa).';
+    : 'Esfera de d = '+fx(P.d*1000,2)+' mm. Cursores en el inicio de la subida y en el inicio de la bajada: τ = '+tv+' ± '+tu+' s (la incertidumbre es la apreciación del programa). La subida dura lo mismo para cualquier esfera; una esfera más grande tapa el haz más tiempo.';
 }
 
 /* ---------- cálculos ---------- */
@@ -999,7 +1042,80 @@ function paramField(id,lab,sym,val,lim,k,dec,unit,hint){
   return '<div class="field"><label for="'+id+'">'+lab+' <var>'+sym+'</var></label><output id="'+id+'o">'+fx(val,dec)+' '+unit+'</output>'+
     '<input type="range" id="'+id+'" min="'+(lim[0]*k).toFixed(3)+'" max="'+(lim[1]*k).toFixed(3)+'" step="'+(lim[2]*k).toFixed(3)+'" value="'+val.toFixed(3)+'"><span class="u">'+hint+'</span></div>';
 }
-function applyParams(){ setBallSize(); resetData(); setView(lastView); applyScene(STEPS[cur].scene); }
+function applyParams(){ setBallSize(); resetData(); setView(lastView); if(curPage) applyScene(curPage.scene); }
+/* Ejes: el origen sigue en b; invertir un eje solo cambia signos, y el resultado para V₀ₓ es el mismo. */
+function axesHTML(){
+  const b=(k,txt)=>'<button class="check" type="button" data-ax="'+k+'" aria-pressed="'+(AX[k]<0)+'"><span class="box">'+(AX[k]<0?'✓':'')+'</span><span>'+txt+'</span></button>';
+  return '<div class="axes2">'+b('x','Invertir eje x (positivo hacia la izquierda)')+b('y','Invertir eje y (positivo hacia arriba)')+'</div>';
+}
+function eqHTML(){
+  const sx=AX.x>0?'':'−', sy=AX.y>0?'':'−';
+  return '<div class="eq">x = '+sx+'V₀ₓ·t &nbsp;&nbsp; Vₓ = '+sx+'V₀ₓ<br>y = '+sy+'½·g·t² &nbsp;&nbsp; V<sub>y</sub> = '+sy+'g·t<br>'+
+    'Al llegar al piso: x = '+sx+'D, y = '+sy+'H<br>⇒ '+sy+'H = '+sy+'½·g·t² → t = √(2H/g)<br>⇒ '+sx+'D = '+sx+'V₀ₓ·t → V₀ₓ = D·√(g / 2H)</div>'+
+    '<p class="small">'+(AX.x<0||AX.y<0?'Con los ejes invertidos cambian los signos de x, y, Vₓ o V<sub>y</sub>, pero al despejar se llega a la misma V₀ₓ.':'Prueba a invertir un eje: cambian los signos, no el resultado.')+'</p>';
+}
+function mountAxes(){ document.querySelectorAll('[data-ax]').forEach(b=>b.onclick=()=>{ AX[b.dataset.ax]*=-1; drawStatic(true); refreshPage(); }); }
+function mountParams(){
+  const keys={pd:'d',pH:'H',ph:'h'}, scale={d:1000,H:100,h:100}, dec={d:2,H:1,h:1};
+  let raf=0;
+  Object.keys(keys).forEach(id=>{ const inp=$('#'+id); if(!inp) return; const k=keys[id];
+    inp.oninput=()=>{ P[k]=parseFloat(inp.value)/scale[k]; $('#'+id+'o').textContent=fx(P[k]*scale[k],dec[k])+(k==='d'?' mm':' cm');
+      if(!raf) raf=requestAnimationFrame(()=>{ raf=0; applyParams(); }); }; });
+  const n=$('#nominal'); if(n) n.onclick=()=>{ Object.assign(P,NOM); applyParams(); refreshPage(); };
+}
+function paramsHTML(){ return `<fieldset class="params">
+    <legend>Parámetros del montaje</legend>
+    ${paramField('pd','Diámetro de la esfera','d',P.d*1000,LIM.d,1000,2,'mm','calibrador · el tiempo τ depende de d')}
+    ${paramField('pH','Altura de la mesa','H',P.H*100,LIM.H,100,1,'cm','cinta métrica · cambia el tiempo de vuelo')}
+    ${paramField('ph','Altura de la rampa','h',P.h*100,LIM.h,100,1,'cm','desde donde se suelta la esfera hasta el borde · cambia V₀ₓ')}
+    <div class="row"><span class="small">Al cambiar un parámetro se borran los lanzamientos registrados.</span><button class="btn" id="nominal" type="button">Valores nominales</button></div>
+  </fieldset>`; }
+
+/* ---------- tus cálculos: el estudiante ingresa sus resultados y la simulación los verifica ---------- */
+const CF=[['D','Alcance promedio','D̄','m'],['T','Tiempo promedio','τ̄','s'],['Vt','V₀ₓ con la fotocompuerta','d / τ̄','m/s'],['Ve','V₀ₓ con la parábola','D̄·√(g/2H)','m/s']];
+const num=t=>{ t=String(t||'').trim().replace(',','.'); return t===''||isNaN(+t)?null:+t; };
+const decs=t=>{ t=String(t||'').trim().replace(',','.'); const i=t.indexOf('.'); return i<0?0:t.length-i-1; };
+function sigFigs(t){ t=String(t||'').trim().replace(',','.').replace('-',''); const d=t.replace('.','').replace(/^0+/,''); return d.length; }
+function refs(){ const s=stats(); return {D:[s.Dm,s.uD],T:[s.tm,s.uT],Vt:[s.Vt,s.uVt],Ve:[s.Ve,s.uVe],err:Math.abs(s.err)}; }
+function calcHTML(){
+  const n=recorded.length, dis=n<5?'disabled':'';
+  let h='<div class="calcf"><span class="h">MAGNITUD</span><span class="h">VALOR</span><span></span><span class="h">INCERT.</span><span></span>';
+  CF.forEach(([k,lab,sym,un])=>{ const a=answers[k]||{};
+    h+='<label class="lab" for="cf'+k+'">'+lab+' <span class="small">'+sym+'</span></label><input id="cf'+k+'" data-k="'+k+'" data-p="v" inputmode="decimal" value="'+(a.v||'')+'" '+dis+' aria-label="'+lab+'"><span class="pm">±</span><input data-k="'+k+'" data-p="u" inputmode="decimal" value="'+(a.u||'')+'" '+dis+' aria-label="Incertidumbre de '+lab+'"><span class="un">'+un+'</span><span class="msg" id="cm'+k+'"></span>'; });
+  const e=answers.err||{};
+  h+='<label class="lab" for="cferr">Porcentaje de error</label><input id="cferr" data-k="err" data-p="v" inputmode="decimal" value="'+(e.v||'')+'" '+dis+'><span></span><span></span><span class="un">%</span><span class="msg" id="cmerr"></span></div>';
+  return '<p class="small">Escribe tus resultados en metros y segundos (puedes usar coma decimal). Cada incertidumbre con <b>una cifra significativa</b> y el valor redondeado a esa misma posición decimal.</p>'+h+
+    '<div class="row"><button class="btn primary" id="verify" '+dis+'>Verificar mis cálculos</button><button class="btn" id="sol" '+dis+'>'+(showSol?'Ocultar':'Ver')+' la solución</button></div><div id="calcOut">'+(n<5?'<p class="small">Primero completa los cinco lanzamientos.</p>':'')+'</div><div id="solOut"></div>';
+}
+function verifyCalc(){
+  const R=refs(); let ok=0, tot=0;
+  CF.forEach(([k])=>{ const a=answers[k]||{}, [rv,ru]=R[k], pr=pair(rv,ru), d=decs(pr[1]), unit=Math.pow(10,-d);
+    const iv=$('[data-k="'+k+'"][data-p="v"]'), iu=$('[data-k="'+k+'"][data-p="u"]'), m=$('#cm'+k);
+    const v=num(a.v), u=num(a.u); let msg='', good=false, gu=false; tot++;
+    if(v==null||u==null) msg='Falta el valor o la incertidumbre.';
+    else if(sigFigs(a.u)!==1) msg='La incertidumbre va con una sola cifra significativa.';
+    else if(Math.abs(u-num(pr[1]))>unit*1.01) msg='Revisa la incertidumbre: combina la lectura con la dispersión de la serie.';
+    else { gu=true;
+      if(decs(a.v)!==decs(a.u)) msg='Redondea el valor a la misma posición decimal que su incertidumbre.';
+      else if(Math.abs(v-rv)>Math.max(ru,unit)) msg='Revisa el valor: no coincide con los datos de la tabla.';
+      else { good=true; msg='Correcto.'; } }
+    if(good) ok++;
+    iv.className=v==null?'':(good?'ok':(gu&&!good?'bad':'')); iu.className=u==null?'':(gu?'ok':'bad'); if(!gu&&v!=null&&u!=null) iv.className='';
+    m.className='msg '+(good?'ok':'bad'); m.textContent=msg; });
+  const e=num((answers.err||{}).v), me=$('#cmerr'), ie=$('#cferr'); tot++;
+  if(e==null){ me.className='msg bad'; me.textContent='Falta el porcentaje de error.'; ie.className=''; }
+  else if(Math.abs(Math.abs(e)-R.err)<=Math.max(0.5,0.05*R.err)){ ok++; me.className='msg ok'; me.textContent='Correcto.'; ie.className='ok'; }
+  else { me.className='msg bad'; me.textContent='Revisa: % = |V_foto − V_parábola| / V_foto × 100.'; ie.className='bad'; }
+  $('#calcOut').innerHTML='<p>'+(ok===tot?'<span class="badge ok">'+ok+' de '+tot+'</span> ¡Todo bien! Tus resultados coinciden con los de la simulación.':'<span class="badge bad">'+ok+' de '+tot+'</span> Corrige lo marcado en rojo y vuelve a verificar.')+'</p>';
+}
+function solHTML(){ const R=refs(); return '<details open><summary>Solución con estos datos</summary>'+
+  CF.map(([k,lab,sym,un])=>row(lab,sym,pair(R[k][0],R[k][1]).join(' ± ')+' '+un)).join('')+row('Porcentaje de error','|V_foto − V_parábola| / V_foto',fx(R.err,2)+' %')+'</details>'; }
+function mountCalc(){
+  document.querySelectorAll('.calcf input').forEach(i=>i.oninput=()=>{ const k=i.dataset.k; (answers[k]=answers[k]||{})[i.dataset.p]=i.value; });
+  const v=$('#verify'); if(v) v.onclick=verifyCalc;
+  const s=$('#sol'); if(s) s.onclick=()=>{ showSol=!showSol; s.textContent=(showSol?'Ocultar':'Ver')+' la solución'; $('#solOut').innerHTML=showSol?solHTML():''; };
+  if(showSol&&recorded.length>=5) $('#solOut').innerHTML=solHTML();
+}
 const STEPS=[
 {label:'La idea',title:'Dos maneras de medir la misma velocidad',
  scene:{ghost:true,dimH:true,dimD:'ghost',labels:true,axes:false,scope:false},
@@ -1009,22 +1125,11 @@ const STEPS=[
     <div class="mini"><b>A · Fotocompuerta</b><span class="small">Mide el tiempo τ que tarda en pasar.</span><span class="eq">V₀ₓ = d / τ</span></div>
     <div class="mini"><b>B · Parábola</b><span class="small">Mide la altura <var>H</var> y el alcance <var>D</var>.</span><span class="eq">V₀ₓ = D·√(g / 2H)</span></div>
   </div>
-  <fieldset class="params">
-    <legend>Parámetros del montaje</legend>
-    ${paramField('pd','Diámetro de la esfera','d',P.d*1000,LIM.d,1000,2,'mm','calibrador · el tiempo τ depende de d')}
-    ${paramField('pH','Altura de la mesa','H',P.H*100,LIM.H,100,1,'cm','cinta métrica · cambia el tiempo de vuelo')}
-    ${paramField('ph','Altura de la rampa','h',P.h*100,LIM.h,100,1,'cm','desde donde se suelta la esfera hasta el borde · cambia V₀ₓ')}
-    <div class="row"><span class="small">Al cambiar un parámetro se borran los lanzamientos registrados.</span><button class="btn" id="nominal" type="button">Valores nominales</button></div>
-  </fieldset>
+  ${paramsHTML()}
   <div class="row"><button class="btn primary" id="demo">Ver un lanzamiento</button></div>`;},
  mount(){
    $('#demo').onclick=()=>{ if(busy)return; clearMarksView(); start('full',0,{done:()=>{ballAt('c',0);drawDimD(trials[0].D);}}); };
-   const keys={pd:'d',pH:'H',ph:'h'}, scale={d:1000,H:100,h:100}, dec={d:2,H:1,h:1};
-   let raf=0;
-   Object.keys(keys).forEach(id=>{ const inp=$('#'+id), k=keys[id];
-     inp.oninput=()=>{ P[k]=parseFloat(inp.value)/scale[k]; $('#'+id+'o').textContent=fx(P[k]*scale[k],dec[k])+(k==='d'?' mm':' cm');
-       if(!raf) raf=requestAnimationFrame(()=>{ raf=0; applyParams(); }); }; });
-   $('#nominal').onclick=()=>{ Object.assign(P,NOM); applyParams(); go(0); };
+   mountParams();
  }},
 
 {label:'Montaje',title:'Montaje y medidas',
@@ -1033,9 +1138,12 @@ const STEPS=[
   <p class="lead">La fotocompuerta va conectada al computador y mide el tiempo que la esfera tarda en pasar. El origen <b>O</b> está en el borde <b>b</b>, con <var>x</var> hacia la derecha y <var>y</var> hacia abajo.</p>
   ${row('Altura de la mesa H','cinta métrica',pair(P.H,U.H).join(' ± ')+' m')}
   ${row('Diámetro de la esfera d','calibrador',pair(P.d,U.d).join(' ± ')+' m')}
-  ${row('Altura de la rampa h','desde el punto de partida a hasta el borde b',fx(P.h,3)+' m')}
+  ${row('Altura de la rampa h','desde el punto de partida a hasta el borde b',pair(P.h,U.h).join(' ± ')+' m')}
   <p class="small">La fotocompuerta se ubica de modo que su haz pase justo por el borde de la rampa, a la altura del centro de la esfera: así mide la velocidad con la que la esfera inicia el movimiento parabólico.</p>
-  <div class="eq">x = V₀ₓ·t<br>y = ½·g·t²</div>`;}},
+  <p class="small"><b>Marco de referencia.</b> Puedes elegir otro sentido para los ejes: cambian los signos de las ecuaciones, no la velocidad que se obtiene.</p>
+  ${axesHTML()}
+  ${eqHTML()}`;},
+ mount(){ mountAxes(); }},
 
 {label:'Medir τ',title:'La fotocompuerta mide τ',
  scene:{ghost:false,dimH:false,dimD:null,labels:true,axes:false,scope:true},
@@ -1061,12 +1169,13 @@ const STEPS=[
   <div class="live" aria-label="Valores en vivo">
     <div><span>t (s)</span><b id="lt">0,000</b></div><div><span>x (m)</span><b id="lx">0,000</b></div><div><span>y (m)</span><b id="ly">0,000</b></div><div><span>Vₓ (m/s)</span><b id="lvx">—</b></div><div><span>V<sub>y</sub> (m/s)</span><b id="lvy">0,00</b></div>
   </div>
-  <p class="small" id="r5">Al llegar al piso: <var>x</var> = <var>D</var> y <var>y</var> = <var>H</var>.</p>`;},
+  <p class="small" id="r5">Al llegar al piso: <var>x</var> = ${AX.x>0?'':'−'}<var>D</var> y <var>y</var> = ${AX.y>0?'':'−'}<var>H</var>.</p>
+  ${axesHTML()}`;},
  mount(){
    $('#fly').onclick=()=>{ if(busy)return; busy=true; $('#fly').disabled=true; clearMarksView();
      start('flight',0,{strobe:true,speed:Math.min(speed,0.25),
        onFrame:o=>{ $('#lt').textContent=fx(o.t,3);$('#lx').textContent=fx(o.x,3);$('#ly').textContent=fx(o.y,3);$('#lvx').textContent=fx(o.vx,2);$('#lvy').textContent=fx(o.vy,2); },
-       done:()=>{ busy=false; const D=trials[0].D; $('#r5').innerHTML='Tiempo de vuelo t = √(2H/g) = <b>'+fx(TF(),3)+' s</b>. Alcance D = <b>'+fx(D,3)+' m</b>.'; drawDimD(D); const b=$('#fly'); if(b){b.disabled=false;b.textContent='Lanzar de nuevo';} } }); }; }},
+       done:()=>{ busy=false; const D=trials[0].D; if(!$('#r5')) return; $('#r5').innerHTML='Tiempo de vuelo t = √(2H/g) = <b>'+fx(TF(),3)+' s</b>. Alcance D = <b>'+fx(D,3)+' m</b>.'; drawDimD(D); const b=$('#fly'); if(b){b.disabled=false;b.textContent='Lanzar de nuevo';} } }); }; mountAxes(); }},
 
 {label:'Tomar datos',title:'Cinco lanzamientos',
  scene:{ghost:false,dimH:true,dimD:null,labels:false,axes:false,scope:true},
@@ -1078,12 +1187,12 @@ const STEPS=[
   </div>
   <div id="tbl">${tableHTML()}</div>`;},
  mount(){
-   const refresh=()=>{ if(cur===4){ $('#tbl').innerHTML=tableHTML(); const n=recorded.length; $('#one').disabled=busy||n>=5; $('#one').textContent=n>=5?'Tabla completa':'Lanzar ('+(n+1)+' de 5)'; $('#all').disabled=busy||n>=5; } };
+   const refresh=()=>{ if(page==='s4'||page==='labfree'){ $('#tbl').innerHTML=tableHTML(); const n=recorded.length; $('#one').disabled=busy||n>=5; $('#one').textContent=n>=5?'Tabla completa':'Lanzar ('+(n+1)+' de 5)'; $('#all').disabled=busy||n>=5; } };
    const launch=(cb,sp)=>{ const idx=recorded.length+1; busy=true; refresh();
      start('full',idx,{speed:sp||speed,onGate:k=>{scopeTau=trials[k].tau;sweepScope();},
-       done:()=>{ recorded.push(idx); window.__fresh=true; ballAt('c',idx); drawMarks(); busy=false; refresh(); if(cb)cb(); } }); };
+       done:()=>{ recorded.push(idx); window.__fresh=true; ballAt('c',idx); drawMarks(); busy=false; refresh(); if(page==='labfree'&&recorded.length===5) refreshPage(); if(cb)cb(); } }); };
    $('#one').onclick=()=>{ if(!busy&&recorded.length<5) launch(null,null); };
-   $('#all').onclick=()=>{ if(busy)return; const tok=++chainToken; const next=()=>{ if(tok!==chainToken||recorded.length>=5||cur!==4) return; launch(()=>{ setTimeout(next,250); },Math.max(speed,0.5)); }; next(); }; }},
+   $('#all').onclick=()=>{ if(busy)return; const tok=++chainToken; const next=()=>{ if(tok!==chainToken||recorded.length>=5||(page!=='s4'&&page!=='labfree')) return; launch(()=>{ setTimeout(next,250); },Math.max(speed,0.5)); }; next(); }; }},
 
 {label:'Resultados',title:'Resultados y porcentaje de error',
  scene:{ghost:false,dimH:true,dimD:'mean',labels:false,axes:false,scope:false},
@@ -1110,6 +1219,61 @@ const STEPS=[
  mount(){ const b=$('#goData'); if(b) b.onclick=()=>go(4); const a=$('#again'); if(a) a.onclick=()=>{ seed++; resetData(); go(4); }; }}
 ];
 
+/* paso nuevo antes de Resultados: el estudiante calcula y la simulación verifica */
+STEPS.splice(5,0,{label:'Tus cálculos',title:'Calcula y verifica',
+ scene:{ghost:false,dimH:true,dimD:null,labels:false,axes:false,scope:false},
+ render(){ if(recorded.length<5) return needData(); return '<p class="lead">Con la tabla de tus cinco lanzamientos calcula los promedios, las dos velocidades y el porcentaje de error. Luego verifica.</p>'+
+   row('Altura de la mesa H','',pair(P.H,U.H).join(' ± ')+' m')+row('Diámetro de la esfera d','',pair(P.d,U.d).join(' ± ')+' m')+row('Gravedad g','Medellín','9,77 m/s²')+tableHTML()+calcHTML(); },
+ mount(){ const b=$('#goData'); if(b) b.onclick=()=>go(4); mountCalc(); }});
+
+const EXPLORE={title:'Explora: cambia el montaje y observa',
+ scene:{ghost:true,dimH:true,dimD:null,labels:true,axes:true,scope:true},
+ render(){ return `
+  <p class="lead">Modo libre: cambia el diámetro, la altura de la mesa o de la rampa, lanza las veces que quieras y compara las dos formas de medir V₀ₓ. Nada se califica.</p>
+  ${paramsHTML()}
+  <div class="row"><button class="btn primary" id="xLaunch">Lanzar</button><button class="btn" id="xGate" type="button">Ver la fotocompuerta</button></div>
+  <div class="live" aria-label="Valores en vivo">
+    <div><span>t (s)</span><b id="lt">0,000</b></div><div><span>x (m)</span><b id="lx">0,000</b></div><div><span>y (m)</span><b id="ly">0,000</b></div><div><span>Vₓ (m/s)</span><b id="lvx">—</b></div><div><span>V<sub>y</sub> (m/s)</span><b id="lvy">0,00</b></div>
+  </div>
+  <div id="xRes"><p class="small">Lanza la esfera para ver τ, el alcance D y las dos velocidades.</p></div>
+  <details><summary>Marco de referencia</summary><div style="display:flex;flex-direction:column;gap:8px;margin-top:8px">${axesHTML()}${eqHTML()}</div></details>
+  <details><summary>Ideas para probar</summary><ul class="tight" style="margin-top:8px">
+    <li>Duplica la altura de la rampa: ¿cuánto cambia V₀ₓ?</li>
+    <li>Cambia solo el diámetro: τ cambia, pero ¿cambia V₀ₓ = d/τ?</li>
+    <li>Sube la mesa: el vuelo dura más, ¿y la velocidad horizontal?</li>
+    <li>Invierte un eje y comprueba que el resultado no cambia.</li></ul></details>`; },
+ mount(){
+   mountParams(); mountAxes(); const det=document.querySelectorAll('#card details')[0]; if(det&&(AX.x<0||AX.y<0)) det.open=true;
+   $('#xGate').onclick=()=>setView(lastView==='gate'?'iso':'gate');
+   $('#xLaunch').onclick=()=>{ if(busy)return; busy=true; $('#xLaunch').disabled=true; clearMarksView(); scopeTau=null; drawScope();
+     const k=expN++%trials.length;
+     start('full',k,{
+       onGate:j=>{ scopeTau=trials[j].tau; sweepScope(); },
+       onFrame:o=>{ if(!$('#lt')) return; $('#lt').textContent=fx(o.t,3);$('#lx').textContent=fx(o.x,3);$('#ly').textContent=fx(o.y,3);$('#lvx').textContent=fx(o.vx,2);$('#lvy').textContent=fx(o.vy,2); },
+       done:()=>{ busy=false; ballAt('c',k); const t=trials[k].tau, D=trials[k].D; drawDimD(D);
+         const Vt=P.d/t, uVt=Math.sqrt(Math.pow(U.d/t,2)+Math.pow(P.d*U.tau/(t*t),2)), Ve=D*Math.sqrt(G/(2*P.H)), uVe=Math.sqrt(G/(2*P.H)*U.D*U.D+G*D*D/(8*Math.pow(P.H,3))*U.H*U.H);
+         const o=$('#xRes'); if(o) o.innerHTML=row('Tiempo en la fotocompuerta','τ',pair(t,U.tau).join(' ± ')+' s')+row('Alcance','D',pair(D,U.D).join(' ± ')+' m')+
+           row('Con la fotocompuerta','V₀ₓ = d / τ',pair(Vt,uVt).join(' ± ')+' m/s',true)+row('Con la parábola','V₀ₓ = D·√(g / 2H)',pair(Ve,uVe).join(' ± ')+' m/s',true)+
+           '<p class="small">Tiempo de vuelo √(2H/g) = '+fx(TF(),3)+' s. Cada lanzamiento sale un poco distinto, como en el laboratorio.</p>';
+         const b=$('#xLaunch'); if(b){ b.disabled=false; b.textContent='Lanzar de nuevo'; } } }); };
+ }};
+
+const LABFREE={title:'Laboratorio: toma los datos y calcula',
+ scene:{ghost:false,dimH:true,dimD:null,labels:false,axes:false,scope:true},
+ render(){ return row('Altura de la mesa H','cinta métrica',pair(P.H,U.H).join(' ± ')+' m')+row('Diámetro de la esfera d','calibrador',pair(P.d,U.d).join(' ± ')+' m')+
+   row('Apreciación del PhysicsSensor','u de τ por lectura',pair(AP,U.tau)[0]+' s')+STEPS[4].render()+'<h2 style="font-size:19px;margin-top:6px">Tus cálculos</h2>'+calcHTML()+
+   '<p class="small">¿Quieres la explicación de cada etapa? Activa <b>Paso a paso</b> arriba.</p>'; },
+ mount(){ STEPS[4].mount(); mountCalc(); }};
+
+function refreshPage(){ if(page.startsWith('s')) go(cur); else if(curPage) show(curPage,page); }
+function syncModes(){
+  document.querySelectorAll('.mode[data-app]').forEach(b=>b.classList.toggle('on',b.dataset.app===app));
+  const g=$('#bGuide'); g.hidden=app!=='lab'; g.setAttribute('aria-pressed',String(guide));
+  $('nav.steps').hidden=!(app==='lab'&&guide);
+  try{ history.replaceState(null,'',app==='lab'?'#laboratorio':'#explorar'); }catch(e){}
+}
+function setApp(a){ app=a; syncModes(); if(a==='explore') show(EXPLORE,'explore'); else if(guide) go(cur); else show(LABFREE,'labfree'); }
+
 /* ---------- navegación ---------- */
 function clearMarksView(){ clear(G_('gMarks')); drawDimD(null); }
 function resetData(){ chainToken++; stopAnim(); busy=false; recorded=[]; scopeTau=null; genTrials(); buildPath(); drawStatic(); drawScope(); clearTransient(); ballAt('a'); }
@@ -1122,11 +1286,22 @@ function applyScene(cfg){
   else drawDimD(null);
   requestAnimationFrame(drawScope);
 }
+function show(st,id){
+  chainToken++; stopAnim(); busy=false; window.__fresh=false; page=id; curPage=st;
+  clearTransient(); projEls=null;
+  const k=recorded.length? recorded[recorded.length-1]:null;
+  if(id==='explore'){ if(lastView==='gate') setView('iso'); ballAt('a'); clear(G_('gMarks')); }
+  else { if(lastView==='gate') setView('iso'); drawMarks(); if(k!=null) ballAt('c',k); else ballAt('a'); }
+  $('#card').innerHTML='<p class="kicker">'+(id==='explore'?'Modo explorar':'Modo laboratorio')+'</p><h2>'+st.title+'</h2>'+st.render();
+  if(st.mount) st.mount();
+  applyScene(st.scene);
+}
 function go(i){
-  chainToken++; stopAnim(); busy=false; window.__fresh=false; cur=i; seen.add(i);
+  if(app!=='lab'||!guide){ app='lab'; guide=true; syncModes(); }
+  chainToken++; stopAnim(); busy=false; window.__fresh=false; cur=i; seen.add(i); page='s'+i;
   clearTransient(); projEls=null;
   if(i!==2&&lastView==='gate') setView('iso');
-  const st=STEPS[i];
+  const st=STEPS[i]; curPage=st;
   const k=recorded.length? recorded[recorded.length-1]:null;
   if(i===3) ballAt('b'); else if(i>=5&&k!=null) ballAt('c',k); else ballAt('a');
   drawMarks();
@@ -1150,7 +1325,9 @@ function go(i){
     else if(k==='ex+') ex=Math.min(8,ex*1.4); else ex=Math.max(0.5,ex/1.4);
     drawScope(); });
   setBallSize(); genTrials(); buildPath(); drawStatic(); ballAt('a'); drawScope();
-  go(0);
+  document.querySelectorAll('.mode[data-app]').forEach(b=>b.onclick=()=>setApp(b.dataset.app));
+  $('#bGuide').onclick=()=>{ guide=!guide; setApp('lab'); };
+  setApp(/laboratorio/.test(location.hash)?'lab':'explore');
   window.addEventListener('resize',drawScope);
   if(window.ResizeObserver) new ResizeObserver(drawScope).observe($('#scope'));
   const onTheme=()=>{ drawScope(); drawStatic(true); };
@@ -1160,7 +1337,7 @@ function go(i){
   if(window.ResizeObserver) new ResizeObserver(resize3D).observe(view);
   resize3D(); setView('iso');
   if(document.fonts&&document.fonts.ready) document.fonts.ready.then(()=>drawStatic(true));
-  document.addEventListener('keydown',e=>{ if(e.target.closest&&e.target.closest('input,select,textarea')) return; if(e.key==='ArrowRight'&&cur<STEPS.length-1) go(cur+1); if(e.key==='ArrowLeft'&&cur>0) go(cur-1); });
+  document.addEventListener('keydown',e=>{ if(e.target.closest&&e.target.closest('input,select,textarea')) return; if(!(app==='lab'&&guide)) return; if(e.key==='ArrowRight'&&cur<STEPS.length-1) go(cur+1); if(e.key==='ArrowLeft'&&cur>0) go(cur-1); });
 })();
 })();
 </script>

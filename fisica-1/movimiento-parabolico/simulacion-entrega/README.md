@@ -64,3 +64,7 @@ El motor y la cámara compartidos están en `vendor/` (raíz del repositorio).
 - **← →**: ángulo de lanzamiento (Shift: de 5 en 5). **↑ ↓**: rapidez V₀ (en la rampa, altura de la rampa).
 - **1–4**: tipo de lanzamiento. **V** vectores · **T** trayectoria prevista · **C** borrar la traza.
 - **H** vista limpia (solo la escena, con un indicador de θ, V₀ y las teclas) · **P** panel · **S** sensor · **E** rótulos · **Esc** sale de la vista limpia.
+
+## Celular y pantallas táctiles
+
+En Explorar aparece un control táctil con los mismos controles del teclado: **θ− θ+**, **Lanzar**, **V− V+** (mantener presionado repite) y el botón del tipo de lanzamiento, que cambia en cada toque. Con el panel abierto queda en una sola fila, sobre la escena; sin panel o en vista limpia muestra también el tipo, θ y V₀. En Laboratorio, en vista limpia, el botón hace lo del botón principal del paso.

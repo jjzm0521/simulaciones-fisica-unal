@@ -241,6 +241,26 @@ body.no-card #card,body.no-scope #scopeWrap{display:none!important}
 .hud .keys{font-family:var(--font-body);color:var(--muted);font-size:12px}
 kbd{font-family:var(--font-mono);font-size:11px;padding:1px 5px;border:1px solid var(--line);border-bottom-width:2px;border-radius:4px;background:var(--surface);color:var(--ink)}
 body:not(.clean) .hud{bottom:62px}
+/* control táctil: lo mismo que el teclado, para celular y pantallas táctiles */
+.pad{position:fixed;left:50%;bottom:14px;transform:translateX(-50%);z-index:7;display:flex;flex-direction:column;gap:6px;padding:8px;
+  background:color-mix(in srgb,var(--surface) 92%,transparent);-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);border:1px solid var(--line);border-radius:16px;box-shadow:0 6px 22px rgba(20,40,60,.14);touch-action:manipulation;user-select:none;-webkit-user-select:none}
+.pad-top{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.pad-type{border:1px solid var(--line);background:var(--surface2);border-radius:999px;padding:5px 12px;font-size:12.5px;font-weight:600;cursor:pointer;color:var(--ink)}
+.pad-type::after{content:" ⟳";color:var(--muted);font-weight:400}
+.pad-val{font-family:var(--font-mono);font-size:12.5px;color:var(--ink);white-space:nowrap}
+.pad-row{display:flex;align-items:center;justify-content:center;gap:8px}
+.pad-grp{display:flex;gap:4px}
+.pb{min-width:46px;height:44px;border:1px solid var(--line);background:var(--surface);border-radius:12px;font-family:var(--font-mono);font-size:14px;font-weight:500;color:var(--ink);cursor:pointer}
+.pb:active{background:var(--surface3)}
+.pb.go{min-width:96px;background:var(--accent);border-color:var(--accent);color:var(--accent-ink);font-family:var(--font-body);font-size:15px;font-weight:600}
+.pb.go:disabled{opacity:.55}
+@media (max-width:760px){
+  body:not(.no-card):not(.clean) .pad{bottom:calc(48vh + 8px);bottom:calc(48dvh + 8px);padding:6px}
+  body:not(.no-card):not(.clean) .pad-top{display:none}
+  .pb{height:42px}
+  .viewbtns{top:var(--navt,56px)!important;bottom:auto!important}
+  body.navon .viewbtns{top:calc(var(--navt,56px) + 50px)!important}
+}
 body.no-card nav.steps{right:12px}
 body.no-card #scopeWrap{width:min(560px,calc(100vw - 90px))}
 body.clean header.top,body.clean nav.steps,body.clean #card,body.clean #scopeWrap,body.clean .viewbtns,body.clean .dock{display:none!important}
@@ -303,6 +323,14 @@ body.clean .unclean{display:block}
   </div>
   <button class="unclean" type="button" id="unclean">Mostrar paneles · H</button>
   <div class="hud" id="hud" hidden aria-live="polite"></div>
+  <div class="pad" id="pad" hidden role="group" aria-label="Controles del lanzamiento">
+    <div class="pad-top"><button class="pad-type" type="button" id="padType" title="Cambiar el tipo de lanzamiento"></button><span class="pad-val" id="padVal"></span></div>
+    <div class="pad-row">
+      <span class="pad-grp" id="padTh"><button class="pb" type="button" data-pad="th-" aria-label="Bajar el ángulo">θ−</button><button class="pb" type="button" data-pad="th+" aria-label="Subir el ángulo">θ+</button></span>
+      <button class="pb go" type="button" id="padGo">Lanzar</button>
+      <span class="pad-grp" id="padV"><button class="pb" type="button" data-pad="v-" aria-label="Bajar la rapidez">V−</button><button class="pb" type="button" data-pad="v+" aria-label="Subir la rapidez">V+</button></span>
+    </div>
+  </div>
 
   <main class="layout">
     <section class="stage">
@@ -978,7 +1006,7 @@ function gateCheck(a,xpx){
   const blocked=Math.abs(xpx-XG)<=R;
   if(blocked!==a.blocked){ a.blocked=blocked; setBeam(blocked); if(!blocked && a.onGate){ const f=a.onGate; a.onGate=null; f(a.k); } }
 }
-function finish(){ const a=anim; anim=null; if(a&&a.done) a.done(); }
+function finish(){ const a=anim; anim=null; if(a&&a.done) a.done(); setTimeout(()=>{ if(typeof padUpdate==='function') padUpdate(); },30); }
 function tick(ts){
   const a=anim; if(!a) return;
   if(a.last==null) a.last=ts;
@@ -1023,7 +1051,11 @@ function resize3D(){
   const w=view.clientWidth, h=view.clientHeight; if(!w||!h) return;
   renderer.setSize(w,h,false); camera.aspect=w/h;
   const card=$('#card'), side=window.innerWidth>760&&UI.card&&!UI.clean&&card?card.offsetWidth+24:0, left=window.innerWidth>760&&!UI.clean?56:0;
-  if(side||left) camera.setViewOffset(w,h,(side-left)/2,0,w,h); else camera.clearViewOffset();
+  const pd=$('#pad'), padH=pd&&!pd.hidden?pd.offsetHeight+12:0;
+  // en celular la escena se centra entre las barras de arriba y el control táctil
+  let topH=0; if(window.innerWidth<=760&&!UI.clean){ const vb=$('.viewbtns'); if(vb&&getComputedStyle(vb).display!=='none') topH=vb.getBoundingClientRect().bottom; }
+  const oy=(padH-topH)/2;
+  if(side||left||oy) camera.setViewOffset(w,h,(side-left)/2,oy,w,h); else camera.clearViewOffset();
   camera.updateProjectionMatrix(); dirty=true;
 }
 (function loop(){ requestAnimationFrame(loop); if(dirty){ dirty=false; renderer.render(scene,camera); } })();
@@ -1364,7 +1396,7 @@ function xLaunchFree(){
     trailPos[trailN*3]=x; trailPos[trailN*3+1]=y+RM; trailPos[trailN*3+2]=0; if(trailN<TRN-1) trailN++; trailGeo.setDrawRange(0,trailN); trailGeo.attributes.position.needsUpdate=true;
     xVectors(x,y+RM,k.vx,vy); xLive(sim,x,y,k.vx,vy); dirty=true;
     if(sim<k.tf){ anim.raf=requestAnimationFrame(step); return; }
-    anim=null; busy=false; drawDimD(null); xResult(k); const b=$('#xLaunch'); if(b){ b.disabled=false; b.textContent='Lanzar de nuevo'; }
+    anim=null; busy=false; drawDimD(null); xResult(k); padUpdate(); const b=$('#xLaunch'); if(b){ b.disabled=false; b.textContent='Lanzar de nuevo'; }
   };
   stopAnim(); anim={raf:requestAnimationFrame(step),free:true};
 }
@@ -1448,8 +1480,26 @@ const EXPLORE={title:'Explora el movimiento parabólico',
          const b=$('#xLaunch'); if(b){ b.disabled=false; b.textContent='Lanzar de nuevo'; } } }); };
  }};
 /* indicador flotante con el tipo, el ángulo, la rapidez y las teclas (se ve en vista limpia o sin panel) */
-function hud(){ const h=$('#hud'); if(!h) return;
-  const on=app==='explore'&&(UI.clean||!UI.card); h.hidden=!on; if(!on) return;
+const isTouch=()=>(window.matchMedia&&matchMedia('(pointer:coarse)').matches)||window.innerWidth<=760;
+function padUpdate(){ const pd=$('#pad'); if(!pd) return; const was=pd.hidden;
+  const ex=app==='explore', on=isTouch()&&!UI.clean?(ex||!UI.card):isTouch()&&UI.clean;
+  pd.hidden=!on; if(was!==pd.hidden) requestAnimationFrame(resize3D); if(!on) return;
+  const t=XL.type, free=t!=='ramp';
+  $('#padType').hidden=!ex; $('#padType').textContent=ex?XT[t].sh:'';
+  $('#padTh').hidden=!ex||!free||t==='horiz'; $('#padV').hidden=!ex;
+  $('#padVal').textContent=ex?(free?(t!=='horiz'?'θ '+XL.th+'° · ':'')+'V₀ '+fx(XL.v0,1)+' m/s':'h '+fx(P.h*100,1)+' cm'):'';
+  const b=ex?$('#xLaunch'):$('#card .btn.primary:not(#next)'); const g=$('#padGo');
+  g.textContent=ex?'Lanzar':(b?b.textContent.replace(/·.*$/,'').trim():'Lanzar'); g.disabled=busy||!b||b.disabled;
+}
+function padAct(a){
+  if(a==='go'){ const b=app==='explore'?$('#xLaunch'):$('#card .btn.primary:not(#next):not(:disabled)'); if(b&&!b.disabled) b.click(); setTimeout(padUpdate,30); return; }
+  if(app!=='explore') return; const free=XL.type!=='ramp';
+  if(a==='th+'||a==='th-'){ if(free&&XL.type!=='horiz') xSet('th',XL.th+(a==='th+'?1:-1)); }
+  else if(a==='v+'||a==='v-'){ const d=a==='v+'?1:-1; if(free) xSet('v0',XL.v0+d*0.1); else if(!busy){ P.h=Math.max(LIM.h[0],Math.min(LIM.h[1],Math.round((P.h+d*0.005)*1000)/1000)); applyParams(); refreshPage(); } }
+  padUpdate();
+}
+function hud(){ padUpdate(); const h=$('#hud'); if(!h) return;
+  const on=app==='explore'&&(UI.clean||!UI.card)&&!isTouch(); h.hidden=!on; if(!on) return;
   const t=XL.type, free=t!=='ramp';
   h.innerHTML='<b>'+XT[t].sh+'</b>'+(free?(t!=='horiz'?'<span>θ = '+XL.th+'°</span>':'')+'<span>V₀ = '+fx(XL.v0,1)+' m/s</span>':'<span>h = '+fx(P.h*100,1)+' cm</span>')+
     '<span class="keys"><kbd>Espacio</kbd> lanzar'+(free&&t!=='horiz'?' · <kbd>←</kbd><kbd>→</kbd> ángulo':'')+' · <kbd>↑</kbd><kbd>↓</kbd> '+(free?'rapidez':'rampa')+' · <kbd>1</kbd>–<kbd>4</kbd> tipo</span>';
@@ -1512,7 +1562,7 @@ function show(st,id){
   else { if(lastView==='gate') setView('iso'); drawMarks(); if(k!=null) ballAt('c',k); else ballAt('a'); }
   $('#card').innerHTML='<p class="kicker">'+(id==='explore'?'Modo explorar':'Modo laboratorio')+'</p><h2>'+st.title+'</h2>'+st.render();
   if(st.mount) st.mount();
-  applyScene(st.scene);
+  applyScene(st.scene); padUpdate();
 }
 function go(i){
   if(app!=='lab'||!guide){ app='lab'; guide=true; syncModes(); }
@@ -1547,6 +1597,12 @@ function go(i){
   $('#bGuide').onclick=()=>{ guide=!guide; setApp('lab'); };
   document.querySelectorAll('[data-ui]').forEach(x=>x.onclick=()=>toggleUI(x.dataset.ui));
   $('#unclean').onclick=()=>toggleUI('clean');
+  $('#padType').onclick=()=>{ const ks=Object.keys(XT); xSet('type',ks[(ks.indexOf(XL.type)+1)%ks.length]); padUpdate(); };
+  $('#padGo').onclick=()=>padAct('go');
+  document.querySelectorAll('[data-pad]').forEach(b=>{ let t1=0,t2=0; const stop=()=>{ clearTimeout(t1); clearInterval(t2); };
+    b.addEventListener('pointerdown',e=>{ e.preventDefault(); padAct(b.dataset.pad); t1=setTimeout(()=>{ t2=setInterval(()=>padAct(b.dataset.pad),70); },380); });
+    ['pointerup','pointerleave','pointercancel'].forEach(ev=>b.addEventListener(ev,stop)); b.addEventListener('contextmenu',e=>e.preventDefault()); });
+  window.addEventListener('resize',hud);
   document.addEventListener('keydown',e=>{ if(e.target.closest&&e.target.closest('input,select,textarea')) return; if(e.metaKey||e.ctrlKey||e.altKey) return;
     if(e.target.closest&&e.target.closest('button')&&(e.key===' '||e.key==='Enter')) return;
     const key=e.key, lk=key.toLowerCase(), st=e.shiftKey?5:1;

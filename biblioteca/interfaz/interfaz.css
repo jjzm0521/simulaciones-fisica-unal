@@ -86,6 +86,9 @@ ul.tight{margin:0;padding-left:18px;display:flex;flex-direction:column;gap:var(-
 .dk:hover{background:var(--surface3);color:var(--ink)}
 .dk[aria-pressed="true"]{color:var(--accent);background:var(--accent-suave)}
 .dk.sep{margin-top:var(--e-1);border-top:1px solid var(--line);border-radius:0 0 var(--r-2) var(--r-2);padding-top:var(--e-2)}
+.dk .i-sol{display:none}
+.dk[aria-pressed="true"] .i-luna{display:none}
+.dk[aria-pressed="true"] .i-sol{display:block}
 .dk b{font-family:var(--font-mono);font-weight:500;font-size:var(--t-sm);height:20px;display:grid;place-items:center}
 .solo-movil{display:none}
 
@@ -163,8 +166,8 @@ body.clean .unclean{display:block}
 
 /* --- interruptor (cambia un estado: encendido / apagado): pista --- */
 .interruptor{display:inline-flex;align-items:center;gap:var(--e-2);min-height:var(--ctl);padding:2px 10px 2px 6px;border:0;background:transparent;border-radius:var(--r-full);cursor:pointer;font-size:var(--t-sm);font-weight:500;color:var(--ink);text-align:left;line-height:1.25}
-.interruptor::before{content:"";flex:none;width:34px;height:20px;border-radius:var(--r-full);background-color:var(--muted);background-image:radial-gradient(circle at 10px 10px,#fff 7px,transparent 7.5px);transition:background-color .15s}
-.interruptor[aria-checked="true"]::before{background-color:var(--accent);background-image:radial-gradient(circle at 24px 10px,#fff 7px,transparent 7.5px)}
+.interruptor::before{content:"";flex:none;width:34px;height:20px;border-radius:var(--r-full);background-color:var(--muted);background-image:radial-gradient(circle at 10px 10px,var(--surface) 7px,transparent 7.5px);transition:background-color .15s}
+.interruptor[aria-checked="true"]::before{background-color:var(--accent);background-image:radial-gradient(circle at 24px 10px,var(--accent-ink) 7px,transparent 7.5px)}
 .interruptor:hover{background-color:var(--surface3)}
 
 /* --- lecturas en vivo: una sola forma para panel, indicador y barra --- */

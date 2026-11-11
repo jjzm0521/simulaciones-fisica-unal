@@ -33,6 +33,7 @@
     <button class="dk" type="button" data-ui="scope" title="Ventana del PhysicsSensor (S)"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"><rect x="2.5" y="3.5" width="15" height="13" rx="2"/><path d="M4.5 12h3l1-4h3l1 4h3"/></svg>Sensor</button>
     <button class="dk" type="button" data-ui="labels" title="Etiquetas y medidas en la escena (E)"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M3 10.5 9.5 4H16v6.5L9.5 17z"/><circle cx="13" cy="7" r="1.2"/></svg>Rótulos</button>
     <button class="dk" type="button" data-ui="proyector" title="Letra grande, para proyector (L)"><b>Aa</b>Letra</button>
+    <button class="dk" type="button" data-ui="tema" title="Tema claro u oscuro (O)"><svg class="i-luna" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"><path d="M16.5 11.8A6.8 6.8 0 0 1 8.2 3.5a6.8 6.8 0 1 0 8.3 8.3z"/></svg><svg class="i-sol" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><circle cx="10" cy="10" r="3.4"/><path d="M10 2.5v2M10 15.5v2M2.5 10h2M15.5 10h2M4.7 4.7l1.4 1.4M13.9 13.9l1.4 1.4M4.7 15.3l1.4-1.4M13.9 6.1l1.4-1.4"/></svg>Tema</button>
   <button class="dk solo-movil" type="button" id="dkVel" title="Velocidad de la simulación"><b>×0,5</b>Ritmo</button>
   <button class="dk sep" type="button" data-ui="clean" title="Ver solo la escena (H)"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M3 7V3h4M13 3h4v4M17 13v4h-4M7 17H3v-4"/></svg>Limpia</button>
   </div>
@@ -87,6 +88,7 @@
 <script data-inline="../../../biblioteca/nucleo/three-r159.min.js"></script>
 <script data-inline="../../../biblioteca/nucleo/camara.js"></script>
 <script data-inline="../../../biblioteca/nucleo/rotulos.js"></script>
+<script data-inline="../../../biblioteca/nucleo/ambiente.js"></script>
 <script data-inline="../../../biblioteca/piezas/soporte.js"></script>
 <script data-inline="../../../biblioteca/piezas/fotocompuerta.js"></script>
 <script data-inline="../../../biblioteca/fisica/incertidumbre.js"></script>
@@ -153,8 +155,10 @@ function pathAt(t){
 function gateY(){ return yr()-R; }   // altura del centro de la esfera en el borde de la rampa
 
 /* ---------- escena 3D ---------- */
-const SC={'--surface':'#FFFFFF','--surface3':'#E3EAE6','--ink':'#13201A','--muted':'#566962','--line':'#D2DCD7','--x':'#0A7D4A','--y':'#2563D1','--path':'#E4580B','--steel1':'#F1F4F7','--steel2':'#5E6B75','--bad':'#E11D2E'};
-const sv=n=>SC[n]||'#000000';
+/* Colores de la interfaz: se leen del token vigente, así siguen al tema y al modo proyector. La paleta del 3D que no es token vive en ambiente.js. */
+const cs=getComputedStyle(document.documentElement);
+const sv=n=>cs.getPropertyValue(n).trim();
+const pal=()=>Lab.escena.paleta(Lab.ui.tema());
 const view=$('#view');
 if(typeof THREE==='undefined'||!THREE.CamaraOrbita){
   view.innerHTML='<p style="padding:24px;color:var(--muted)">No se pudo cargar el motor 3D. Revisa tu conexión y recarga la página.</p>';
@@ -177,12 +181,8 @@ controls.maxPolarAngle=Math.PI*0.49; controls.minDistance=0.4; controls.maxDista
 let dirty=true;
 controls.addEventListener('change',()=>{dirty=true;});
 
-scene.background=new THREE.Color(0xdfe6ee);
-scene.add(new THREE.HemisphereLight(0xffffff,0xb9c4d0,0.9*Math.PI));
-const sun=new THREE.DirectionalLight(0xfff6e6,0.65*Math.PI);
-sun.position.set(1.4,3.2,2.0); sun.castShadow=true; sun.shadow.mapSize.set(2048,2048);
-{const c=sun.shadow.camera; c.left=-2;c.right=2;c.top=2;c.bottom=-2;c.near=0.5;c.far=9;} sun.shadow.bias=-0.0005;
-scene.add(sun);
+// fondo y luces según el tema (ambiente.js). El laboratorio trae su propio piso: sin piso ni rejilla de la biblioteca.
+Lab.escena.ambiente(scene,Lab.ui.tema(),{piso:false,rejilla:false,sol:{pos:[1.4,3.2,2.0],sombra:{mapa:2048,caja:2,near:0.5,far:9,bias:-0.0005}}});
 
 const groups={};
 ['gFloor','gRuler','gTable','gDimH','gDimD','gGhost','gAxes','gGate','gProj','gStrobe','gMarks','gLabels'].forEach(n=>{groups[n]=new THREE.Group();scene.add(groups[n]);});
@@ -208,9 +208,9 @@ function pillSprite(text,dot,h){
   const fs=44, f='500 '+fs+'px "IBM Plex Mono",monospace';
   const c=document.createElement('canvas'), x=c.getContext('2d'); x.font=f;
   const pad=26, w=Math.ceil(x.measureText(text).width)+pad*2+34, H=fs+34; c.width=w; c.height=H;
-  const r=H/2; x.fillStyle='rgba(14,22,40,.9)'; x.beginPath(); x.moveTo(r,0); x.lineTo(w-r,0); x.arc(w-r,r,r,-Math.PI/2,Math.PI/2); x.lineTo(r,H); x.arc(r,r,r,Math.PI/2,Math.PI*1.5); x.closePath(); x.fill();
+  const P_=pal().pastilla, r=H/2; x.fillStyle=P_.fondo; x.beginPath(); x.moveTo(r,0); x.lineTo(w-r,0); x.arc(w-r,r,r,-Math.PI/2,Math.PI/2); x.lineTo(r,H); x.arc(r,r,r,Math.PI/2,Math.PI*1.5); x.closePath(); x.fill(); x.lineWidth=5; x.strokeStyle=P_.borde; x.stroke();
   x.fillStyle=dot; x.beginPath(); x.arc(pad+8,H/2,9,0,Math.PI*2); x.fill();
-  x.font=f; x.fillStyle='#ffffff'; x.textAlign='left'; x.textBaseline='middle'; x.fillText(text,pad+34,H/2+2);
+  x.font=f; x.fillStyle=P_.texto; x.textAlign='left'; x.textBaseline='middle'; x.fillText(text,pad+34,H/2+2);
   const t=new THREE.CanvasTexture(c); t.anisotropy=4;
   const sp=new THREE.Sprite(new THREE.SpriteMaterial({map:t,transparent:true,depthTest:false}));
   sp.scale.set(h*w/H,h,1); sp.renderOrder=10; sp.userData.px=[18,30]; return sp;
@@ -223,8 +223,8 @@ function poly(pts,color,dash){
 }
 function tapeTex(){
   const c=document.createElement('canvas'); c.width=2400; c.height=100; const x=c.getContext('2d');
-  const ink=sv('--ink');
-  x.fillStyle='#f1c94f'; x.fillRect(0,0,2400,100);
+  const cinta=pal().cinta, ink=cinta.tinta;
+  x.fillStyle=cinta.fondo; x.fillRect(0,0,2400,100);
   x.strokeStyle=ink; x.fillStyle=ink; x.lineWidth=2;
   for(let mm=0;mm<=1200;mm+=10){ const p=mm*2, len=mm%100===0?48:(mm%50===0?34:20); x.beginPath(); x.moveTo(p+1,0); x.lineTo(p+1,len); x.stroke(); }
   x.font='700 26px "IBM Plex Mono",monospace'; x.textAlign='left';
@@ -390,7 +390,7 @@ function setBallSize(){ R=P.d*S*1.45; RM=R/S; ball.scale.setScalar(RM/RM0); dirt
 /* trayectoria recorrida */
 const TRN=700, trailPos=new Float32Array(TRN*3), trailGeo=new THREE.BufferGeometry();
 trailGeo.setAttribute('position',new THREE.BufferAttribute(trailPos,3)); trailGeo.setDrawRange(0,0);
-const trailLine=new THREE.Line(trailGeo,new THREE.LineBasicMaterial({color:0xe4580b})); trailLine.frustumCulled=false; scene.add(trailLine);
+const trailLine=new THREE.Line(trailGeo,new THREE.LineBasicMaterial({color:sv('--mag-tray')})); trailLine.frustumCulled=false; scene.add(trailLine);
 let trailN=0;
 function trailPush(x,y){ if(trailN>=TRN) return; trailPos[trailN*3]=wx(x); trailPos[trailN*3+1]=wy(y); trailPos[trailN*3+2]=0; trailN++; trailGeo.setDrawRange(0,trailN); trailGeo.attributes.position.needsUpdate=true; dirty=true; }
 
@@ -448,7 +448,7 @@ function drawStatic(keep){
   const aTop=by+0.05, rz=-0.17;
   const sop=Lab.piezas.soporte({alto:0.5,alturaNuez:by+fc.anclajes.sujecion.y-H,brazo:-rz,direccion:'z+',base:'x-',margen:0.012});
   sop.grupo.position.set(gx-0.012,H,rz); G_('gGate').add(sop.grupo);
-  const gl=pillSprite('Fotocompuerta','#38bdf8',0.032); gl.position.set(0.02,aTop+0.13,0); G_('gGate').add(gl);
+  const gl=pillSprite('Fotocompuerta',pal().marca.b,0.032); gl.position.set(0.02,aTop+0.13,0); G_('gGate').add(gl);
   // cota H
   const dx=-0.97, dz=0.3;
   G_('gDimH').add(poly([[dx,0,dz],[dx,H,dz]],sv('--muted')));
@@ -467,7 +467,7 @@ function drawStatic(keep){
   const wire=new THREE.MeshBasicMaterial({color:sv('--muted'),wireframe:true,transparent:true,opacity:0.7});
   [[wx(a.x),wy(a.y),'a',-0.04],[0,H+RM,'b',0.05],[Dg,RM,'c',0.05]].forEach(p=>{
     const m=new THREE.Mesh(new THREE.SphereGeometry(RM,12,9),wire); m.position.set(p[0],p[1],0); G_('gLabels').add(m);
-    const PL={a:['Partida (a): V₀ = 0','#a78bfa',-0.30,H+h+0.15],b:['Salida (b): Vy = 0','#38bdf8',0.38,H+0.11],c:['Impacto (c)','#fb923c',p[0],0.11]}[p[2]];
+    const mk=pal().marca, PL={a:['Partida (a): V₀ = 0',mk.a,-0.30,H+h+0.15],b:['Salida (b): Vy = 0',mk.b,0.38,H+0.11],c:['Impacto (c)',mk.c,p[0],0.11]}[p[2]];
     const s=pillSprite(PL[0],PL[1],0.042); s.position.set(PL[2],PL[3],0); G_('gLabels').add(s);
   });
   // trayectoria fantasma
@@ -955,13 +955,13 @@ let xVec=null;
 function xDraw(){                    // flecha de V₀ y trayectoria prevista
   clear(xG); if(app!=='explore'||XL.type==='ramp') return;
   const k=xKin(), p0=new THREE.Vector3(k.o.x,k.o.y+RM,0);
-  const a=arrowW(new THREE.Vector3(k.vx,k.vy,0),0.07*XL.v0,0xe4580b); a.position.copy(p0); xG.add(a);
-  if(XL.pred){ const pts=[]; for(let i=0;i<=60;i++){ const t=k.tf*i/60; pts.push([k.o.x+k.vx*t,k.o.y+RM+k.vy*t-0.5*G*t*t,0]); } xG.add(poly(pts,sv('--muted'),true)); }
+  const a=arrowW(new THREE.Vector3(k.vx,k.vy,0),0.07*XL.v0,tcol('--mag-tray')); a.position.copy(p0); xG.add(a);
+  if(XL.pred){ const pts=[]; for(let i=0;i<=60;i++){ const t=k.tf*i/60; pts.push([k.o.x+k.vx*t,k.o.y+RM+k.vy*t-0.5*G*t*t,0]); } const pl=poly(pts,sv('--muted'),true); pl.userData.tk='--muted'; xG.add(pl); }
   if(XL.type==='floor'){ const pad=new THREE.Mesh(new THREE.CylinderGeometry(0.035,0.04,0.012,24),new THREE.MeshStandardMaterial({color:0x2b3542,roughness:0.5})); pad.position.set(k.o.x,0.006,0); xG.add(pad); }
   ball.position.set(k.o.x,k.o.y+RM,0); dirty=true;
 }
 function xVectors(x,y,vx,vy){        // vectores de velocidad que siguen a la esfera
-  if(!xVec){ xVec={vx:arrowW(new THREE.Vector3(1,0,0),0.1,0x0a7d4a),vy:arrowW(new THREE.Vector3(0,1,0),0.1,0x2563d1)}; scene.add(xVec.vx,xVec.vy); }
+  if(!xVec){ xVec={vx:arrowW(new THREE.Vector3(1,0,0),0.1,tcol('--mag-x')),vy:arrowW(new THREE.Vector3(0,1,0),0.1,tcol('--mag-y'))}; scene.add(xVec.vx,xVec.vy); }
   const on=XL.vec&&x!=null; xVec.vx.visible=on&&Math.abs(vx)>1e-3; xVec.vy.visible=on&&Math.abs(vy)>1e-3; if(!on){ dirty=true; return; }
   const s=0.07;
   xVec.vx.position.set(x,y,0); xVec.vx.setDirection(new THREE.Vector3(Math.sign(vx)||1,0,0)); xVec.vx.setLength(Math.abs(vx)*s,Math.min(0.05,Math.abs(vx)*s*0.35),0.03);
@@ -971,7 +971,7 @@ function xVectors(x,y,vx,vy){        // vectores de velocidad que siguen a la es
 function xLive(t,x,y,vx,vy){ if(!$('#lt')) return; const o=xOrigin();
   $('#lt').textContent=fx(t,3); $('#lx').textContent=fx(AX.x*(x-o.x),3); $('#ly').textContent=fx(AX.y*(o.y-y),3); $('#lvx').textContent=fx(AX.x*vx,2); $('#lvy').textContent=fx(-AX.y*vy,2); }
 function xLaunchFree(){
-  const k=xKin(); busy=true; clearTransient(); trailN=0; trailGeo.setDrawRange(0,0); xDraw();
+  const k=xKin(); lastXK=null; busy=true; clearTransient(); trailN=0; trailGeo.setDrawRange(0,0); xDraw();
   let sim=0, last=performance.now(); const sp=Math.min(speed,1);
   const step=now=>{ const dt=Math.min(0.05,(now-last)/1000)*sp; last=now; sim=Math.min(k.tf,sim+dt);
     const x=k.o.x+k.vx*sim, y=k.o.y+k.vy*sim-0.5*G*sim*sim, vy=k.vy-G*sim;
@@ -983,13 +983,17 @@ function xLaunchFree(){
   };
   stopAnim(); anim={raf:requestAnimationFrame(step),free:true};
 }
-function xResult(k){
-  const o=$('#xRes'); if(!o) return;
-  const vyf=k.vy-G*k.tf, vf=Math.hypot(k.vx,vyf), af=Math.atan2(-vyf,k.vx)*180/Math.PI;
+let lastXK=null;
+function xDimD(k){
   // la cota del alcance en el piso, medida desde la vertical del punto de lanzamiento
   const g=G_('gDimD'); clear(g); const z=0.13, c=sv('--muted'), x0=k.o.x, x1=k.o.x+k.D;
   g.add(poly([[x0,0.003,z],[x1,0.003,z]],c)); g.add(poly([[x0,0.003,0],[x0,0.003,z]],c,true)); g.add(poly([[x1,0.003,0],[x1,0.003,z]],c,true));
   const l=labelSprite('D = '+fx(k.D,3)+' m',sv('--ink'),0.085,true); l.position.set((x0+x1)/2,0.08,z); g.add(l); dirty=true;
+}
+function xResult(k){
+  const o=$('#xRes'); if(!o) return;
+  const vyf=k.vy-G*k.tf, vf=Math.hypot(k.vx,vyf), af=Math.atan2(-vyf,k.vx)*180/Math.PI;
+  lastXK=k; xDimD(k);
   o.innerHTML=row('Tiempo de vuelo','t',fx(k.tf,3)+' s')+row('Alcance','D',fx(k.D,3)+' m',true)+
     (k.vy>0?row('Altura máxima sobre el piso','y₀ + V₀²·sen²θ / 2g',fx(k.ymax,3)+' m')+row('Tiempo hasta la cima','V₀·senθ / g',fx(k.tup,3)+' s'):'')+
     row('Rapidez al llegar','√(Vₓ² + V_y²)',fx(vf,2)+' m/s')+row('Ángulo al llegar','bajo la horizontal',fx(af,1)+'°')+
@@ -1094,7 +1098,7 @@ function applyUI(){
   if(lastCfg) applyScene(lastCfg);
   layoutTop(); resize3D(); requestAnimationFrame(drawScope); hud();
 }
-function toggleUI(k){ if(k==='scope'&&page==='explore') k='scopeX'; UI[k]=!UI[k]; if(k!=='clean'&&UI.clean) UI.clean=false; applyUI(); }
+function toggleUI(k){ if(k==='tema'){ const cota=page==='explore'&&lastXK&&G_('gDimD').children.length>0; Lab.ui.alternarTema(UI); applyUI(); if(cota) xDimD(lastXK); return; } if(k==='scope'&&page==='explore') k='scopeX'; UI[k]=!UI[k]; if(k!=='clean'&&UI.clean) UI.clean=false; applyUI(); }
 function refreshPage(){ if(page.startsWith('s')) go(cur); else if(curPage) show(curPage,page); }
 function syncModes(){
   document.querySelectorAll('.mode[data-app]').forEach(b=>b.classList.toggle('on',b.dataset.app===app));
@@ -1191,7 +1195,7 @@ function go(i){
   const alto=d=>enExp(e=>{ const st=e.shiftKey?5:1; if(XL.type!=='ramp') xSet('v0',XL.v0+d*0.1*st); else cambiaRampa(d*0.01*st); });
   const tipo=k=>enExp(()=>xSet('type',k));
   Lab.ui.teclas({
-    h:()=>toggleUI('clean'), p:()=>toggleUI('card'), s:()=>toggleUI('scope'), e:()=>toggleUI('labels'), l:()=>toggleUI('proyector'),
+    h:()=>toggleUI('clean'), p:()=>toggleUI('card'), s:()=>toggleUI('scope'), e:()=>toggleUI('labels'), l:()=>toggleUI('proyector'), o:()=>toggleUI('tema'),
     Escape:()=>{ if(!UI.clean) return false; toggleUI('clean'); },
     ' ':principalClick, Enter:principalClick,
     ArrowLeft:lado(-1), ArrowRight:lado(1), ArrowUp:alto(1), ArrowDown:alto(-1),
@@ -1203,9 +1207,17 @@ function go(i){
   window.addEventListener('resize',()=>{ drawScope(); layoutTop(); resize3D(); });
   if(document.fonts&&document.fonts.ready) document.fonts.ready.then(layoutTop);
   if(window.ResizeObserver) new ResizeObserver(drawScope).observe($('#scope'));
-  const onTheme=()=>{ drawScope(); drawStatic(true); };
-  window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change',onTheme);
-  new MutationObserver(onTheme).observe(document.documentElement,{attributes:true,attributeFilter:['data-theme']});
+  /* Cambio de tema (botón, tecla O o el sistema): fondo y luces, y se repintan los rótulos y cotas, que son dibujos con el color de ese momento.
+     La ventana del PhysicsSensor no cambia (es réplica del programa real). */
+  Lab.ui.alCambiarTema(t=>{
+    const cota=page==='explore'&&lastXK&&G_('gDimD').children.length>0;
+    Lab.escena.ambiente(scene,t); projEls=null; drawStatic(true);
+    if(xVec){ xVec.vx.setColor(tcol('--mag-x')); xVec.vy.setColor(tcol('--mag-y')); }
+    xG.traverse(o=>{ if(o.type==='ArrowHelper') o.setColor(tcol('--mag-tray')); else if(o.userData.tk) o.material.color.set(sv(o.userData.tk)); });
+    if(lastCfg) applyScene(lastCfg);
+    if(cota) xDimD(lastXK);
+    dirty=true;
+  });
   document.querySelectorAll('.vb').forEach(b=>b.onclick=()=>setView(b.dataset.v));
   if(window.ResizeObserver) new ResizeObserver(resize3D).observe(view);
   resize3D(); setView('iso');

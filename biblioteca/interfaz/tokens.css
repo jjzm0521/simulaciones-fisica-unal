@@ -50,12 +50,32 @@
   --x:var(--mag-x); --y:var(--mag-y); --path:var(--mag-tray);
 }
 
+/* Modo oscuro: redefine SOLO los semánticos y las magnitudes (la base no cambia). Lab.ui.tema('oscuro').
+   Contraste de texto ≥ 4,5:1 sobre --surface, --surface2, --surface3 y --bg (medido con la fórmula WCAG). */
+html.oscuro{
+  color-scheme:dark;
+  --bg:#0F1923;
+  --surface:#16222E; --surface2:#1D2C3B; --surface3:#283A4D;
+  --ink:#E8EEF4; --muted:#A6B6C5; --line:#33475C;
+  --accent:#4CC38A; --accent-ink:#06200F;
+  --ok:#4CC38A; --bad:#FF8F85;
+  --panel:color-mix(in srgb,var(--surface) 88%,transparent);
+  --sombra:0 6px 22px rgba(0,0,0,.45);
+  --mag-x:#4CC38A; --mag-y:#6EA8FF; --mag-tray:#FF8F57;
+}
+
 /* Modo proyector: letra más grande, paneles opacos, más contraste. Lab.ui.proyector(true) */
 html.proyector{
   font-size:118.75%;            /* 16 → 19 px: toda la escala sube */
   --panel:var(--surface);
   --muted:#3F4E5C; --line:#B5C2CF;
   --sombra:0 6px 22px rgba(20,40,60,.22);
+}
+/* Los dos a la vez: el proyector oscuro pide un gris claro (no el oscuro del proyector claro) y bordes más marcados */
+html.oscuro.proyector{
+  --panel:var(--surface);
+  --muted:#C5D1DC; --line:#5A7088;
+  --sombra:0 6px 22px rgba(0,0,0,.6);
 }
 /* Pantalla táctil: los controles crecen al tamaño del dedo */
 @media (pointer:coarse){ :root{ --ctl:44px; } }

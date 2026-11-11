@@ -32,7 +32,7 @@
   #eco{font-family:var(--font-mono);font-size:var(--t-xs);color:var(--muted)}
 </style>
 </head><body>
-<div class="barra-cat"><b>Catálogo de elementos</b><button class="interruptor" role="switch" aria-checked="false" id="proy">Modo proyector</button><span id="eco">Toca un elemento: aquí se ve lo que recibe la práctica.</span></div>
+<div class="barra-cat"><b>Catálogo de elementos</b><button class="interruptor" role="switch" aria-checked="false" id="proy">Modo proyector</button><button class="interruptor" role="switch" aria-checked="false" id="oscuro">Modo oscuro</button><span id="eco">Toca un elemento: aquí se ve lo que recibe la práctica.</span></div>
 <div class="cat">
   <header>
     <h1>Sistema de diseño · Simulaciones de física</h1>
@@ -111,8 +111,8 @@ Lab.ui.interruptor({id:'ejeX', texto:'Invertir eje x', activo:false})</pre>
 
   <section>
     <h2>Barra "Qué mostrar" y cámara <code>.dock · .viewbtns</code></h2>
-    <p class="uso">Siempre las mismas y en el mismo orden: Panel (P), instrumento (S), Rótulos (E), Letra (L), Limpia (H). Cada práctica solo cambia el nombre del instrumento y las vistas de cámara.</p>
-    <div class="row" style="align-items:flex-start"><div class="dock"><button class="dk" aria-pressed="true"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="2.5" y="3.5" width="15" height="13" rx="2"/><path d="M12 3.5v13"/></svg>Panel</button><button class="dk" aria-pressed="false"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M3 10.5 9.5 4H16v6.5L9.5 17z"/><circle cx="13" cy="7" r="1.2"/></svg>Rótulos</button><button class="dk"><b>Aa</b>Letra</button><button class="dk sep"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M3 7V3h4M13 3h4v4M17 13v4h-4M7 17H3v-4"/></svg>Limpia</button></div>
+    <p class="uso">Siempre las mismas y en el mismo orden: Panel (P), instrumento (S), Rótulos (E), Letra (L), Tema claro/oscuro (O), Limpia (H). Cada práctica solo cambia el nombre del instrumento y las vistas de cámara.</p>
+    <div class="row" style="align-items:flex-start"><div class="dock"><button class="dk" aria-pressed="true"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="2.5" y="3.5" width="15" height="13" rx="2"/><path d="M12 3.5v13"/></svg>Panel</button><button class="dk" aria-pressed="false"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M3 10.5 9.5 4H16v6.5L9.5 17z"/><circle cx="13" cy="7" r="1.2"/></svg>Rótulos</button><button class="dk"><b>Aa</b>Letra</button><button class="dk" aria-pressed="false"><svg class="i-luna" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"><path d="M16.5 11.8A6.8 6.8 0 0 1 8.2 3.5a6.8 6.8 0 1 0 8.3 8.3z"/></svg><svg class="i-sol" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><circle cx="10" cy="10" r="3.4"/><path d="M10 2.5v2M10 15.5v2M2.5 10h2M15.5 10h2M4.7 4.7l1.4 1.4M13.9 13.9l1.4 1.4M4.7 15.3l1.4-1.4M13.9 6.1l1.4-1.4"/></svg>Tema</button><button class="dk sep"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M3 7V3h4M13 3h4v4M17 13v4h-4M7 17H3v-4"/></svg>Limpia</button></div>
       <div class="viewbtns"><button class="vb">Vista 3D</button><button class="vb">Lateral</button><button class="vb">Superior</button></div></div>
   </section>
 
@@ -130,6 +130,17 @@ barra.pintar({pad:esTactil, hud:!esTactil, titulo:'Oblicuo', tituloCambia:true, 
     <p class="uso">Para toda acción que borra trabajo del estudiante (cambiar el montaje con datos tomados). No se pregunta antes: se hace y se ofrece deshacer.</p>
     <div class="muestra"><button class="btn" id="dAviso">Mostrar aviso</button></div>
     <pre>Lab.ui.aviso('Cambiaste el montaje: se borraron 3 lanzamientos.', {accion: restaurar})</pre>
+  </section>
+
+  <section>
+    <h2>Tema claro y oscuro <code>Lab.ui.tema · html.oscuro · Lab.escena.ambiente</code></h2>
+    <p class="uso">Los elementos no cambian: <code>html.oscuro</code> redefine los tokens semánticos y los de magnitud, y todo lo que usa tokens sigue solo. Combina con el modo proyector. La primera vez sigue al sistema (<code>prefers-color-scheme</code>); al elegir con el botón o con <b>O</b>, la elección se guarda con las demás preferencias (campo <code>tema</code>). Texto con contraste de al menos 4,5:1 en los dos temas. Interruptor arriba para verlo aquí.</p>
+    <pre>const UI = Lab.ui.cargarPreferencias(CLAVE);      // ya pone el tema (guardado o del sistema)
+Lab.ui.alternarTema(UI);                          // botón / tecla O: cambia, avisa y deja ui.tema listo para guardar
+Lab.ui.alCambiarTema(t =&gt; …);                     // callback; también el evento 'lab:tema' en document (detail.tema)</pre>
+    <p class="uso"><b>Escena 3D:</b> <code>Lab.escena.ambiente(escena, tema, opciones)</code> fija fondo, luces, piso y rejilla; la primera llamada los crea y las siguientes solo los recolorean. <code>Lab.escena.paleta(tema)</code> da los colores de rótulos (<code>pastilla</code>, <code>marca</code>) y de la cinta. Piezas, equipos y la ventana del PhysicsSensor no cambian de color: son objetos reales; solo cambia cómo los alumbra la escena. Los rótulos 3D se dibujan con los tokens vigentes, así que hay que volver a crearlos en <code>alCambiarTema</code>. El visor de piezas de abajo usa esto.</p>
+    <pre>Lab.escena.ambiente(scene, Lab.ui.tema(), {piso:{ancho:8}, rejilla:{ancho:8, divisiones:32}});
+Lab.ui.alCambiarTema(t =&gt; { Lab.escena.ambiente(scene, t); dirty = true; });</pre>
   </section>
 
   <section>
@@ -164,15 +175,20 @@ barra.pintar({pad:esTactil, hud:!esTactil, titulo:'Oblicuo', tituloCambia:true, 
 
 <script src="nucleo/three-r159.min.js"></script>
 <script src="nucleo/camara.js"></script>
+<script src="nucleo/ambiente.js"></script>
 <script src="piezas/soporte.js"></script>
 <script src="piezas/fotocompuerta.js"></script>
 <script src="interfaz/interfaz.js"></script>
 <script>
 (function(){
   const $=s=>document.querySelector(s), U=Lab.ui, eco=(id,v)=>{ $('#eco').textContent='alCambiar("'+id+'", '+JSON.stringify(v)+')'; };
-  const css=getComputedStyle(document.documentElement);
-  $('#colores').innerHTML=['--bg','--surface','--surface2','--surface3','--line','--muted','--ink','--accent','--ok','--bad','--mag-x','--mag-y','--mag-tray']
-    .map(t=>'<div class="tk"><i style="background:var('+t+')"></i><span>'+t+'<br>'+css.getPropertyValue(t).trim()+'</span></div>').join('');
+  const css=getComputedStyle(document.documentElement), UI=U.cargarPreferencias('catalogo-ui');
+  const pintaColores=()=>{ $('#colores').innerHTML=['--bg','--surface','--surface2','--surface3','--line','--muted','--ink','--accent','--ok','--bad','--mag-x','--mag-y','--mag-tray']
+    .map(t=>'<div class="tk"><i style="background:var('+t+')"></i><span>'+t+'<br>'+css.getPropertyValue(t).trim()+'</span></div>').join(''); };
+  pintaColores();
+  const oscuro=$('#oscuro'), sincTema=()=>oscuro.setAttribute('aria-checked',String(U.tema()==='oscuro'));
+  sincTema(); oscuro.onclick=()=>{ U.alternarTema(UI); U.guardarPreferencias('catalogo-ui',UI); };
+  U.alCambiarTema(()=>{ sincTema(); pintaColores(); });
   $('#letras').innerHTML=[['--t-xs','12 · notas, unidades'],['--t-sm','13 · controles, tablas'],['--t-md','15 · texto del panel'],['--t-lg','18 · subtítulos'],['--t-xl','22 · título del paso']]
     .map(([t,d])=>'<div><code>'+t+'</code><span style="font-size:var('+t+')">'+d+'</span></div>').join('');
   $('#dDes').innerHTML=U.deslizador({id:'ang',etiqueta:'Ángulo de lanzamiento',simbolo:'θ',valor:35,min:-45,max:85,paso:1,dec:0,unidad:'°',nota:'sobre la horizontal',teclas:'← →',nominal:45})+
@@ -190,10 +206,10 @@ barra.pintar({pad:esTactil, hud:!esTactil, titulo:'Oblicuo', tituloCambia:true, 
   if(window.THREE){
     THREE.ColorManagement.enabled=false; const rd=new THREE.WebGLRenderer({antialias:true}); rd.outputColorSpace=THREE.LinearSRGBColorSpace; rd.setPixelRatio(Math.min(devicePixelRatio||1,2)); rd.shadowMap.enabled=true; vista.appendChild(rd.domElement);
     rd.domElement.style.cssText='display:block;width:100%;height:100%';
-    const esc=new THREE.Scene(); esc.background=new THREE.Color(0xdfe6ee); const cam=new THREE.PerspectiveCamera(36,2,0.02,20), ctl=new THREE.CamaraOrbita(cam,rd.domElement,{minDistance:0.15,maxDistance:3});
-    esc.add(new THREE.HemisphereLight(0xffffff,0xb9c4d0,0.9*Math.PI)); const sol=new THREE.DirectionalLight(0xfff6e6,0.65*Math.PI); sol.position.set(0.8,1.6,1); sol.castShadow=true; esc.add(sol);
+    const esc=new THREE.Scene(); const cam=new THREE.PerspectiveCamera(36,2,0.02,20), ctl=new THREE.CamaraOrbita(cam,rd.domElement,{minDistance:0.15,maxDistance:3});
+    Lab.escena.ambiente(esc,U.tema(),{piso:false,rejilla:false,sol:{pos:[0.8,1.6,1]}});
     const mesa=new THREE.Mesh(new THREE.BoxGeometry(0.9,0.02,0.6),new THREE.MeshStandardMaterial({color:0xd9c39a,roughness:0.8})); mesa.position.y=-0.01; mesa.receiveShadow=true; esc.add(mesa);
-    const cont=new THREE.Group(); esc.add(cont); let sucio=true; ctl.addEventListener('change',()=>sucio=true);
+    const cont=new THREE.Group(); esc.add(cont); let sucio=true; U.alCambiarTema(t=>{ Lab.escena.ambiente(esc,t); sucio=true; }); ctl.addEventListener('change',()=>sucio=true);
     pinta=()=>{ while(cont.children.length) cont.remove(cont.children[0]);
       const fc=Lab.piezas.fotocompuerta({abertura:PZ.ab,etiqueta:'7a'}), yHaz=0.16; let cod='', info='';
       if(PZ.cual!=='soporte'){ fc.grupo.position.set(0,PZ.cual==='montaje'?yHaz:0.02,0.08); cont.add(fc.grupo);

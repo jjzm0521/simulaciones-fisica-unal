@@ -5,7 +5,7 @@ Simulación 3D de la práctica de movimiento parabólico, ambientada en un labor
 
 ## Cómo abrirla
 
-1. Doble clic en `INICIAR_SIMULACION.bat`, o abre `index.html` con Chrome, Edge o Firefox.
+1. Doble clic en `index.html` (Chrome, Edge o Firefox).
 2. **No necesita internet**: el motor 3D (three.js r159, el mismo de las demás prácticas), la cámara y las fuentes van dentro del archivo.
 
 ## Modos
@@ -70,3 +70,7 @@ Cada control se puede arrastrar, escribir (valor exacto, con coma) o mover con �
 ## Celular y pantallas táctiles
 
 En Explorar aparece un control táctil con los mismos controles del teclado: **θ− θ+**, **Lanzar**, **V− V+** (mantener presionado repite) y el botón del tipo de lanzamiento, que cambia en cada toque. Con el panel abierto queda en una sola fila, sobre la escena; sin panel o en vista limpia muestra también el tipo, θ y V₀. En Laboratorio, en vista limpia, el botón hace lo del botón principal del paso.
+
+## Versiones anteriores
+
+Las versiones de los compañeros (bgarciab, danicuartas, mmarinsu) y el paquete original ya no están en la carpeta: siguen en el historial de git. Para verlas: `git show 60f29a0:fisica-1/movimiento-parabolico/archivo/<archivo>`. La guía de la práctica no va en el repositorio (es público); está en la máquina del monitor.

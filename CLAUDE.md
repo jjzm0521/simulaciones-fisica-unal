@@ -29,7 +29,6 @@ fisica-3/<practica>/      índice en fisica-3/README.md
   ├── index.html          ENTREGA: el archivo que se envía (generado, no se edita a mano)
   ├── src/index.src.html  FUENTE: lo que se edita
   ├── README.md           ficha: estado, guía, decisiones
-  ├── guia/  archivo/     PDF de la guía y versiones anteriores (opcionales)
 biblioteca/               lo compartido (ver biblioteca/README.md)
   ├── nucleo/             three-r159.min.js, camara.js, rotulos.js (rótulos legibles a cualquier distancia), ambiente.js (fondo, luces, piso y rejilla por tema)
   ├── fuentes/            fuentes.css (Bricolage Grotesque, IBM Plex Sans/Mono, incrustadas)

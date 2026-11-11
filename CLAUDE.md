@@ -30,7 +30,7 @@ fisica-3/<practica>/      índice en fisica-3/README.md
   ├── README.md           ficha: estado, guía, decisiones
   ├── guia/  archivo/     PDF de la guía y versiones anteriores (opcionales)
 biblioteca/               lo compartido (ver biblioteca/README.md)
-  ├── nucleo/             three-r159.min.js, camara.js, rotulos.js (rótulos legibles a cualquier distancia)
+  ├── nucleo/             three-r159.min.js, camara.js, rotulos.js (rótulos legibles a cualquier distancia), ambiente.js (fondo, luces, piso y rejilla por tema)
   ├── fuentes/            fuentes.css (Bricolage Grotesque, IBM Plex Sans/Mono, incrustadas)
   ├── interfaz/           tokens.css, interfaz.css, interfaz.js  ← sistema de diseño
   ├── catalogo.html       todos los elementos, con su uso (referencia del equipo y del agente)
@@ -73,7 +73,7 @@ El empaquetador avisa si quedan recursos externos: ese aviso es un error que hay
 - Servidor local que sirva la carpeta padre del repo, por ejemplo `python3 -m http.server 8765 --directory ".."` desde la raíz (en la máquina del monitor ya existe la configuración `simulaciones` en `~/01_Trabajo/Monitoria/.claude/launch.json`); URL: `http://localhost:8765/simulaciones-fisica-unal/<ruta>/index.html`. También se puede abrir el `index.html` directo con doble clic.
 - Consola sin errores; física verificada con números; incertidumbres con una cifra significativa.
 - Sin paneles superpuestos en anchos de 360 a 1440 px (computador, celular), en Explorar, Laboratorio y Paso a paso, con y sin panel, y en vista limpia.
-- Teclado: Espacio hace la acción principal, flechas cambian parámetros, H vista limpia, P panel, S sensor, E rótulos, L letra grande (proyector), Esc sale.
+- Teclado: Espacio hace la acción principal, flechas cambian parámetros, H vista limpia, P panel, S sensor, E rótulos, L letra grande (proyector), O tema claro/oscuro, Esc sale.
 - Modo proyector (L) y celular (375 px): nada tapado, botones de al menos 44 px en táctil, letra mínima 12 px.
 - El navegador integrado frena las animaciones cuando su panel está oculto (1 cuadro/s): no es un error de la simulación.
 
@@ -88,7 +88,7 @@ El empaquetador avisa si quedan recursos externos: ese aviso es un error que hay
 - **Lista con el diseño aprobado:** `fisica-1/movimiento-parabolico`.
 - **Lista con diseño anterior:** `fisica-3/lente-convergente` (pasarla al diseño aprobado; sus fuentes aún cargan de internet).
 - **Hecho de la biblioteca:** núcleo, fuentes, incertidumbre, plantilla, empaquetar-todo; sistema de diseño v2 (tokens, elementos `Lab.ui`, catálogo, modo proyector, rótulos legibles) con parabólico y la plantilla ya migrados.
-- **Falta pasar a la biblioteca:** ventana de instrumento + PhysicsSensor, tabla de datos, verificación de "Tus cálculos", armazón declarativo (modos y pasos). Tema oscuro: pendiente de decidir junto con la escena.
+- **Falta pasar a la biblioteca:** ventana de instrumento + PhysicsSensor, tabla de datos, verificación de "Tus cálculos", armazón declarativo (modos y pasos). Tema claro/oscuro hecho: `html.oscuro` en tokens.css, `Lab.ui.tema`, botón Tema (O) y `Lab.escena.ambiente`; toda práctica nueva debe llamar a `ambiente` y repintar sus rótulos en `Lab.ui.alCambiarTema`. PhysicsSensor y piezas no cambian de color. Pendiente: pasar lente-convergente.
 - **Piezas hechas (borrador, medidas estimadas de foto):** soporte universal (base, varilla, nuez, brazo) y fotocompuerta en C; parabólico ya las usa.
 - **Siguiente:** medir en el laboratorio soporte y fotocompuerta; polea (falta foto); sacar de parabólico mesa, rampa, esfera, cinta y computador.
 - **Pendiente del equipo:** lista de prácticas de Física 3, número oficial de cada práctica de F1, fotos y medidas de equipos, quién aprueba piezas.

@@ -20,7 +20,7 @@ Simulación 3D de la práctica de movimiento parabólico, ambientada en un labor
 2. **Montaje**: altura H, diámetro d y altura de la rampa h, con su incertidumbre; marco de referencia. El haz de la fotocompuerta está justo en el borde de la rampa (x = 0), a la altura del centro de la esfera.
 3. **Medir τ**: la esfera interrumpe el haz al salir de la rampa. En el sonograma del PhysicsSensor τ se mide con los cursores entre el punto donde la gráfica empieza a subir y el punto donde empieza a bajar (no todo el ancho del pulso).
 4. **Vuelo**: movimiento horizontal uniforme y vertical acelerado.
-5. **Tomar datos**: cinco lanzamientos y tabla de alcance D y tiempo τ.
+5. **Tomar datos**: cinco lanzamientos. En cada uno el estudiante mide τ arrastrando los dos cursores del sonograma (inicio de la subida e inicio de la bajada) y lo registra; si los cursores quedan a más del 15 % del pulso, la simulación explica cómo corregirlos. *Completar sin medir* llena la tabla sola.
 6. **Tus cálculos**: el estudiante ingresa sus resultados y la simulación los verifica (valor, incertidumbre con una cifra significativa y redondeo).
 7. **Resultados**: promedios, V₀ₓ con la fotocompuerta y con la parábola, y porcentaje de error.
 
@@ -63,7 +63,9 @@ El motor, la cámara y las fuentes compartidos están en `biblioteca/` (raíz de
 - **Espacio / Enter**: lanzar (en Laboratorio, el botón principal del paso).
 - **← →**: ángulo de lanzamiento (Shift: de 5 en 5). **↑ ↓**: rapidez V₀ (en la rampa, altura de la rampa).
 - **1–4**: tipo de lanzamiento. **V** vectores · **T** trayectoria prevista · **C** borrar la traza.
-- **H** vista limpia (solo la escena, con un indicador de θ, V₀ y las teclas) · **P** panel · **S** sensor · **E** rótulos · **Esc** sale de la vista limpia.
+- **H** vista limpia (solo la escena, con un indicador de θ, V₀ y las teclas) · **P** panel · **S** sensor · **E** rótulos · **L** letra grande para proyector · **Esc** sale de la vista limpia.
+
+Cada control se puede arrastrar, escribir (valor exacto, con coma) o mover con − / +. Si se cambia el montaje con lanzamientos ya tomados, aparece un aviso con **Deshacer**.
 
 ## Celular y pantallas táctiles
 

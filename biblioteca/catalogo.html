@@ -1,0 +1,219 @@
+<!doctype html>
+<html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Catálogo de elementos · Simulaciones de física UNAL</title>
+<!-- Página de referencia del equipo (no se entrega a estudiantes): se abre directo desde el repositorio.
+     Muestra los tokens y cada elemento de biblioteca/interfaz con su uso. Lo que no esté aquí no existe:
+     si una práctica necesita un elemento nuevo, se agrega primero a la biblioteca y a este catálogo. -->
+<link rel="stylesheet" href="fuentes/fuentes.css">
+<link rel="stylesheet" href="interfaz/tokens.css">
+<link rel="stylesheet" href="interfaz/interfaz.css">
+<style>
+  /* solo para esta página: deja desplazar y pone en línea lo que en una práctica flota */
+  html,body{height:auto} body{overflow:auto;background:var(--surface3)}
+  .cat{max-width:980px;margin:0 auto;padding:var(--e-5) var(--e-4) 120px;display:flex;flex-direction:column;gap:var(--e-5)}
+  .cat>header h1{font-size:var(--t-xl);white-space:normal}
+  .cat section{background:var(--surface);border:1px solid var(--line);border-radius:var(--r-3);padding:var(--e-5);display:flex;flex-direction:column;gap:var(--e-3)}
+  .cat h2{font-family:var(--font-display);font-size:var(--t-lg);margin:0}
+  .cat h2 code{font-family:var(--font-mono);font-size:var(--t-sm);font-weight:400;color:var(--muted);margin-left:var(--e-2)}
+  .cat p{margin:0;max-width:70ch}
+  .cat .uso{font-size:var(--t-sm);color:var(--muted)}
+  .cat pre{margin:0;font-family:var(--font-mono);font-size:var(--t-xs);background:var(--surface2);border:1px solid var(--line);border-radius:var(--r-1);padding:var(--e-2) var(--e-3);overflow-x:auto;white-space:pre-wrap}
+  .muestra{max-width:410px;display:flex;flex-direction:column;gap:var(--e-3)}
+  .muestra.ancha{max-width:none}
+  .cat .modes,.cat .dock,.cat .viewbtns,.cat .hud,.cat .pad,.cat nav.steps,.cat .card{position:static;transform:none;margin:0;width:auto;max-width:100%}
+  .cat .dock{width:max-content} .cat .viewbtns,.cat .modes,.cat .hud,.cat .pad{width:max-content}
+  .cat nav.steps{justify-content:flex-start;pointer-events:auto}
+  .tokens{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:var(--e-2)}
+  .tk{border:1px solid var(--line);border-radius:var(--r-1);overflow:hidden;font-family:var(--font-mono);font-size:var(--t-xs)}
+  .tk i{display:block;height:36px} .tk span{display:block;padding:4px 8px}
+  .escala div{display:flex;align-items:baseline;gap:var(--e-3);border-bottom:1px dashed var(--line);padding:4px 0}
+  .escala code{font-family:var(--font-mono);font-size:var(--t-xs);color:var(--muted);width:150px;flex:none}
+  .barra-cat{position:sticky;top:0;z-index:9;display:flex;gap:var(--e-3);align-items:center;padding:var(--e-2) var(--e-4);background:var(--surface);border-bottom:1px solid var(--line)}
+  #eco{font-family:var(--font-mono);font-size:var(--t-xs);color:var(--muted)}
+</style>
+</head><body>
+<div class="barra-cat"><b>Catálogo de elementos</b><button class="interruptor" role="switch" aria-checked="false" id="proy">Modo proyector</button><span id="eco">Toca un elemento: aquí se ve lo que recibe la práctica.</span></div>
+<div class="cat">
+  <header>
+    <h1>Sistema de diseño · Simulaciones de física</h1>
+    <p>Todo lo que una práctica muestra al estudiante sale de aquí. La práctica <b>declara</b> (qué parámetros, qué acción, qué pasos) y la biblioteca <b>pinta</b>. Si falta un elemento, se agrega primero aquí.</p>
+  </header>
+
+  <section>
+    <h2>Colores <code>tokens.css</code></h2>
+    <p class="uso">Semánticos: se usan por lo que significan, no por cómo se ven. Los de magnitud los puede cambiar cada práctica.</p>
+    <div class="tokens" id="colores"></div>
+  </section>
+
+  <section>
+    <h2>Letra, espacio y radio <code>tokens.css</code></h2>
+    <p class="uso">Cinco tamaños de letra (mínimo 12 px), cinco espacios, cuatro radios. Control con mouse: 36 px de alto; con el dedo: 44 px.</p>
+    <div class="escala" id="letras"></div>
+  </section>
+
+  <section>
+    <h2>Botón <code>.btn · .btn.primary · .btn.discreto</code></h2>
+    <p class="uso"><b>Primario:</b> la acción del paso (Lanzar, Soltar, Verificar). Uno por panel, marcado con <code>data-principal</code>: es el que disparan Espacio, Enter y el botón grande de la barra táctil. <b>Secundario:</b> acciones de apoyo. <b>Discreto:</b> acciones raras o de restablecer.</p>
+    <div class="muestra"><div class="row"><button class="btn primary" data-principal>Lanzar</button><button class="btn">Completar los que faltan</button></div>
+      <div class="row"><button class="btn primary" disabled>Tabla completa</button><button class="btn discreto">Volver a los valores del laboratorio</button></div></div>
+    <pre>&lt;button class="btn primary" data-principal id="lanzar"&gt;Lanzar&lt;/button&gt;</pre>
+  </section>
+
+  <section>
+    <h2>Deslizador <code>Lab.ui.deslizador</code></h2>
+    <p class="uso">Para toda cantidad continua. Se arrastra, se escribe el valor exacto (acepta coma) o se usa − / + (mantener presionado repite). La marca bajo la barra es el valor nominal del laboratorio. Las teclas se declaran, no se escriben a mano.</p>
+    <div class="muestra"><fieldset class="params"><legend>Condiciones del lanzamiento</legend><div id="dDes"></div></fieldset></div>
+    <pre>Lab.ui.deslizador({id:'ang', etiqueta:'Ángulo de lanzamiento', simbolo:'θ', valor:35, min:-45, max:85, paso:1, dec:0,
+                   unidad:'°', nota:'sobre la horizontal', teclas:'← →', nominal:45})</pre>
+  </section>
+
+  <section>
+    <h2>Opción única · Casilla · Interruptor <code>Lab.ui.opciones · casilla · interruptor</code></h2>
+    <p class="uso">Tres formas para tres preguntas distintas. <b>Opción única (círculo):</b> elegir una entre varias. <b>Casilla (cuadro):</b> mostrar u ocultar algo en la escena. <b>Interruptor (pista):</b> cambiar un estado que altera el comportamiento. No se intercambian.</p>
+    <div class="muestra" id="dOpc"></div>
+    <pre>Lab.ui.opciones({id:'tipo', etiqueta:'Tipo de lanzamiento', valor:'obl', items:[{v:'ramp', texto:'Rampa del montaje', tecla:'1'}, …]})
+Lab.ui.casilla({id:'vec', texto:'Vectores de velocidad', marcado:true, tecla:'V'})
+Lab.ui.interruptor({id:'ejeX', texto:'Invertir eje x', activo:false})</pre>
+  </section>
+
+  <section>
+    <h2>Lecturas y fila de resultado <code>Lab.ui.lecturas · Lab.ui.fila</code></h2>
+    <p class="uso"><b>Lecturas:</b> números que cambian en vivo; el filo de color dice a qué magnitud pertenecen (mismo color que su vector en la escena). <b>Fila:</b> un resultado con su expresión; la variante clave resalta lo que se va a comparar. Los valores con incertidumbre salen de <code>Lab.fisica.pair</code>.</p>
+    <div class="muestra" id="dLec"></div>
+  </section>
+
+  <section>
+    <h2>Tabla, verificación e insignias <code>table · .calcf · .badge</code></h2>
+    <p class="uso">La fila recién medida se resalta (<code>tr.fresh</code>). En la verificación, el borde y el mensaje dicen qué corregir; nunca solo color.</p>
+    <div class="muestra">
+      <div class="tablewrap"><table><thead><tr><th><var>D</var> (m)</th><th><var>u<sub>D</sub></var> (m)</th><th>τ (s)</th><th><var>u<sub>τ</sub></var> (s)</th></tr></thead>
+        <tbody><tr><td class="mono">0,515</td><td class="mono">0,001</td><td class="mono">0,0129</td><td class="mono">0,0003</td></tr>
+        <tr class="fresh"><td class="mono">0,521</td><td class="mono">0,001</td><td class="mono">0,0132</td><td class="mono">0,0003</td></tr><tr><td>—</td><td>—</td><td>—</td><td>—</td></tr></tbody></table></div>
+      <div class="calcf"><span class="h">MAGNITUD</span><span class="h">VALOR</span><span></span><span class="h">INCERT.</span><span></span>
+        <label class="lab">Alcance promedio</label><input class="ok" value="0,518"><span class="pm">±</span><input class="ok" value="0,004"><span class="un">m</span><span class="msg ok">Correcto.</span>
+        <label class="lab">Tiempo promedio</label><input value="0,01305"><span class="pm">±</span><input class="bad" value="0,00031"><span class="un">s</span><span class="msg bad">La incertidumbre va con una sola cifra significativa.</span></div>
+      <p><span class="badge ok">Compatibles</span> <span class="badge bad">No se solapan</span></p>
+    </div>
+  </section>
+
+  <section>
+    <h2>Tarjetas, ecuación y plegable <code>.mini · .eq · details</code></h2>
+    <div class="muestra"><div class="cols2"><div class="mini"><b>A · Fotocompuerta</b><span class="small">Mide el tiempo τ.</span><span class="eq">V₀ₓ = d / τ</span></div><div class="mini"><b>B · Parábola</b><span class="small">Mide <var>H</var> y <var>D</var>.</span><span class="eq">V₀ₓ = D·√(g / 2H)</span></div></div>
+      <details><summary>Ideas para probar</summary><ul class="tight"><li>¿Qué ángulo da el mayor alcance?</li><li>Duplica V₀: ¿cambia el tiempo de vuelo?</li></ul></details></div>
+  </section>
+
+  <section>
+    <h2>Modos y pasos <code>.modes · nav.steps</code></h2>
+    <p class="uso">Explorar y Laboratorio son excluyentes. <b>Paso a paso</b> no es un tercer modo: es un interruptor de Laboratorio. Pasos: hecho, actual, pendiente.</p>
+    <div class="muestra ancha"><div class="modes"><button class="mode">Explorar</button><button class="mode on">Laboratorio</button><button class="interruptor" role="switch" aria-checked="true" data-interruptor="guia">Paso a paso</button></div>
+      <nav class="steps"><ol><li><button class="seen"><span class="n">1</span><span>La idea</span></button></li><li><button aria-current="step"><span class="n">2</span><span>Montaje</span></button></li><li><button><span class="n">3</span><span>Medir τ</span></button></li></ol></nav></div>
+  </section>
+
+  <section>
+    <h2>Barra "Qué mostrar" y cámara <code>.dock · .viewbtns</code></h2>
+    <p class="uso">Siempre las mismas y en el mismo orden: Panel (P), instrumento (S), Rótulos (E), Letra (L), Limpia (H). Cada práctica solo cambia el nombre del instrumento y las vistas de cámara.</p>
+    <div class="row" style="align-items:flex-start"><div class="dock"><button class="dk" aria-pressed="true"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="2.5" y="3.5" width="15" height="13" rx="2"/><path d="M12 3.5v13"/></svg>Panel</button><button class="dk" aria-pressed="false"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M3 10.5 9.5 4H16v6.5L9.5 17z"/><circle cx="13" cy="7" r="1.2"/></svg>Rótulos</button><button class="dk"><b>Aa</b>Letra</button><button class="dk sep"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M3 7V3h4M13 3h4v4M17 13v4h-4M7 17H3v-4"/></svg>Limpia</button></div>
+      <div class="viewbtns"><button class="vb">Vista 3D</button><button class="vb">Lateral</button><button class="vb">Superior</button></div></div>
+  </section>
+
+  <section>
+    <h2>Barra de acción e indicador de teclas <code>Lab.ui.barraAccion</code></h2>
+    <p class="uso">Una sola declaración produce las dos: botones en pantalla táctil, teclas en computador. Aparecen cuando el panel está oculto (y en celular, en Explorar).</p>
+    <div class="muestra ancha"><div class="pad" id="dPad"></div><div class="hud" id="dHud"></div></div>
+    <pre>const barra = Lab.ui.barraAccion({pad:'#pad', hud:'#hud', accion: nombre => …});   // 'th-', 'th+', 'principal', 'titulo'
+barra.pintar({pad:esTactil, hud:!esTactil, titulo:'Oblicuo', tituloCambia:true, valores:['θ = 35°','V₀ = 2,0 m/s'],
+  grupos:[{id:'th', menos:'θ−', mas:'θ+', nombre:'el ángulo'}], principal:{texto:'Lanzar'}, teclas:[['Espacio','lanzar'],['← →','ángulo']]})</pre>
+  </section>
+
+  <section>
+    <h2>Aviso con deshacer <code>Lab.ui.aviso</code></h2>
+    <p class="uso">Para toda acción que borra trabajo del estudiante (cambiar el montaje con datos tomados). No se pregunta antes: se hace y se ofrece deshacer.</p>
+    <div class="muestra"><button class="btn" id="dAviso">Mostrar aviso</button></div>
+    <pre>Lab.ui.aviso('Cambiaste el montaje: se borraron 3 lanzamientos.', {accion: restaurar})</pre>
+  </section>
+
+  <section>
+    <h2>Rótulos de la escena <code>Lab.escena.rotulosLegibles</code></h2>
+    <p class="uso">Los rótulos 3D se mantienen entre un mínimo y un máximo de píxeles: se leen de lejos y no tapan el montaje de cerca. Se llama una vez por cuadro, antes de dibujar.</p>
+    <pre>Lab.escena.rotulosLegibles(escena, camara, lienzo.clientHeight);   // sprite.userData.px = [mín, máx] para un caso especial</pre>
+  </section>
+
+  <section>
+    <h2>Piezas del laboratorio <code>Lab.piezas.*</code></h2>
+    <p class="uso">Los equipos reales, modelados una sola vez, en metros, con parámetros y puntos de anclaje. Antes de modelar algo se busca aquí. Fichas y reglas: <code>piezas/README.md</code>. Arrastra para girar; rueda para acercar.</p>
+    <div class="muestra ancha">
+      <div id="pzSel"></div>
+      <div id="pzVista" style="height:380px;border:1px solid var(--line);border-radius:var(--r-2);overflow:hidden;background:var(--bg)"></div>
+      <div class="muestra" id="pzCtl"></div>
+      <pre id="pzCod"></pre>
+      <p class="uso" id="pzInfo"></p>
+    </div>
+  </section>
+
+  <section>
+    <h2>Ventana de instrumento <code>Lab.ui.ventana</code></h2>
+    <p class="uso">Todo instrumento va en una ventana que se arrastra por su barra, se pliega y se cierra. En celular queda fija.</p>
+    <pre>Lab.ui.ventana('#scopeWrap', {asa:'.ps-title', alCerrar: ocultar, alCambiar: redibujar})</pre>
+  </section>
+
+  <section>
+    <h2>Instrumento: PhysicsSensor <code>.pswin</code></h2>
+    <p class="uso">Los instrumentos imitan al programa o equipo real, con su propia tipografía y colores: es lo único que no usa los tokens. Van dentro de la ventana de instrumento, que sí es del sistema.</p>
+  </section>
+</div>
+
+<script src="nucleo/three-r159.min.js"></script>
+<script src="nucleo/camara.js"></script>
+<script src="piezas/soporte.js"></script>
+<script src="piezas/fotocompuerta.js"></script>
+<script src="interfaz/interfaz.js"></script>
+<script>
+(function(){
+  const $=s=>document.querySelector(s), U=Lab.ui, eco=(id,v)=>{ $('#eco').textContent='alCambiar("'+id+'", '+JSON.stringify(v)+')'; };
+  const css=getComputedStyle(document.documentElement);
+  $('#colores').innerHTML=['--bg','--surface','--surface2','--surface3','--line','--muted','--ink','--accent','--ok','--bad','--mag-x','--mag-y','--mag-tray']
+    .map(t=>'<div class="tk"><i style="background:var('+t+')"></i><span>'+t+'<br>'+css.getPropertyValue(t).trim()+'</span></div>').join('');
+  $('#letras').innerHTML=[['--t-xs','12 · notas, unidades'],['--t-sm','13 · controles, tablas'],['--t-md','15 · texto del panel'],['--t-lg','18 · subtítulos'],['--t-xl','22 · título del paso']]
+    .map(([t,d])=>'<div><code>'+t+'</code><span style="font-size:var('+t+')">'+d+'</span></div>').join('');
+  $('#dDes').innerHTML=U.deslizador({id:'ang',etiqueta:'Ángulo de lanzamiento',simbolo:'θ',valor:35,min:-45,max:85,paso:1,dec:0,unidad:'°',nota:'sobre la horizontal',teclas:'← →',nominal:45})+
+    U.deslizador({id:'alt',etiqueta:'Altura de la mesa',simbolo:'H',valor:95,min:70,max:115,paso:0.1,dec:1,unidad:'cm',nota:'cinta métrica',nominal:95});
+  $('#dOpc').innerHTML=U.opciones({id:'tipo',etiqueta:'Tipo de lanzamiento',valor:'obl',items:[{v:'ramp',texto:'Rampa del montaje',tecla:'1'},{v:'horiz',texto:'Horizontal desde la mesa',tecla:'2'},{v:'obl',texto:'Oblicuo desde la mesa',tecla:'3'},{v:'floor',texto:'Desde el piso',tecla:'4'}]})+
+    '<div class="row">'+U.casilla({id:'vec',texto:'Vectores de velocidad',marcado:true,tecla:'V'})+U.casilla({id:'pred',texto:'Trayectoria prevista',marcado:false,tecla:'T'})+'</div>'+
+    '<div class="pila">'+U.interruptor({id:'ejeX',texto:'Invertir eje x (positivo hacia la izquierda)',activo:false})+U.interruptor({id:'ejeY',texto:'Invertir eje y (positivo hacia arriba)',activo:true})+'</div>';
+  $('#dLec').innerHTML=U.lecturas([{id:'a',etiqueta:'t (s)',valor:'0,312'},{id:'b',etiqueta:'x (m)',valor:'0,511',color:'var(--mag-x)'},{id:'c',etiqueta:'y (m)',valor:'0,476',color:'var(--mag-y)'},{id:'d',etiqueta:'Vₓ (m/s)',valor:'1,64',color:'var(--mag-x)'},{id:'e',etiqueta:'V<sub>y</sub> (m/s)',valor:'3,05',color:'var(--mag-y)'}])+
+    U.fila('Tiempo promedio','τ̄','0,0131 ± 0,0003 s')+U.fila('Con la fotocompuerta','V₀ₓ = d / τ̄','1,22 ± 0,03 m/s',true);
+  /* visor de piezas */
+  const PZ={ab:0.07,cual:'montaje'}, vista=$('#pzVista');
+  $('#pzSel').innerHTML=U.opciones({id:'pz',etiqueta:'Pieza',valor:PZ.cual,items:[{v:'montaje',texto:'Fotocompuerta en su soporte'},{v:'fotocompuerta',texto:'Fotocompuerta'},{v:'soporte',texto:'Soporte universal'}]});
+  $('#pzCtl').innerHTML=U.deslizador({id:'pzAb',etiqueta:'Abertura de la fotocompuerta',valor:7,min:5,max:12,paso:0.2,dec:1,unidad:'cm',nota:'la pieza real: 7 cm (estimado)',nominal:7});
+  let pinta=()=>{};
+  if(window.THREE){
+    THREE.ColorManagement.enabled=false; const rd=new THREE.WebGLRenderer({antialias:true}); rd.outputColorSpace=THREE.LinearSRGBColorSpace; rd.setPixelRatio(Math.min(devicePixelRatio||1,2)); rd.shadowMap.enabled=true; vista.appendChild(rd.domElement);
+    rd.domElement.style.cssText='display:block;width:100%;height:100%';
+    const esc=new THREE.Scene(); esc.background=new THREE.Color(0xdfe6ee); const cam=new THREE.PerspectiveCamera(36,2,0.02,20), ctl=new THREE.CamaraOrbita(cam,rd.domElement,{minDistance:0.15,maxDistance:3});
+    esc.add(new THREE.HemisphereLight(0xffffff,0xb9c4d0,0.9*Math.PI)); const sol=new THREE.DirectionalLight(0xfff6e6,0.65*Math.PI); sol.position.set(0.8,1.6,1); sol.castShadow=true; esc.add(sol);
+    const mesa=new THREE.Mesh(new THREE.BoxGeometry(0.9,0.02,0.6),new THREE.MeshStandardMaterial({color:0xd9c39a,roughness:0.8})); mesa.position.y=-0.01; mesa.receiveShadow=true; esc.add(mesa);
+    const cont=new THREE.Group(); esc.add(cont); let sucio=true; ctl.addEventListener('change',()=>sucio=true);
+    pinta=()=>{ while(cont.children.length) cont.remove(cont.children[0]);
+      const fc=Lab.piezas.fotocompuerta({abertura:PZ.ab,etiqueta:'7a'}), yHaz=0.16; let cod='', info='';
+      if(PZ.cual!=='soporte'){ fc.grupo.position.set(0,PZ.cual==='montaje'?yHaz:0.02,0.08); cont.add(fc.grupo);
+        cod="const fc = Lab.piezas.fotocompuerta({abertura:"+PZ.ab.toFixed(3)+", etiqueta:'7a'});\nfc.grupo.position.copy(puntoDelHaz);   fc.bloquear(true);";
+        info='Fotocompuerta · ancho '+(fc.medidas.ancho*100).toFixed(1).replace('.',',')+' cm · alto '+(fc.medidas.alto*100).toFixed(1).replace('.',',')+' cm · anclajes: haz, sujecion · BORRADOR (medidas estimadas de foto).'; }
+      if(PZ.cual!=='fotocompuerta'){ const m=PZ.cual==='montaje', sp=Lab.piezas.soporte({alto:0.45,alturaNuez:m?yHaz+fc.anclajes.sujecion.y:0.25,brazo:0.2,direccion:'z+'}); sp.grupo.position.set(0,0,-0.12); cont.add(sp.grupo);
+        cod=(m?cod+"\n":"")+"const sp = Lab.piezas.soporte({alturaNuez:"+(m?"yHaz + fc.anclajes.sujecion.y":"0.25")+", brazo:0.20, direccion:'z+'});";
+        info=(m?info+' ':'')+'Soporte · placa 22 × 14 × 1,4 cm, varilla Ø 10 mm · anclajes: brazo, nuez, cima · BORRADOR.'; }
+      $('#pzCod').textContent=cod; $('#pzInfo').textContent=info;
+      cam.position.set(0.55,0.42,0.62); ctl.target.set(0,0.14,0); ctl.update(); sucio=true; };
+    const mide=()=>{ const w=vista.clientWidth,h=vista.clientHeight; if(!w) return; rd.setSize(w,h,false); cam.aspect=w/h; cam.updateProjectionMatrix(); sucio=true; };
+    new ResizeObserver(mide).observe(vista); mide(); pinta();
+    (function b(){ requestAnimationFrame(b); if(sucio){ sucio=false; rd.render(esc,cam); } })();
+  } else vista.textContent='No se pudo cargar el motor 3D.';
+  U.montar('.cat',(id,v)=>{ if(id==='pz'){ PZ.cual=v; pinta(); } else if(id==='pzAb'){ PZ.ab=v/100; pinta(); } eco(id,v); });
+  const b1=U.barraAccion({pad:'#dPad',hud:null,accion:a=>eco('barra',a)}), b2=U.barraAccion({pad:null,hud:'#dHud',accion:()=>{}});
+  const e={titulo:'Oblicuo',tituloCambia:true,valores:['θ = 35°','V₀ = 2,0 m/s'],grupos:[{id:'th',menos:'θ−',mas:'θ+',nombre:'el ángulo'},{id:'v',menos:'V−',mas:'V+',nombre:'la rapidez'}],principal:{texto:'Lanzar'},teclas:[['Espacio','lanzar'],['← →','ángulo'],['↑ ↓','rapidez']]};
+  b1.pintar(Object.assign({pad:true},e)); b2.pintar(Object.assign({hud:true},e));
+  $('#dAviso').onclick=()=>U.aviso('Cambiaste el montaje: se borraron 3 lanzamientos.',{accion:()=>eco('aviso','deshacer')});
+  $('#proy').onclick=()=>{ const on=$('#proy').getAttribute('aria-checked')!=='true'; $('#proy').setAttribute('aria-checked',on); U.proyector(on); };
+})();
+</script>
+</body></html>

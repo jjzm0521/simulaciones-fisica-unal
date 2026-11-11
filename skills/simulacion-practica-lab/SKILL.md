@@ -1,46 +1,87 @@
 ---
 name: simulacion-practica-lab
-description: Crea simulaciones 3D interactivas (una sola página HTML, sin internet) de las prácticas del Laboratorio de Física Mecánica de la UNAL Medellín, con el estilo visual de sael.net (diorama 3D, paneles oscuros translúcidos, Outfit + DM Mono), sonoscopio/fotocompuerta virtual, tablas de datos, regresiones con incertidumbre, %error, paso a paso guiado, modo proyector y versión celular. Úsala siempre que el monitor pida una simulación, laboratorio virtual, applet, "página como la de la práctica 8", material interactivo para una práctica (caída libre, Atwood, plano inclinado, parabólico, péndulo, energía, colisiones, resorte, equilibrio, centro de masa, metrología…) o cuando se cancele una sesión presencial y haga falta algo para que los estudiantes practiquen, aunque no mencione sael.net ni la palabra "simulación".
+description: Crea o modifica simulaciones 3D interactivas (un solo archivo HTML, sin internet) de las prácticas de los laboratorios de Física 1 (mecánica) y Física 3 (ondas y óptica) de la UNAL Medellín, dentro del repositorio simulaciones-fisica-unal y con su sistema de diseño (biblioteca de interfaz y de piezas, modos Explorar y Laboratorio con Paso a paso, tema claro y oscuro, proyector, celular). Úsala siempre que el monitor pida una simulación, laboratorio virtual, applet o material interactivo para una práctica (caída libre, plano inclinado, parabólico, Atwood, péndulo, energía, colisiones, resorte, equilibrio, centro de masa, metrología, lentes, ondas…), cuando pida una pieza o equipo nuevo para las simulaciones (polea, fotocompuerta, soporte, rampa…), o cuando se cancele una sesión presencial y haga falta algo para que los estudiantes practiquen, aunque no diga la palabra "simulación".
 ---
 
-# Simulación de práctica de laboratorio (estilo sael.net)
+# Simulación de práctica de laboratorio
 
-Construye una página que reemplace de verdad la sesión presencial: el estudiante ve el montaje en 3D, lo suelta, observa la señal que vería en el laboratorio, llena las tablas de la guía, hace la regresión y obtiene el %error. La referencia completa y probada es `assets/plantilla-practica08-atwood.html` (Práctica 8, máquina de Atwood). Parte de ella: copia la estructura y cambia la física, el montaje y los textos. Rehacer desde cero cuesta mucho más y pierde detalles que ya se corrigieron con el usuario.
+Construye una página que el estudiante pueda usar solo: primero **explora** el fenómeno, luego hace el **laboratorio** como en la sesión real (mide, llena la tabla, calcula y verifica).
+
+Todo vive en el repositorio `simulaciones-fisica-unal` (en la máquina del monitor: `~/01_Trabajo/Simulaciones monitoría/simulaciones-fisica-unal`). Esta skill dice **qué construir y en qué orden**; el detalle está en el repositorio y manda sobre esta skill:
+
+| Para saber… | Lee |
+|---|---|
+| Reglas, estructura, cómo empaquetar y probar, estado | `CLAUDE.md` (léelo completo antes de empezar) |
+| Qué elementos de interfaz existen y cuándo usar cada uno | `biblioteca/catalogo.html` (ábrelo en el navegador) |
+| Qué equipos ya están modelados y cómo crear uno nuevo | `biblioteca/piezas/README.md` |
+| Cómo se ve una práctica terminada | `fisica-1/movimiento-parabolico/` (la referencia viva) |
+| Datos, señales e incertidumbres realistas | `references/fisica-y-datos.md` |
+| Ideas por práctica | `references/catalogo-practicas.md` |
+
+## Qué tiene toda simulación
+
+**La animación es lo principal.** La escena 3D ocupa toda la pantalla; el resto (panel, pasos, instrumento, lecturas, rótulos) flota encima en paneles que se pueden ocultar uno por uno o todos a la vez. No es una página de texto con un dibujo: es un montaje que se mira y se manipula, con la información al lado. Si un panel tapa el montaje o lo que se mueve, está mal ubicado. Con todo oculto se tiene que poder seguir usando.
+
+1. **Explorar.** Modo libre para entender el fenómeno en general, más allá del montaje del laboratorio: varios casos (en parabólico: rampa, horizontal, oblicuo, desde el piso), parámetros abiertos, lecturas en vivo sobre la escena, vectores, predicción. Nada se califica. Incluye una lista corta de "ideas para probar".
+2. **Laboratorio.** La práctica real, con el montaje y los instrumentos del laboratorio. Dos formas de recorrerlo, con el interruptor **Paso a paso** (no es un tercer modo):
+   - *Con guía:* pasos numerados. El patrón es: la idea → montaje y medidas → **medir con el instrumento (ejemplo resuelto)** → el fenómeno en detalle → **tomar datos (el estudiante mide él mismo)** → tus cálculos (escribe sus resultados y la simulación los verifica) → resultados y comparación.
+   - *Sin guía:* una sola página con toma de datos y verificación.
+3. **Lo que no cambia entre prácticas:** escena a pantalla completa con paneles flotantes, barra *Qué mostrar*, vista limpia, teclado, barra táctil, tema claro y oscuro, modo proyector, celular. Sale de la biblioteca; no se rehace.
+4. **Un solo `index.html`** que abre con doble clic, sin internet.
 
 ## Flujo
 
-1. **Lee la guía de la práctica** (en `Monitoria/Guías de laboratorio/*.md`; si solo hay PDF, extrae el texto). Anota: objetivo, montaje, instrumento (fotocompuerta+sonoscopio, regla, transportador, IoT…), qué se mide, tablas (columnas exactas), ecuaciones de la regresión y de incertidumbre, y cómo se calcula el %error (qué es "valor convencionalmente verdadero" y qué es "valor experimental"). Consulta `references/catalogo-practicas.md` para la idea de simulación de cada práctica.
-2. **Busca datos reales del montaje** en las guías y en materiales previos (p. ej. la regla-cebra tiene 15 cauchitos separados 1 cm; la polea tiene 10 radios cada 36°, radio exterior 0.02465 m). Si un dato clave no aparece (radio, longitud, masa, separación), pregúntalo al usuario antes de inventarlo y, mientras, deja un valor razonable editable con un control deslizante.
-3. **Diseña la simulación** en pocas líneas antes de escribir código: piezas 3D, qué se mueve, qué señal produce el sensor, qué tabla se llena, qué controles importan para *esta* práctica (no todos los parámetros merecen control; p. ej. en movimiento circular las masas no son centrales) y qué fuentes de error vale la pena mostrar en "Avanzado".
-4. **Construye** copiando la plantilla a un `src.html` de trabajo (en el scratchpad) y adaptándola. Lee `references/estilo-sael.md` para no romper el estilo y `references/fisica-y-datos.md` para la parte de datos, señales e incertidumbres.
-5. **Empaqueta sin internet**: `sh scripts/get_three.sh <scratchpad>/three` y luego `python3 -I scripts/build.py src.html <ruta three.min.js> <salida.html>`. La plantilla ya trae el marcador `/*__THREE__*/`.
-6. **Guarda** en `~/01_Trabajo/Simulaciones monitoría/Practica NN - Tema/` con `simulacion-<tema>.html` y un `LEEME.txt` corto (qué reproduce de la guía, uso, atajos, fuentes de error, datos reales usados).
-7. **Verifica en el navegador** (ver abajo) antes de entregar.
+1. **Lee `CLAUDE.md`.** Trabaja en una rama `feat/<tema>`; no hagas push ni merge a `main` sin que te lo pidan.
+2. **Lee la guía de la práctica** en `~/01_Trabajo/Monitoria/Guías de laboratorio/*.md` (no va al repositorio: es público). Anota objetivo, montaje, instrumento, qué se mide, columnas exactas de las tablas, ecuaciones e incertidumbres, y contra qué se compara.
+3. **Decide y confirma con el monitor** lo que la guía no resuelve (pregunta solo lo que cambie el resultado; lo demás, elige y dilo al entregar):
+   - cuántas repeticiones se hacen **de verdad** en la sesión (la guía a veces dice otra cosa);
+   - qué mide el estudiante a mano en la simulación y qué se le da;
+   - qué casos tendrá Explorar;
+   - datos reales del montaje que falten (radios, masas, longitudes). No inventes medidas: pídelas o márcalas como supuestas.
+4. **Revisa las piezas.** Lista los equipos del montaje y búscalos en `biblioteca/piezas/README.md`. Los que existan se usan tal cual, con parámetros. Los que falten se crean como pieza nueva **antes** de armar la escena (ver abajo).
+5. **Copia `plantilla/practica/`** a `fisica-N/<practica>/` y llena los `TODO`.
+6. **Arma el panel con `Lab.ui`** y el montaje con `Lab.piezas` y `Lab.escena.ambiente`. Declara parámetros, acciones y teclas; la biblioteca pinta controles, barra táctil e indicador.
+7. **Escribe la física** con instantes calculados analíticamente y datos con dispersión realista (`references/fisica-y-datos.md`).
+8. **Empaqueta** (`python3 -I ../../herramientas/empaquetar.py src/index.src.html index.html`) y **verifica** (abajo).
+9. **Actualiza** la ficha `README.md` de la práctica, el índice de la física y el estado en `CLAUDE.md`.
 
-## Lo que el usuario ya pidió y aprobó (mantenlo en todas)
+## Reglas del sistema de diseño
 
-- **Estilo sael.net**: escena 3D a pantalla completa, título enorme en cian + subtítulo blanco en mayúsculas, tarjetas de lectura en vivo, panel de controles arriba a la derecha, sonoscopio abajo a la izquierda, datos abajo a la derecha, botones de pie de página arriba al centro, etiquetas flotantes con punto de color que siguen a las piezas, vistas de cámara con transición suave.
-- **Señales realistas del sonoscopio**. El usuario corrigió esto explícitamente: un objeto opaco discreto (cauchito, esfera, franja) da **base plana y picos estrechos bien definidos, todos con la misma polaridad** (hacia arriba o hacia abajo); un patrón continuo que pasa por el haz (radios de una polea en giro) da **una onda casi sinusoidal cuyo período cambia** con la velocidad. Nunca uses una señal genérica derivada/AC con picos positivos y negativos.
-- **Datos reales** del montaje de la UNAL cuando existan.
-- **Repeticiones como en el laboratorio real, no como dice la guía al pie de la letra.** En la Práctica 8 la guía habla de promediar, pero en la sesión se suelta **una sola vez** por tabla; el usuario se rió de la versión con 5 lanzamientos promediados. Pregunta cuántas veces se repite de verdad antes de construir tablas de promedios. Con un solo lanzamiento, u_t es la resolución del sonoscopio (1/44100 s ≈ 0.023 ms) y los tiempos se cuantizan a esa rejilla.
-- **Paso a paso guiado** que sigue los numerales de la guía (3.1 → 3.2 → 3.3…), abierto al iniciar, con botón que hace la acción ("Soltar") y "Siguiente" desactivado hasta que haya datos.
-- **Modo proyector** (tecla P): letra más grande, paneles más opacos, escena más iluminada, trazo más grueso.
-- **Celular**: diseño apilado, escena arriba sin quedar tapada por las tarjetas, pellizcar para zoom, sin desbordamiento horizontal.
-- **Funciona sin internet** (three.js incrustado). Solo las fuentes vienen de Google Fonts y tienen respaldo.
-- **Español de Colombia**, términos de la guía (regla-cebra, sonoscopio, fotocompuerta, valor convencionalmente verdadero…). CSV con `;` y coma decimal para Excel.
+Están completas en `CLAUDE.md` (regla 3). Las que más se rompen:
+
+- **La animación manda:** ningún panel tapa el montaje, lo que cambia en vivo va junto a la escena, el texto del panel es corto y lo secundario va plegado.
+- **La práctica declara y la biblioteca pinta.** No escribas a mano el HTML de un control ni copies el de otra práctica.
+- **Ningún valor a mano:** ni colores, ni tamaños, ni `style="…"` en el panel. Solo tokens. Colores de la escena: solo en `nucleo/ambiente.js`. Colores de las magnitudes de la práctica: `--mag-*`, y el mismo color para su vector, su lectura y su ecuación.
+- **Cada forma significa una cosa:** opción única (elegir una), casilla (mostrar u ocultar), interruptor (cambiar un estado).
+- **Un botón `data-principal` por panel:** es el que disparan Espacio, Enter y la barra táctil.
+- **Lo que borra trabajo del estudiante avisa y se puede deshacer.**
+- **Los instrumentos imitan al real** (PhysicsSensor, calibrador…): son lo único que no usa los tokens ni cambia con el tema. Las piezas tampoco cambian de color con el tema.
+- **Si falta un elemento o una pieza, se agrega primero a la biblioteca y al catálogo**, y se avisa para aprobarlo.
+
+## Pieza nueva
+
+Cuando el monitor mande una foto de un equipo o la práctica necesite uno que no existe:
+
+1. Un archivo `biblioteca/piezas/<nombre>.js` con `Lab.piezas.<nombre>(parámetros)` que devuelve `{grupo, anclajes, medidas, …acciones}`. Copia la forma de `fotocompuerta.js`.
+2. Metros reales. Origen en su **punto útil** (el haz, el eje, el pie), no en el centro.
+3. Anclajes para unirla con otras (dónde se sujeta, dónde actúa) y acciones para lo que sabe hacer (`bloquear`, `girar`…).
+4. Si no hay medidas, estímalas de la foto, dilo en la ficha y deja el estado en **borrador**.
+5. Ficha en `piezas/README.md` (cómo es, medidas, parámetros, anclajes, qué falta medir) y entrada en el visor del catálogo.
+6. Las fotos no van al repositorio.
 
 ## Verificación
 
-Sirve la carpeta con un servidor local (el navegador integrado no abre `file://` en rutas con tildes): crea o reutiliza `.claude/launch.json` con `python3 -m http.server 8765 --directory "<carpeta Simulaciones monitoría>"` y ábrelo con `preview_start`. Luego:
+Sigue "Cómo probar" de `CLAUDE.md`. Como mínimo, antes de entregar:
 
-- Captura a 1440×900: nada importante tapado, el aparato completo visible, sin errores en consola.
-- Ejecuta por JavaScript el flujo completo ("Rápido" en cada medición, pestaña Resultados) y revisa que los números tengan sentido físico: con las fuentes de error apagadas el %error debe quedar ≲0.2 % y compatible; con ellas encendidas, del orden esperado.
-- Recorre los pasos de la guía con clics simulados.
-- Revisa el modo proyector y el preset `mobile` (375×812) y vuelve el visor a `desktop` al terminar.
-- Mira de cerca (zoom) el sonoscopio después de un lanzamiento en cada modo: la forma de la señal es lo que primero nota el monitor.
+- Consola sin errores. El empaquetador no avisa de recursos externos.
+- **Física con números:** compara un resultado de la simulación con la fórmula a mano. Con el ruido apagado o promediando, el error debe ser pequeño y explicable.
+- Recorre Explorar, Laboratorio sin guía y cada paso de la guía; completa los datos y verifica "Tus cálculos" con los valores correctos y con uno malo.
+- 1366 px y 375 px; tema claro y oscuro; modo proyector. Nada tapado ni ilegible.
+- Teclado: Espacio, flechas, H, P, S, E, L, O, Esc.
+- Mira de cerca la señal del instrumento después de una medida: es lo primero que nota el monitor.
 
-Si la página del navegador está oculta, `requestAnimationFrame` va lento: usa "Rápido" (deja la corrida terminada) en lugar de esperar una animación.
+El navegador integrado frena las animaciones cuando su panel está oculto: no es un error de la simulación; espera o pide ver el panel.
 
 ## Entrega
 
-Di qué práctica cubre, dónde quedó el archivo, qué datos reales usaste y cuáles supusiste (pidiendo el valor real), y qué verificaste y qué no (proyector o celular físicos). Sugiere la siguiente práctica del catálogo si aplica.
+Di en pocas líneas: qué práctica cubre y dónde quedó; qué datos del montaje son reales y cuáles supusiste (pidiendo el valor); qué piezas usaste y cuáles creaste (en borrador); qué verificaste y qué no (celular o proyector físicos). No hagas commit, push ni merge si no te lo piden.

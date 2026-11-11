@@ -11,11 +11,12 @@ Simulaciones 3D interactivas de los laboratorios de física de la **Universidad 
 1. **Cada simulación es un solo archivo `index.html` independiente.** Funciona con doble clic, sin servidor, sin internet y sin las demás carpetas del repositorio. Todo lo que use (motor, cámara, interfaz, fuentes, piezas) va copiado adentro al empaquetar. Nunca dejes `<script src>`, `<link href>` ni fuentes que dependan de internet o de rutas locales en el `index.html` final.
 2. **Motor único: three.js r159** (build clásico), en `biblioteca/nucleo/three-r159.min.js`. No uses otra versión, módulos ES ni CDNs. La cámara es `THREE.CamaraOrbita` (`biblioteca/nucleo/camara.js`), no `OrbitControls`.
 3. **Diseño único: el sistema de `biblioteca/interfaz/`** (nació en movimiento parabólico, F1). Tres archivos: `tokens.css` (colores, letra, espacio, radio), `interfaz.css` (armazón y elementos) e `interfaz.js` (`Lab.ui.*`, genera los elementos). Referencia visual: **`biblioteca/catalogo.html`**; ábrelo antes de construir. Reglas:
+   - **La animación es lo principal.** La escena 3D ocupa toda la pantalla y es lo que el estudiante mira; todo lo demás (panel de la práctica, pasos, instrumento, lecturas, rótulos) va en **paneles flotantes** encima de ella, y cada uno **se puede ocultar** (barra *Qué mostrar*, vista limpia). Nunca una página de texto con la animación en un recuadro. Consecuencias: ningún panel tapa el montaje ni lo que se mueve (la cámara se reencuadra según los paneles abiertos); lo que cambia en vivo se muestra junto a la escena, no al fondo del panel; el texto del panel es corto y lo secundario va plegado; con todo oculto la simulación se sigue pudiendo manejar (teclado o barra táctil).
    - **La práctica declara y la biblioteca pinta.** Deslizadores, opciones, casillas, interruptores, lecturas, filas, barra táctil e indicador de teclas se generan con `Lab.ui.*`; no escribas su HTML a mano ni copies el de otra práctica.
    - **Ningún valor a mano**: ni colores, ni tamaños de letra, ni radios, ni `style="…"` en el HTML del panel. Solo tokens. Los colores de las magnitudes de la práctica se redefinen con `--mag-*`.
    - **Cada forma tiene un significado**: opción única (elegir una), casilla (mostrar/ocultar), interruptor (cambiar un estado). Un solo botón `data-principal` por panel: es el que disparan Espacio, Enter y la barra táctil.
    - **Lo que borra trabajo del estudiante avisa y se puede deshacer** (`Lab.ui.aviso`).
-   - **Si falta un elemento, se agrega primero a la biblioteca y al catálogo**, y se avisa para aprobarlo. No inventes estilos propios ni copies los de otros sitios. El estilo "sael.net" de la skill vieja ya no se usa.
+   - **Si falta un elemento, se agrega primero a la biblioteca y al catálogo**, y se avisa para aprobarlo. No inventes estilos propios ni copies los de otros sitios.
 4. **Incertidumbres con una cifra significativa** y el valor redondeado a la misma posición decimal; coma decimal. Usa `Lab.fisica.pair(v, u)` de `biblioteca/fisica/incertidumbre.js`.
 5. **Física correcta antes que bonita.** Verifica con números (fórmula contra simulación) antes de entregar. Datos con dispersión realista, como en el laboratorio.
 6. **Las guías de laboratorio NO van al repositorio** (es público en GitHub). Están en la máquina del monitor: `~/01_Trabajo/Monitoria/Guías de laboratorio/*.md`. Léelas de ahí; en el repo solo se resume con palabras propias lo necesario.
@@ -39,7 +40,7 @@ biblioteca/               lo compartido (ver biblioteca/README.md)
 plantilla/practica/       punto de partida para cualquier práctica nueva
 herramientas/             empaquetar.py, empaquetar-todo.py
 docs/                     propuestas y decisiones (docs/propuesta-biblioteca.md)
-skills/                   skill del agente (desactualizada en estilo; ver regla 3)
+skills/                   skill del agente (qué construir y en qué orden; remite a este archivo)
 ```
 
 ## Cómo se arma
@@ -92,4 +93,4 @@ El empaquetador avisa si quedan recursos externos: ese aviso es un error que hay
 - **Piezas hechas (borrador, medidas estimadas de foto):** soporte universal (base, varilla, nuez, brazo) y fotocompuerta en C; parabólico ya las usa.
 - **Siguiente:** medir en el laboratorio soporte y fotocompuerta; polea (falta foto); sacar de parabólico mesa, rampa, esfera, cinta y computador.
 - **Pendiente del equipo:** lista de prácticas de Física 3, número oficial de cada práctica de F1, fotos y medidas de equipos, quién aprueba piezas.
-- La skill existe en dos copias (`skills/` y `.gemini/skills/`) que ya no coinciden; hay que unificarla y actualizarla a estas reglas.
+- **Skill:** una sola copia en `skills/simulacion-practica-lab/` (`.gemini/skills/` solo remite a ella). Si cambian las reglas de este archivo, revisa que la skill no las contradiga. El monitor la tiene instalada aparte en `~/.claude/skills/`: hay que volver a copiarla cuando cambie.

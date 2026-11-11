@@ -1,1 +1,7 @@
 .DS_Store
+# generados o locales
+*.skill
+node_modules/
+.claude/
+*.png
+!biblioteca/**/*.png

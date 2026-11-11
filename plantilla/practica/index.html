@@ -49,7 +49,7 @@
   --surface2:#F6F9FC;           /* tarjeta dentro del panel */
   --surface3:#E7EEF6;           /* relleno suave, hover */
   --ink:#1A2733;                /* texto */
-  --muted:#5E6F7E;              /* texto secundario (contraste 5:1 sobre --surface) */
+  --muted:#51616F;              /* texto secundario (≥ 4,5:1 sobre --surface, --surface3 y --bg) */
   --line:#DCE5EE;               /* bordes */
   --accent:#0A6B3C;             /* verde UNAL: acción principal y selección */
   --accent-ink:#FFFFFF;
@@ -61,9 +61,23 @@
   /* 3 · MAGNITUDES ---------------------------------------------------- */
   --mag-x:#0A7D4A;              /* componente horizontal */
   --mag-y:#2563D1;              /* componente vertical */
-  --mag-tray:#E4580B;           /* trayectoria, marcas */
+  --mag-tray:#C2410C;           /* trayectoria, marcas (≥ 4,5:1 como texto sobre --surface) */
   /* nombres anteriores (parabólico): se conservan como alias */
   --x:var(--mag-x); --y:var(--mag-y); --path:var(--mag-tray);
+}
+
+/* Modo oscuro: redefine SOLO los semánticos y las magnitudes (la base no cambia). Lab.ui.tema('oscuro').
+   Contraste de texto ≥ 4,5:1 sobre --surface, --surface2, --surface3 y --bg (medido con la fórmula WCAG). */
+html.oscuro{
+  color-scheme:dark;
+  --bg:#0F1923;
+  --surface:#16222E; --surface2:#1D2C3B; --surface3:#283A4D;
+  --ink:#E8EEF4; --muted:#A6B6C5; --line:#33475C;
+  --accent:#4CC38A; --accent-ink:#06200F;
+  --ok:#4CC38A; --bad:#FF8F85;
+  --panel:color-mix(in srgb,var(--surface) 88%,transparent);
+  --sombra:0 6px 22px rgba(0,0,0,.45);
+  --mag-x:#4CC38A; --mag-y:#6EA8FF; --mag-tray:#FF8F57;
 }
 
 /* Modo proyector: letra más grande, paneles opacos, más contraste. Lab.ui.proyector(true) */
@@ -72,6 +86,12 @@ html.proyector{
   --panel:var(--surface);
   --muted:#3F4E5C; --line:#B5C2CF;
   --sombra:0 6px 22px rgba(20,40,60,.22);
+}
+/* Los dos a la vez: el proyector oscuro pide un gris claro (no el oscuro del proyector claro) y bordes más marcados */
+html.oscuro.proyector{
+  --panel:var(--surface);
+  --muted:#C5D1DC; --line:#5A7088;
+  --sombra:0 6px 22px rgba(0,0,0,.6);
 }
 /* Pantalla táctil: los controles crecen al tamaño del dedo */
 @media (pointer:coarse){ :root{ --ctl:44px; } }
@@ -166,6 +186,9 @@ ul.tight{margin:0;padding-left:18px;display:flex;flex-direction:column;gap:var(-
 .dk:hover{background:var(--surface3);color:var(--ink)}
 .dk[aria-pressed="true"]{color:var(--accent);background:var(--accent-suave)}
 .dk.sep{margin-top:var(--e-1);border-top:1px solid var(--line);border-radius:0 0 var(--r-2) var(--r-2);padding-top:var(--e-2)}
+.dk .i-sol{display:none}
+.dk[aria-pressed="true"] .i-luna{display:none}
+.dk[aria-pressed="true"] .i-sol{display:block}
 .dk b{font-family:var(--font-mono);font-weight:500;font-size:var(--t-sm);height:20px;display:grid;place-items:center}
 .solo-movil{display:none}
 
@@ -176,13 +199,13 @@ ul.tight{margin:0;padding-left:18px;display:flex;flex-direction:column;gap:var(-
 
 /* ventana de instrumento (el contenido lo pone cada instrumento, ver E) */
 .scopeblock{position:fixed;left:84px;bottom:64px;width:min(500px,calc(100vw - 520px));z-index:4;display:flex;flex-direction:column;gap:var(--e-1)}
-#scopeInfo{background:var(--panel);border-radius:var(--r-1);padding:4px 8px;margin:0}
+.ps-nota{background:var(--panel);border-radius:var(--r-1);padding:4px 8px;margin:0}
 
 /* lecturas en vivo sobre la escena (arriba a la izquierda, junto a lo que se mueve) */
 .vivo{position:fixed;top:var(--cardt,70px);left:84px;z-index:5;width:min(430px,calc(100vw - 540px));padding:6px}
 .vivo .lectura{background:transparent;border-width:0;border-top:3px solid var(--lc,var(--line));border-radius:0;padding:4px 6px}
 .ventana-asa{cursor:move}
-.scopeblock.plegada .ps-group,.scopeblock.plegada #scopeInfo{display:none}
+.scopeblock.plegada .ps-group,.scopeblock.plegada .ps-nota{display:none}
 
 /* vista limpia y paneles ocultos */
 .unclean{display:none;position:fixed;top:var(--e-3);right:var(--e-3);z-index:7;min-height:var(--ctl);padding:0 14px;font-size:var(--t-sm);font-weight:500;cursor:pointer;color:var(--ink)}
@@ -243,8 +266,8 @@ body.clean .unclean{display:block}
 
 /* --- interruptor (cambia un estado: encendido / apagado): pista --- */
 .interruptor{display:inline-flex;align-items:center;gap:var(--e-2);min-height:var(--ctl);padding:2px 10px 2px 6px;border:0;background:transparent;border-radius:var(--r-full);cursor:pointer;font-size:var(--t-sm);font-weight:500;color:var(--ink);text-align:left;line-height:1.25}
-.interruptor::before{content:"";flex:none;width:34px;height:20px;border-radius:var(--r-full);background-color:var(--muted);background-image:radial-gradient(circle at 10px 10px,#fff 7px,transparent 7.5px);transition:background-color .15s}
-.interruptor[aria-checked="true"]::before{background-color:var(--accent);background-image:radial-gradient(circle at 24px 10px,#fff 7px,transparent 7.5px)}
+.interruptor::before{content:"";flex:none;width:34px;height:20px;border-radius:var(--r-full);background-color:var(--muted);background-image:radial-gradient(circle at 10px 10px,var(--surface) 7px,transparent 7.5px);transition:background-color .15s}
+.interruptor[aria-checked="true"]::before{background-color:var(--accent);background-image:radial-gradient(circle at 24px 10px,var(--accent-ink) 7px,transparent 7.5px)}
 .interruptor:hover{background-color:var(--surface3)}
 
 /* --- lecturas en vivo: una sola forma para panel, indicador y barra --- */
@@ -322,22 +345,20 @@ body:not(.clean) .hud{bottom:68px}
 
 /* ===== E. Instrumento: PhysicsSensor 1.1 =====
    Réplica del programa real de la UNAL: tipografía y colores propios, fuera del sistema. */
-.pswin{overflow:hidden;border-radius:var(--r-1)!important;border-color:#7f8da6!important;font-family:Tahoma,"Segoe UI",Verdana,Arial,sans-serif;font-size:11px;color:#1a1a1a}
+.pswin{overflow:hidden;border-radius:var(--r-1)!important;border-color:#7f8da6!important;background:#eef0f4!important;-webkit-backdrop-filter:none!important;backdrop-filter:none!important;font-family:Tahoma,"Segoe UI",Verdana,Arial,sans-serif;font-size:11px;color:#1a1a1a}
 .ps-title{display:flex;align-items:center;gap:6px;padding:2px 4px;background-color:#c3cbda;background-image:radial-gradient(circle,#9aa7bf .9px,transparent 1.1px);background-size:4px 4px;border-bottom:1px solid #8996ae}
 .ps-un{font-weight:700;color:#0a7a3d;border:1px solid #0a7a3d;border-radius:2px;padding:0 3px;font-size:10px;line-height:13px;background:#fff;flex:none}
 .ps-tt{background:#e6ebf2;padding:1px 6px;border-radius:2px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0;color:#000}
 .ps-wbtns{margin-left:auto;display:flex;gap:3px;flex:none}
 .ps-wb{width:18px;height:16px;padding:0;display:grid;place-items:center;border:1px solid #6d7b95;background:#dfe5ef;font-size:9px;border-radius:2px;line-height:1;color:#1a1a1a;cursor:pointer}
 @media (pointer:coarse){ .ps-wb{width:30px;height:26px;font-size:12px} }
-.ps-menu,.ps-slider{display:none}
 .ps-group{margin:0 6px 6px;padding:0;border:1px solid #b2bacb;border-radius:3px;min-width:0}
 .ps-group legend{padding:0 4px;margin-left:6px;font-size:10.5px;color:#222}
-#scope{display:block;width:100%;height:150px;background:#fff}
+.ps-lienzo{display:block;width:100%;height:150px;background:#fff}
 .ps-row{display:flex;flex-wrap:wrap;gap:5px;justify-content:center;padding:4px 6px 5px}
 .ps-btn{display:inline-flex;align-items:center;gap:5px;height:26px;padding:0 12px;border:1px solid #8a97ad;border-radius:4px;background:linear-gradient(#fff,#dde2ea);font:inherit;font-size:10px;color:#222;cursor:pointer}
 .ps-btn:hover:not(:disabled){border-color:#3b6aa0;background:linear-gradient(#fff,#e8eefa)}
 .ps-btn:active:not(:disabled){background:#d3dbe9}
-.ps-btn[disabled]{display:none}
 @media (pointer:coarse){ .ps-btn{height:34px} }
 
 /* ===== F. Tamaños de pantalla ===== */
@@ -366,9 +387,9 @@ body:not(.clean) .hud{bottom:68px}
   /* el instrumento deja libre la columna de la barra "Qué mostrar" */
   .scopeblock,body.no-card .scopeblock{left:var(--e-2);right:60px;width:auto;bottom:auto;top:calc(var(--navt,56px) + 48px)}
   body.navon .scopeblock{top:calc(var(--navt,56px) + 100px)}
-  #scope{height:96px}
-  .ps-group:last-child,#scopeInfo{display:none}
-  body.midiendo .ps-group:last-child{display:block}
+  .ps-lienzo{height:96px}
+  .ps-controles,.ps-nota{display:none}
+  body.midiendo .ps-controles{display:block}
   .vivo{left:var(--e-2);right:60px;width:auto;top:calc(var(--navt,56px) + 48px);padding:2px}
   body.navon .vivo{top:calc(var(--navt,56px) + 100px)}
   .vivo .lecturas{grid-template-columns:repeat(5,minmax(0,1fr));gap:2px}
@@ -404,6 +425,7 @@ body:not(.clean) .hud{bottom:68px}
     <button class="dk" type="button" data-ui="card" title="Panel de la práctica (P)"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="2.5" y="3.5" width="15" height="13" rx="2"/><path d="M12 3.5v13"/></svg>Panel</button>
     <button class="dk" type="button" data-ui="labels" title="Rótulos en la escena (E)"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M3 10.5 9.5 4H16v6.5L9.5 17z"/><circle cx="13" cy="7" r="1.2"/></svg>Rótulos</button>
     <button class="dk" type="button" data-ui="proyector" title="Letra grande, para proyector (L)"><b>Aa</b>Letra</button>
+    <button class="dk" type="button" data-ui="tema" title="Tema claro u oscuro (O)"><svg class="i-luna" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"><path d="M16.5 11.8A6.8 6.8 0 0 1 8.2 3.5a6.8 6.8 0 1 0 8.3 8.3z"/></svg><svg class="i-sol" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><circle cx="10" cy="10" r="3.4"/><path d="M10 2.5v2M10 15.5v2M2.5 10h2M15.5 10h2M4.7 4.7l1.4 1.4M13.9 13.9l1.4 1.4M4.7 15.3l1.4-1.4M13.9 6.1l1.4-1.4"/></svg>Tema</button>
   <button class="dk sep" type="button" data-ui="clean" title="Ver solo la escena (H)"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M3 7V3h4M13 3h4v4M17 13v4h-4M7 17H3v-4"/></svg>Limpia</button>
   </div>
   <button class="unclean" type="button" id="unclean">Mostrar paneles · H</button>
@@ -596,6 +618,96 @@ function(t,e){"object"==typeof exports&&"undefined"!=typeof module?e(exports):"f
 })();
 
 </script>
+<script>/* ambiente.js */
+/* =====================================================================
+   AMBIENTE · fondo, luces, piso y rejilla de la escena en cada tema (F1 y F3)
+   Junto con tokens.css es el ÚNICO lugar donde se escriben colores a mano.
+
+   Uso (la escena nace con el tema que ya puso Lab.ui.cargarPreferencias):
+       const amb = Lab.escena.ambiente(scene, Lab.ui.tema(), {sol:{pos:[1.4,3.2,2]}});
+       Lab.ui.alCambiarTema(t => { Lab.escena.ambiente(scene, t); dirty = true; });
+   La primera llamada crea las luces (y el piso y la rejilla, si no se pide lo contrario);
+   las siguientes solo cambian sus colores e intensidades. Devuelve la paleta del tema.
+
+   Opciones (solo se leen la primera vez):
+     sol:    {pos:[x,y,z], sombra:{mapa, caja, near, far, bias}}   sombra:false apaga las sombras
+     piso:   false | {ancho}      plano a y = 0 (por defecto 8 m)
+     rejilla:false | {ancho, divisiones}   (por defecto 8 m, 32 divisiones)
+   Una escena que ya trae su propio piso (el laboratorio de parabólico) pasa piso:false, rejilla:false.
+
+   Paleta (Lab.escena.paleta(tema)): lo que necesitan los rótulos y objetos que no son tokens.
+     pastilla {fondo, texto, borde}   marca {a, b, c}   cinta {fondo, tinta}
+   Las piezas (soporte, fotocompuerta) y los equipos NO cambian de color: son objetos reales;
+   con el tema solo cambia cómo los ilumina la escena. La ventana del PhysicsSensor tampoco.
+   ===================================================================== */
+(function(){
+  'use strict';
+  const Lab = window.Lab = window.Lab || {};
+
+  /* Intensidades ya multiplicadas por π: los materiales se ven como en r128 (sin gestión de color). */
+  const PAL = {
+    claro:{
+      fondo:'#DFE6EE',                                   /* = --bg de tokens.css */
+      hemi:{cielo:'#FFFFFF', suelo:'#B9C4D0', k:0.9},
+      sol:{color:'#FFF6E6', k:0.65},
+      piso:'#E3EAE6', rejilla:['#C9D3CF', '#D6DEDB'],
+      pastilla:{fondo:'rgba(14,22,40,.9)', texto:'#FFFFFF', borde:'rgba(14,22,40,0)'},
+      marca:{a:'#A78BFA', b:'#38BDF8', c:'#FB923C'},
+      cinta:{fondo:'#F1C94F', tinta:'#1A2733'}
+    },
+    oscuro:{
+      fondo:'#0F1923',                                   /* = --bg de tokens.css (oscuro) */
+      hemi:{cielo:'#C4D3E6', suelo:'#2B3848', k:0.62},
+      sol:{color:'#DCE6FF', k:0.5},
+      piso:'#1A2631', rejilla:['#324559', '#25374A'],
+      pastilla:{fondo:'rgba(29,44,59,.96)', texto:'#E8EEF4', borde:'rgba(166,182,197,.85)'},
+      marca:{a:'#A78BFA', b:'#38BDF8', c:'#FB923C'},
+      cinta:{fondo:'#F1C94F', tinta:'#1A2733'}           /* la cinta es un objeto real: no cambia */
+    }
+  };
+  const paleta = t => PAL[t === 'oscuro' ? 'oscuro' : 'claro'];
+
+  function ambiente(escena, tema, o){
+    const p = paleta(tema); o = o || {};
+    const A = escena.userData.ambiente = escena.userData.ambiente || {};
+    escena.background = new THREE.Color(p.fondo);
+
+    if(!A.hemi){ A.hemi = new THREE.HemisphereLight(); escena.add(A.hemi); }
+    A.hemi.color.set(p.hemi.cielo); A.hemi.groundColor.set(p.hemi.suelo); A.hemi.intensity = p.hemi.k * Math.PI;
+
+    if(!A.sol){
+      const s = o.sol || {}, sol = A.sol = new THREE.DirectionalLight(), c = s.pos || [1.4, 3.2, 2.0];
+      sol.position.set(c[0], c[1], c[2]);
+      if(s.sombra !== false){
+        sol.castShadow = true; const b = s.sombra;
+        if(b){ sol.shadow.mapSize.set(b.mapa || 1024, b.mapa || 1024);
+          const k = sol.shadow.camera, a = b.caja || 2; k.left = -a; k.right = a; k.top = a; k.bottom = -a; k.near = b.near || 0.5; k.far = b.far || 9;
+          if(b.bias != null) sol.shadow.bias = b.bias; }
+      }
+      escena.add(sol);
+    }
+    A.sol.color.set(p.sol.color); A.sol.intensity = p.sol.k * Math.PI;
+
+    /* piso y rejilla: lo pedido la primera vez queda fijo para las llamadas siguientes */
+    if(!A.cfg) A.cfg = {piso:o.piso === false ? null : (o.piso || {}), rejilla:o.rejilla === false ? null : (o.rejilla || {})};
+    if(A.cfg.piso){
+      if(!A.piso){
+        const w = A.cfg.piso.ancho || 8;
+        A.piso = new THREE.Mesh(new THREE.PlaneGeometry(w, w), new THREE.MeshStandardMaterial({roughness:0.9}));
+        A.piso.rotation.x = -Math.PI / 2; A.piso.receiveShadow = true; escena.add(A.piso);
+      }
+      A.piso.material.color.set(p.piso);
+    }
+    if(A.cfg.rejilla){
+      if(A.rejilla){ escena.remove(A.rejilla); A.rejilla.geometry.dispose(); A.rejilla.material.dispose(); }   /* GridHelper guarda el color en la geometría */
+      A.rejilla = new THREE.GridHelper(A.cfg.rejilla.ancho || 8, A.cfg.rejilla.divisiones || 32, p.rejilla[0], p.rejilla[1]); escena.add(A.rejilla);
+    }
+    return p;
+  }
+  Lab.escena = Object.assign(Lab.escena || {}, {ambiente, paleta});
+})();
+
+</script>
 <script>/* incertidumbre.js */
 /* =====================================================================
    INCERTIDUMBRE Y FORMATO · biblioteca compartida (F1 y F3)
@@ -632,7 +744,7 @@ function(t,e){"object"==typeof exports&&"undefined"!=typeof module?e(exports):"f
      deslizador · opciones · casilla · interruptor · lecturas · fila
    Armazón:
      ubicarBarras · cargarPreferencias · guardarPreferencias · aplicarClases
-     proyector · aviso · barraAccion · ventana · principal · teclas · mantener · esTactil
+     proyector · tema · alternarTema · alCambiarTema · aviso · barraAccion · ventana · principal · teclas · mantener · esTactil
    ===================================================================== */
 (function(){
   'use strict';
@@ -732,23 +844,50 @@ function(t,e){"object"==typeof exports&&"undefined"!=typeof module?e(exports):"f
     st.setProperty('--cardt', ct + 'px');
   }
 
-  /* Preferencias de "Qué mostrar" guardadas en el navegador (clave propia por práctica). */
-  const CAMPOS = ['card', 'scope', 'labels', 'proyector'];
+  /* Tema claro / oscuro. Lab.ui.tema() devuelve el actual; Lab.ui.tema('claro'|'oscuro') lo fija
+     (es una elección del usuario: deja de seguir al sistema). Pone la clase html.oscuro, que redefine los
+     tokens (tokens.css), y avisa a quien se haya suscrito con Lab.ui.alCambiarTema(fn) y con el evento
+     'lab:tema' en document (detail.tema). La escena 3D se entera por ahí: ver Lab.escena.ambiente. */
+  const sistemaOscuro = () => !!(window.matchMedia && matchMedia('(prefers-color-scheme: dark)').matches);
+  let automatico = true;            // sin elección guardada: se sigue a prefers-color-scheme
+  const oyentes = [];
+  const temaActual = () => document.documentElement.classList.contains('oscuro') ? 'oscuro' : 'claro';
+  function ponerTema(t){
+    t = t === 'oscuro' ? 'oscuro' : 'claro'; if(t === temaActual()) return;
+    document.documentElement.classList.toggle('oscuro', t === 'oscuro');
+    $$('[data-ui="tema"]').forEach(x => x.setAttribute('aria-pressed', String(t === 'oscuro')));
+    oyentes.slice().forEach(f => { try{ f(t); }catch(e){ if(window.console) console.error(e); } });
+    document.dispatchEvent(new CustomEvent('lab:tema', {detail:{tema:t}}));
+  }
+  function tema(t){ if(t === undefined) return temaActual(); automatico = false; ponerTema(t); return temaActual(); }
+  /* Cambia al otro tema y lo anota en ui.tema (lo que guarda guardarPreferencias). */
+  function alternarTema(ui){ const t = tema(temaActual() === 'oscuro' ? 'claro' : 'oscuro'); if(ui) ui.tema = t; return t; }
+  function alCambiarTema(fn){ oyentes.push(fn); }
+  /* Mientras el usuario no elija, el sistema manda también si cambia con la página abierta. */
+  if(window.matchMedia) try{ matchMedia('(prefers-color-scheme: dark)').addEventListener('change', e => { if(automatico) ponerTema(e.matches ? 'oscuro' : 'claro'); }); }catch(e){}
+
+  /* Preferencias de "Qué mostrar" guardadas en el navegador (clave propia por práctica).
+     Primera vez (nada guardado): el tema sigue a prefers-color-scheme y no se guarda hasta que el usuario elija.
+     cargarPreferencias ya pone la clase del tema, para que la escena nazca con los colores correctos. */
+  const CAMPOS = ['card', 'scope', 'labels', 'proyector', 'tema'];
   function cargarPreferencias(clave, base){
-    const ui = Object.assign({card:true, scope:true, labels:true, proyector:false, clean:false}, base || {});
+    const ui = Object.assign({card:true, scope:true, labels:true, proyector:false, clean:false, tema:null}, base || {});
     try{ Object.assign(ui, JSON.parse(localStorage.getItem(clave) || '{}'), {clean:false}); }catch(e){}
+    if(ui.tema === 'claro' || ui.tema === 'oscuro'){ automatico = false; } else { automatico = true; ui.tema = sistemaOscuro() ? 'oscuro' : 'claro'; }
+    ponerTema(ui.tema);
     return ui;
   }
   function guardarPreferencias(clave, ui, campos){
-    const o = {}; (campos || CAMPOS).forEach(k => o[k] = ui[k]);
+    const o = {}; (campos || CAMPOS).forEach(k => { if(k === 'tema'){ if(!automatico) o.tema = temaActual(); return; } o[k] = ui[k]; });
     try{ localStorage.setItem(clave, JSON.stringify(o)); }catch(e){}
   }
-  /* Clases que ocultan paneles (no-card, no-scope, clean), modo proyector y estado de los botones [data-ui]. */
+  /* Clases que ocultan paneles (no-card, no-scope, clean), modo proyector, tema y estado de los botones [data-ui]. */
   function aplicarClases(ui){
     const b = document.body;
     b.classList.toggle('no-card', !ui.card); b.classList.toggle('no-scope', !ui.scope); b.classList.toggle('clean', !!ui.clean);
     proyector(!!ui.proyector);
-    $$('[data-ui]').forEach(x => x.setAttribute('aria-pressed', String(!!ui[x.dataset.ui])));
+    ui.tema = temaActual();           // la clase de html manda; ui.tema solo la refleja
+    $$('[data-ui]').forEach(x => x.setAttribute('aria-pressed', String(x.dataset.ui === 'tema' ? temaActual() === 'oscuro' : !!ui[x.dataset.ui])));
   }
   /* Modo proyector: letra más grande, paneles opacos, más contraste. */
   function proyector(on){ document.documentElement.classList.toggle('proyector', !!on); }
@@ -815,7 +954,7 @@ function(t,e){"object"==typeof exports&&"undefined"!=typeof module?e(exports):"f
      Lab.ui.ventana('#scopeWrap', {asa:'.ps-title', alCerrar: fn, alCambiar: fn});
      Dentro: botones con data-ven="plegar" y data-ven="cerrar". */
   function ventana(sel, o){
-    const v = $(sel); if(!v) return; o = o || {}; const asa = $(o.asa, v) || v; let d = null;
+    const v = typeof sel === 'string' ? $(sel) : sel; if(!v) return; o = o || {}; const asa = $(o.asa, v) || v; let d = null;
     const suelta = () => { v.style.left = v.style.top = v.style.right = v.style.bottom = v.style.width = ''; };
     asa.style.touchAction = 'none'; asa.style.cursor = 'move';
     asa.addEventListener('pointerdown', e => { if(e.target.closest('button') || innerWidth <= 760) return;
@@ -856,8 +995,8 @@ function(t,e){"object"==typeof exports&&"undefined"!=typeof module?e(exports):"f
 
   Lab.ui = Object.assign(Lab.ui || {}, {
     deslizador, ponerDeslizador, opciones, casilla, interruptor, lecturas, fila, montar,
-    esTactil, ubicarBarras, cargarPreferencias, guardarPreferencias, aplicarClases, proyector,
-    aviso, principal, barraAccion, ventana, mantener, teclas, version: '2.1'});
+    esTactil, ubicarBarras, cargarPreferencias, guardarPreferencias, aplicarClases, proyector, tema, alternarTema, alCambiarTema,
+    aviso, principal, barraAccion, ventana, mantener, teclas, version: '2.2'});
 })();
 
 </script>
@@ -872,14 +1011,13 @@ const view=$('#view'), renderer=new THREE.WebGLRenderer({antialias:true});
 THREE.ColorManagement.enabled=false; renderer.outputColorSpace=THREE.LinearSRGBColorSpace;
 renderer.setPixelRatio(Math.min(devicePixelRatio||1,2)); renderer.shadowMap.enabled=true; view.appendChild(renderer.domElement);
 renderer.domElement.style.touchAction='pan-y';
-const scene=new THREE.Scene(); scene.background=new THREE.Color(0xdfe6ee);
+const scene=new THREE.Scene();
 const camera=new THREE.PerspectiveCamera(38,1.6,0.05,60);
 const controls=new THREE.CamaraOrbita(camera,renderer.domElement,{minDistance:0.4,maxDistance:7.5,maxPolarAngle:Math.PI*0.49});
 let dirty=true; controls.addEventListener('change',()=>dirty=true);
-scene.add(new THREE.HemisphereLight(0xffffff,0xb9c4d0,0.9*Math.PI));
-const sun=new THREE.DirectionalLight(0xfff6e6,0.65*Math.PI); sun.position.set(1.4,3.2,2); sun.castShadow=true; scene.add(sun);
-const floor=new THREE.Mesh(new THREE.PlaneGeometry(8,8),new THREE.MeshStandardMaterial({color:0xe3eae6,roughness:0.9})); floor.rotation.x=-Math.PI/2; floor.receiveShadow=true; scene.add(floor);
-scene.add(new THREE.GridHelper(8,32,0xc9d3cf,0xd6dedb));
+// fondo, luces, piso y rejilla según el tema (ambiente.js); cambian solos cuando el estudiante cambia de tema
+Lab.escena.ambiente(scene,Lab.ui.tema(),{piso:{ancho:8},rejilla:{ancho:8,divisiones:32}});
+Lab.ui.alCambiarTema(t=>{ Lab.escena.ambiente(scene,t); dirty=true; });
 /* TODO: montaje con piezas de biblioteca/piezas/ (mesa, rampa, esfera, fotocompuerta, lente…) */
 const mesa=new THREE.Mesh(new THREE.BoxGeometry(0.9,0.04,0.5),new THREE.MeshStandardMaterial({color:0x141c2e,roughness:0.32}));
 mesa.position.set(-0.45,0.93,0); mesa.castShadow=true; scene.add(mesa);
@@ -945,7 +1083,7 @@ function sincroniza(){
 const CLAVE='practica-ui';   // TODO: una clave por práctica
 const UI=Lab.ui.cargarPreferencias(CLAVE);
 function aplicaUI(){ Lab.ui.aplicarClases(UI); Lab.ui.guardarPreferencias(CLAVE,UI); rotulos.visible=UI.labels&&!UI.clean; Lab.ui.ubicarBarras(); resize(); actualizarBarra(); }
-function alterna(k){ UI[k]=!UI[k]; if(k!=='clean') UI.clean=false; aplicaUI(); }
+function alterna(k){ if(k==='tema'){ Lab.ui.alternarTema(UI); aplicaUI(); return; } UI[k]=!UI[k]; if(k!=='clean') UI.clean=false; aplicaUI(); }
 /* Barra táctil e indicador de teclas: se declaran una vez; aparecen cuando el panel está oculto. */
 const principal=()=>{ const b=Lab.ui.principal(); if(!b||b.disabled) return false; b.click(); };
 const barra=Lab.ui.barraAccion({pad:'#pad',hud:'#hud',accion:a=>{ if(a==='principal') principal(); else cambiaV0(a==='v+'?0.1:-0.1); }});
@@ -956,7 +1094,7 @@ function actualizarBarra(){ const sinPanel=UI.clean||!UI.card, tac=Lab.ui.esTact
     teclas:[['Espacio','lanzar']].concat(ex?[['↑ ↓','rapidez']]:[],[['H','paneles']])}); }
 const pasoA=d=>()=>{ const j=cur+d; if(!(app==='lab'&&guide)||j<0||j>=STEPS.length) return false; go(j); };
 const enExp=f=>()=>{ if(app!=='explore') return false; f(); };
-Lab.ui.teclas({h:()=>alterna('clean'),p:()=>alterna('card'),e:()=>alterna('labels'),l:()=>alterna('proyector'),
+Lab.ui.teclas({h:()=>alterna('clean'),p:()=>alterna('card'),e:()=>alterna('labels'),l:()=>alterna('proyector'),o:()=>alterna('tema'),
   Escape:()=>{ if(!UI.clean) return false; alterna('clean'); }, ' ':principal, Enter:principal,
   ArrowRight:pasoA(1), ArrowLeft:pasoA(-1), ArrowUp:enExp(()=>cambiaV0(0.1)), ArrowDown:enExp(()=>cambiaV0(-0.1))});
 

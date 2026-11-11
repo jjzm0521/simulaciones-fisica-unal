@@ -18,7 +18,6 @@ Cada práctica tiene la misma forma:
     index.html          simulación lista (la que se abre y se envía)
     src/index.src.html  fuente editable
     README.md           ficha de la práctica
-    guia/  archivo/     guía en PDF y versiones anteriores (opcionales)
 
 Para reconstruir una práctica después de editar su fuente, desde su carpeta:
 

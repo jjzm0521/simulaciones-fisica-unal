@@ -86,6 +86,9 @@ ul.tight{margin:0;padding-left:18px;display:flex;flex-direction:column;gap:var(-
 .dk:hover{background:var(--surface3);color:var(--ink)}
 .dk[aria-pressed="true"]{color:var(--accent);background:var(--accent-suave)}
 .dk.sep{margin-top:var(--e-1);border-top:1px solid var(--line);border-radius:0 0 var(--r-2) var(--r-2);padding-top:var(--e-2)}
+.dk .i-sol{display:none}
+.dk[aria-pressed="true"] .i-luna{display:none}
+.dk[aria-pressed="true"] .i-sol{display:block}
 .dk b{font-family:var(--font-mono);font-weight:500;font-size:var(--t-sm);height:20px;display:grid;place-items:center}
 .solo-movil{display:none}
 
@@ -96,13 +99,13 @@ ul.tight{margin:0;padding-left:18px;display:flex;flex-direction:column;gap:var(-
 
 /* ventana de instrumento (el contenido lo pone cada instrumento, ver E) */
 .scopeblock{position:fixed;left:84px;bottom:64px;width:min(500px,calc(100vw - 520px));z-index:4;display:flex;flex-direction:column;gap:var(--e-1)}
-#scopeInfo{background:var(--panel);border-radius:var(--r-1);padding:4px 8px;margin:0}
+.ps-nota{background:var(--panel);border-radius:var(--r-1);padding:4px 8px;margin:0}
 
 /* lecturas en vivo sobre la escena (arriba a la izquierda, junto a lo que se mueve) */
 .vivo{position:fixed;top:var(--cardt,70px);left:84px;z-index:5;width:min(430px,calc(100vw - 540px));padding:6px}
 .vivo .lectura{background:transparent;border-width:0;border-top:3px solid var(--lc,var(--line));border-radius:0;padding:4px 6px}
 .ventana-asa{cursor:move}
-.scopeblock.plegada .ps-group,.scopeblock.plegada #scopeInfo{display:none}
+.scopeblock.plegada .ps-group,.scopeblock.plegada .ps-nota{display:none}
 
 /* vista limpia y paneles ocultos */
 .unclean{display:none;position:fixed;top:var(--e-3);right:var(--e-3);z-index:7;min-height:var(--ctl);padding:0 14px;font-size:var(--t-sm);font-weight:500;cursor:pointer;color:var(--ink)}
@@ -163,8 +166,8 @@ body.clean .unclean{display:block}
 
 /* --- interruptor (cambia un estado: encendido / apagado): pista --- */
 .interruptor{display:inline-flex;align-items:center;gap:var(--e-2);min-height:var(--ctl);padding:2px 10px 2px 6px;border:0;background:transparent;border-radius:var(--r-full);cursor:pointer;font-size:var(--t-sm);font-weight:500;color:var(--ink);text-align:left;line-height:1.25}
-.interruptor::before{content:"";flex:none;width:34px;height:20px;border-radius:var(--r-full);background-color:var(--muted);background-image:radial-gradient(circle at 10px 10px,#fff 7px,transparent 7.5px);transition:background-color .15s}
-.interruptor[aria-checked="true"]::before{background-color:var(--accent);background-image:radial-gradient(circle at 24px 10px,#fff 7px,transparent 7.5px)}
+.interruptor::before{content:"";flex:none;width:34px;height:20px;border-radius:var(--r-full);background-color:var(--muted);background-image:radial-gradient(circle at 10px 10px,var(--surface) 7px,transparent 7.5px);transition:background-color .15s}
+.interruptor[aria-checked="true"]::before{background-color:var(--accent);background-image:radial-gradient(circle at 24px 10px,var(--accent-ink) 7px,transparent 7.5px)}
 .interruptor:hover{background-color:var(--surface3)}
 
 /* --- lecturas en vivo: una sola forma para panel, indicador y barra --- */
@@ -242,22 +245,20 @@ body:not(.clean) .hud{bottom:68px}
 
 /* ===== E. Instrumento: PhysicsSensor 1.1 =====
    Réplica del programa real de la UNAL: tipografía y colores propios, fuera del sistema. */
-.pswin{overflow:hidden;border-radius:var(--r-1)!important;border-color:#7f8da6!important;font-family:Tahoma,"Segoe UI",Verdana,Arial,sans-serif;font-size:11px;color:#1a1a1a}
+.pswin{overflow:hidden;border-radius:var(--r-1)!important;border-color:#7f8da6!important;background:#eef0f4!important;-webkit-backdrop-filter:none!important;backdrop-filter:none!important;font-family:Tahoma,"Segoe UI",Verdana,Arial,sans-serif;font-size:11px;color:#1a1a1a}
 .ps-title{display:flex;align-items:center;gap:6px;padding:2px 4px;background-color:#c3cbda;background-image:radial-gradient(circle,#9aa7bf .9px,transparent 1.1px);background-size:4px 4px;border-bottom:1px solid #8996ae}
 .ps-un{font-weight:700;color:#0a7a3d;border:1px solid #0a7a3d;border-radius:2px;padding:0 3px;font-size:10px;line-height:13px;background:#fff;flex:none}
 .ps-tt{background:#e6ebf2;padding:1px 6px;border-radius:2px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0;color:#000}
 .ps-wbtns{margin-left:auto;display:flex;gap:3px;flex:none}
 .ps-wb{width:18px;height:16px;padding:0;display:grid;place-items:center;border:1px solid #6d7b95;background:#dfe5ef;font-size:9px;border-radius:2px;line-height:1;color:#1a1a1a;cursor:pointer}
 @media (pointer:coarse){ .ps-wb{width:30px;height:26px;font-size:12px} }
-.ps-menu,.ps-slider{display:none}
 .ps-group{margin:0 6px 6px;padding:0;border:1px solid #b2bacb;border-radius:3px;min-width:0}
 .ps-group legend{padding:0 4px;margin-left:6px;font-size:10.5px;color:#222}
-#scope{display:block;width:100%;height:150px;background:#fff}
+.ps-lienzo{display:block;width:100%;height:150px;background:#fff}
 .ps-row{display:flex;flex-wrap:wrap;gap:5px;justify-content:center;padding:4px 6px 5px}
 .ps-btn{display:inline-flex;align-items:center;gap:5px;height:26px;padding:0 12px;border:1px solid #8a97ad;border-radius:4px;background:linear-gradient(#fff,#dde2ea);font:inherit;font-size:10px;color:#222;cursor:pointer}
 .ps-btn:hover:not(:disabled){border-color:#3b6aa0;background:linear-gradient(#fff,#e8eefa)}
 .ps-btn:active:not(:disabled){background:#d3dbe9}
-.ps-btn[disabled]{display:none}
 @media (pointer:coarse){ .ps-btn{height:34px} }
 
 /* ===== F. Tamaños de pantalla ===== */
@@ -286,9 +287,9 @@ body:not(.clean) .hud{bottom:68px}
   /* el instrumento deja libre la columna de la barra "Qué mostrar" */
   .scopeblock,body.no-card .scopeblock{left:var(--e-2);right:60px;width:auto;bottom:auto;top:calc(var(--navt,56px) + 48px)}
   body.navon .scopeblock{top:calc(var(--navt,56px) + 100px)}
-  #scope{height:96px}
-  .ps-group:last-child,#scopeInfo{display:none}
-  body.midiendo .ps-group:last-child{display:block}
+  .ps-lienzo{height:96px}
+  .ps-controles,.ps-nota{display:none}
+  body.midiendo .ps-controles{display:block}
   .vivo{left:var(--e-2);right:60px;width:auto;top:calc(var(--navt,56px) + 48px);padding:2px}
   body.navon .vivo{top:calc(var(--navt,56px) + 100px)}
   .vivo .lecturas{grid-template-columns:repeat(5,minmax(0,1fr));gap:2px}

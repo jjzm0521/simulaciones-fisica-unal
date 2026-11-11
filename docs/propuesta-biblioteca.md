@@ -1,6 +1,8 @@
 # Propuesta · Biblioteca de piezas y sistema de diseño
 
-Laboratorios de Física · UNAL Medellín. Borrador para discutir con el equipo.
+Laboratorios de Física · UNAL Medellín.
+
+> **Documento histórico.** Fue la propuesta inicial; las fases 0 a 2 ya se hicieron. Las reglas vigentes están en [`CLAUDE.md`](../CLAUDE.md), los elementos en [`biblioteca/catalogo.html`](../biblioteca/catalogo.html) y las piezas en [`biblioteca/piezas/README.md`](../biblioteca/piezas/README.md). De aquí siguen abiertas las preguntas de la última sección.
 
 ## El problema
 
@@ -85,8 +87,6 @@ simulaciones-fisica-unal/
 │   │   ├── index.html        la simulación lista (la que se envía)
 │   │   ├── src/              la fuente editable
 │   │   ├── README.md         ficha de la práctica
-│   │   ├── guia/             guía en PDF
-│   │   └── archivo/          versiones anteriores (nada se borró)
 │   └── … (una carpeta por práctica, todas con la misma forma)
 ├── fisica-3/                 Ondas y óptica
 ├── biblioteca/               núcleo, interfaz, piezas, física, catálogo

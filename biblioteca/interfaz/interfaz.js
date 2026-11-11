@@ -6,7 +6,7 @@
      deslizador · opciones · casilla · interruptor · lecturas · fila
    Armazón:
      ubicarBarras · cargarPreferencias · guardarPreferencias · aplicarClases
-     proyector · aviso · barraAccion · ventana · principal · teclas · mantener · esTactil
+     proyector · tema · alternarTema · alCambiarTema · aviso · barraAccion · ventana · principal · teclas · mantener · esTactil
    ===================================================================== */
 (function(){
   'use strict';
@@ -106,23 +106,50 @@
     st.setProperty('--cardt', ct + 'px');
   }
 
-  /* Preferencias de "Qué mostrar" guardadas en el navegador (clave propia por práctica). */
-  const CAMPOS = ['card', 'scope', 'labels', 'proyector'];
+  /* Tema claro / oscuro. Lab.ui.tema() devuelve el actual; Lab.ui.tema('claro'|'oscuro') lo fija
+     (es una elección del usuario: deja de seguir al sistema). Pone la clase html.oscuro, que redefine los
+     tokens (tokens.css), y avisa a quien se haya suscrito con Lab.ui.alCambiarTema(fn) y con el evento
+     'lab:tema' en document (detail.tema). La escena 3D se entera por ahí: ver Lab.escena.ambiente. */
+  const sistemaOscuro = () => !!(window.matchMedia && matchMedia('(prefers-color-scheme: dark)').matches);
+  let automatico = true;            // sin elección guardada: se sigue a prefers-color-scheme
+  const oyentes = [];
+  const temaActual = () => document.documentElement.classList.contains('oscuro') ? 'oscuro' : 'claro';
+  function ponerTema(t){
+    t = t === 'oscuro' ? 'oscuro' : 'claro'; if(t === temaActual()) return;
+    document.documentElement.classList.toggle('oscuro', t === 'oscuro');
+    $$('[data-ui="tema"]').forEach(x => x.setAttribute('aria-pressed', String(t === 'oscuro')));
+    oyentes.slice().forEach(f => { try{ f(t); }catch(e){ if(window.console) console.error(e); } });
+    document.dispatchEvent(new CustomEvent('lab:tema', {detail:{tema:t}}));
+  }
+  function tema(t){ if(t === undefined) return temaActual(); automatico = false; ponerTema(t); return temaActual(); }
+  /* Cambia al otro tema y lo anota en ui.tema (lo que guarda guardarPreferencias). */
+  function alternarTema(ui){ const t = tema(temaActual() === 'oscuro' ? 'claro' : 'oscuro'); if(ui) ui.tema = t; return t; }
+  function alCambiarTema(fn){ oyentes.push(fn); }
+  /* Mientras el usuario no elija, el sistema manda también si cambia con la página abierta. */
+  if(window.matchMedia) try{ matchMedia('(prefers-color-scheme: dark)').addEventListener('change', e => { if(automatico) ponerTema(e.matches ? 'oscuro' : 'claro'); }); }catch(e){}
+
+  /* Preferencias de "Qué mostrar" guardadas en el navegador (clave propia por práctica).
+     Primera vez (nada guardado): el tema sigue a prefers-color-scheme y no se guarda hasta que el usuario elija.
+     cargarPreferencias ya pone la clase del tema, para que la escena nazca con los colores correctos. */
+  const CAMPOS = ['card', 'scope', 'labels', 'proyector', 'tema'];
   function cargarPreferencias(clave, base){
-    const ui = Object.assign({card:true, scope:true, labels:true, proyector:false, clean:false}, base || {});
+    const ui = Object.assign({card:true, scope:true, labels:true, proyector:false, clean:false, tema:null}, base || {});
     try{ Object.assign(ui, JSON.parse(localStorage.getItem(clave) || '{}'), {clean:false}); }catch(e){}
+    if(ui.tema === 'claro' || ui.tema === 'oscuro'){ automatico = false; } else { automatico = true; ui.tema = sistemaOscuro() ? 'oscuro' : 'claro'; }
+    ponerTema(ui.tema);
     return ui;
   }
   function guardarPreferencias(clave, ui, campos){
-    const o = {}; (campos || CAMPOS).forEach(k => o[k] = ui[k]);
+    const o = {}; (campos || CAMPOS).forEach(k => { if(k === 'tema'){ if(!automatico) o.tema = temaActual(); return; } o[k] = ui[k]; });
     try{ localStorage.setItem(clave, JSON.stringify(o)); }catch(e){}
   }
-  /* Clases que ocultan paneles (no-card, no-scope, clean), modo proyector y estado de los botones [data-ui]. */
+  /* Clases que ocultan paneles (no-card, no-scope, clean), modo proyector, tema y estado de los botones [data-ui]. */
   function aplicarClases(ui){
     const b = document.body;
     b.classList.toggle('no-card', !ui.card); b.classList.toggle('no-scope', !ui.scope); b.classList.toggle('clean', !!ui.clean);
     proyector(!!ui.proyector);
-    $$('[data-ui]').forEach(x => x.setAttribute('aria-pressed', String(!!ui[x.dataset.ui])));
+    ui.tema = temaActual();           // la clase de html manda; ui.tema solo la refleja
+    $$('[data-ui]').forEach(x => x.setAttribute('aria-pressed', String(x.dataset.ui === 'tema' ? temaActual() === 'oscuro' : !!ui[x.dataset.ui])));
   }
   /* Modo proyector: letra más grande, paneles opacos, más contraste. */
   function proyector(on){ document.documentElement.classList.toggle('proyector', !!on); }
@@ -189,7 +216,7 @@
      Lab.ui.ventana('#scopeWrap', {asa:'.ps-title', alCerrar: fn, alCambiar: fn});
      Dentro: botones con data-ven="plegar" y data-ven="cerrar". */
   function ventana(sel, o){
-    const v = $(sel); if(!v) return; o = o || {}; const asa = $(o.asa, v) || v; let d = null;
+    const v = typeof sel === 'string' ? $(sel) : sel; if(!v) return; o = o || {}; const asa = $(o.asa, v) || v; let d = null;
     const suelta = () => { v.style.left = v.style.top = v.style.right = v.style.bottom = v.style.width = ''; };
     asa.style.touchAction = 'none'; asa.style.cursor = 'move';
     asa.addEventListener('pointerdown', e => { if(e.target.closest('button') || innerWidth <= 760) return;
@@ -230,6 +257,6 @@
 
   Lab.ui = Object.assign(Lab.ui || {}, {
     deslizador, ponerDeslizador, opciones, casilla, interruptor, lecturas, fila, montar,
-    esTactil, ubicarBarras, cargarPreferencias, guardarPreferencias, aplicarClases, proyector,
-    aviso, principal, barraAccion, ventana, mantener, teclas, version: '2.1'});
+    esTactil, ubicarBarras, cargarPreferencias, guardarPreferencias, aplicarClases, proyector, tema, alternarTema, alCambiarTema,
+    aviso, principal, barraAccion, ventana, mantener, teclas, version: '2.2'});
 })();

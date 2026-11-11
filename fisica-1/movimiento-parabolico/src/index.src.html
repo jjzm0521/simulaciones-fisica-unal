@@ -53,33 +53,7 @@
           <button class="vb" type="button" data-v="gate" data-s="Compuerta">Fotocompuerta</button>
         </div>
       </div>
-      <div class="scopeblock" id="scopeWrap" hidden>
-        <div class="pswin" role="group" aria-label="Programa PhysicsSensor 1.1">
-          <div class="ps-title">
-            <span class="ps-un">un</span>
-            <span class="ps-tt">PhysicsSensor: Sonograma -muestreo a 44100 Hz-</span>
-            <span class="ps-wbtns"><button class="ps-wb" type="button" data-ven="plegar" title="Plegar o desplegar" aria-label="Plegar o desplegar la ventana">–</button><button class="ps-wb" type="button" data-ven="cerrar" title="Cerrar (S)" aria-label="Cerrar la ventana">✕</button></span>
-          </div>
-          <div class="ps-menu">Archivos</div>
-          <div class="ps-slider" aria-hidden="true"><span class="ps-thumb"></span></div>
-          <fieldset class="ps-group">
-            <legend>Sonograma</legend>
-            <canvas id="scope" aria-label="Señal de la fotocompuerta en el sonograma"></canvas>
-          </fieldset>
-          <fieldset class="ps-group">
-            <legend>Controles</legend>
-            <div class="ps-row">
-              <button class="ps-btn" type="button" title="El pulso se captura automáticamente al soltar la esfera" disabled><svg width="16" height="12" viewBox="0 0 16 12" aria-hidden="true"><path d="M1 6C3 2 6 1 8 1s5 1 7 5c-2 4-5 5-7 5S3 10 1 6z" fill="#fff" stroke="#3b5f8f"/><circle cx="8" cy="6" r="2.6" fill="#3b5f8f"/></svg>Capturar</button>
-              <button class="ps-btn" type="button" disabled><svg width="16" height="12" viewBox="0 0 16 12" aria-hidden="true"><path d="M1 6C3 2 6 1 8 1s5 1 7 5c-2 4-5 5-7 5S3 10 1 6z" fill="#fff" stroke="#3b5f8f"/><circle cx="8" cy="6" r="2.6" fill="#3b5f8f"/></svg>Sonograma</button>
-              <button class="ps-btn" type="button" data-z="ey+" title="Ampliar la escala vertical"><svg width="14" height="14" viewBox="0 0 14 14" aria-hidden="true"><circle cx="5.5" cy="5.5" r="4" fill="#e9f3ff" stroke="#3b6aa0" stroke-width="1.4"/><path d="M8.6 8.6L13 13" stroke="#3b6aa0" stroke-width="2" stroke-linecap="round"/></svg>+ Ey</button>
-              <button class="ps-btn" type="button" data-z="ey-" title="Reducir la escala vertical"><svg width="14" height="14" viewBox="0 0 14 14" aria-hidden="true"><circle cx="5.5" cy="5.5" r="4" fill="#e9f3ff" stroke="#3b6aa0" stroke-width="1.4"/><path d="M8.6 8.6L13 13" stroke="#3b6aa0" stroke-width="2" stroke-linecap="round"/></svg>- Ey</button>
-              <button class="ps-btn" type="button" data-z="ex+" title="Ampliar la escala de tiempo"><svg width="14" height="14" viewBox="0 0 14 14" aria-hidden="true"><circle cx="5.5" cy="5.5" r="4" fill="#e9f3ff" stroke="#3b6aa0" stroke-width="1.4"/><path d="M8.6 8.6L13 13" stroke="#3b6aa0" stroke-width="2" stroke-linecap="round"/></svg>+ Ex</button>
-              <button class="ps-btn" type="button" data-z="ex-" title="Reducir la escala de tiempo"><svg width="14" height="14" viewBox="0 0 14 14" aria-hidden="true"><circle cx="5.5" cy="5.5" r="4" fill="#e9f3ff" stroke="#3b6aa0" stroke-width="1.4"/><path d="M8.6 8.6L13 13" stroke="#3b6aa0" stroke-width="2" stroke-linecap="round"/></svg>- Ex</button>
-            </div>
-          </fieldset>
-        </div>
-        <p class="note" id="scopeInfo">Sin señal: suelta la esfera para registrar el pulso.</p>
-      </div>
+      <div id="scopeWrap" hidden></div>
     </section>
     <section class="card" id="card" aria-live="polite"></section>
   </main>
@@ -91,6 +65,7 @@
 <script data-inline="../../../biblioteca/nucleo/ambiente.js"></script>
 <script data-inline="../../../biblioteca/piezas/soporte.js"></script>
 <script data-inline="../../../biblioteca/piezas/fotocompuerta.js"></script>
+<script data-inline="../../../biblioteca/instrumentos/physics-sensor.js"></script>
 <script data-inline="../../../biblioteca/fisica/incertidumbre.js"></script>
 <script data-inline="../../../biblioteca/interfaz/interfaz.js"></script>
 <script>
@@ -103,7 +78,7 @@ function el(tag,attrs,parent){const e=document.createElementNS(NS,tag);for(const
 /* ---------- constantes y estado ---------- */
 const G=9.77, S=300, X0=330, YF=420, RL=118, XG=X0;   // XG: haz de la fotocompuerta justo en el borde de la rampa (x = 0)
 let R=7;                                   // radio de la esfera dibujada (px); se exagera ×2,9 respecto al real
-const AP=1/3648, AP_TXT='2.7412280701754384E-4';   // apreciación del PhysicsSensor (s)
+const AP=1/3648;   // apreciación del PhysicsSensor (s)
 const NOM={H:0.950,h:0.100,d:0.0160};
 const LIM={d:[0.0120,0.0250,0.00005],H:[0.700,1.150,0.001],h:[0.050,0.250,0.001]};
 const P={H:NOM.H,h:NOM.h,d:NOM.d};
@@ -618,85 +593,23 @@ function resize3D(){
 }
 (function loop(){ requestAnimationFrame(loop); if(dirty){ dirty=false; Lab.escena.rotulosLegibles(scene,camera,view.clientHeight); renderer.render(scene,camera); } })();
 
-/* ---------- sonograma del PhysicsSensor ---------- */
-/* Forma de la señal tomada del sonograma real (carpeta adicional): la señal sube rápido y de forma cóncava al
-   interrumpirse el haz, se queda casi plana mientras la esfera tapa el haz y, cuando el haz se libera, baja con una
-   cola exponencial. τ se mide entre el punto donde la gráfica EMPIEZA A SUBIR y el punto donde EMPIEZA A BAJAR. */
-const TW0=0.12; let ex=1, ey=1, scopeF=1;
-const tauTxt=t=>String(Number(t.toPrecision(15)));
+/* ---------- sonograma del PhysicsSensor (instrumento de la biblioteca) ----------
+   Aquí solo se decide QUÉ mostrar: la señal de la esfera, cursores puestos (ejemplo) o cursores que mueve
+   el estudiante (toma de datos), y la nota. Cómo se dibuja: biblioteca/instrumentos/physics-sensor.js */
+const ps=Lab.instrumentos.physicsSensor('#scopeWrap',{apreciacion:AP,alCerrar:()=>toggleUI('scope'),alMover:(a,b)=>{ manual.a=a; manual.b=b; medRefresh(); }});
 const tauManual=()=>Math.round(Math.abs(manual.b-manual.a)/AP)*AP;
-function nuevoManual(){ const T=TW0/ex, t1=T/2-scopeTau/2; return {a:0.30*T-t1,b:0.74*T-t1}; }
-function sweepScope(){ scopeF=0; const t0=performance.now(); (function f(now){ scopeF=Math.min(1,(now-t0)/800); drawScope(); if(scopeF<1) requestAnimationFrame(f); })(t0); }
-function hash(i){ const v=Math.sin(i*12.9898+78.233)*43758.5453; return v-Math.floor(v); }
-/* La señal se genera con la geometría real: el haz es un disco de radio RB a la altura del centro de la esfera,
-   y la señal es la fracción del haz que tapa la silueta de la esfera (radio d/2) mientras avanza a v = d/τ.
-   · Empieza a subir cuando el borde delantero toca el haz y empieza a bajar cuando el borde trasero llega a él:
-     entre esos dos puntos pasan exactamente d/v = τ, para cualquier diámetro.
-   · La subida y la bajada duran 2·RB/v (no dependen de d), así que una esfera grande da una meseta más larga.
-   · Filtro pasa-bajos (respuesta del fotodiodo) y pasa-altos (entrada de audio del computador): caída suave de la
-     meseta y la pequeña cola por debajo de la base al final, como en el sonograma real. */
-const RB=0.0010, T_LP=0.0004, T_HP=0.15;
-function beamFrac(dc,r,rb){
-  dc=Math.abs(dc); if(dc>=r+rb) return 0; if(dc<=r-rb) return 1;
-  const r2=r*r,b2=rb*rb;
-  const a=r2*Math.acos((dc*dc+r2-b2)/(2*dc*r))+b2*Math.acos((dc*dc+b2-r2)/(2*dc*rb))-0.5*Math.sqrt((-dc+r+rb)*(dc+r-rb)*(dc-r+rb)*(dc+r+rb));
-  return a/(Math.PI*b2);
-}
-function signal(T,tau,t1,n){            // n+1 muestras de la señal normalizada en t = i·T/n
-  const r=P.d/2, v=P.d/tau, dt=Math.min(2e-5,T/n/4), N=Math.ceil(T/dt), out=new Float32Array(n+1);
-  const aL=dt/(T_LP+dt), aH=T_HP/(T_HP+dt); let lp=0,prev=0,hp=0,j=0;
-  for(let k=0;k<=N&&j<=n;k++){ const t=k*dt;
-    lp+=aL*(beamFrac(-(r+RB)+v*(t-t1),r,RB)-lp); hp=aH*(hp+lp-prev); prev=lp;
-    while(j<=n&&j*T/n<=t) out[j++]=hp; }
-  while(j<=n) out[j++]=hp;
-  return out;
-}
+const nuevoManual=()=>ps.cursoresIniciales();
+function sweepScope(){ drawScope(); ps.barrer(); }
 function drawScope(){
-  const c=$('#scope'); if(!c) return; const w=c.clientWidth,h=c.clientHeight; if(!w) return;
-  const dpr=window.devicePixelRatio||1;
-  if(c.width!==Math.round(w*dpr)||c.height!==Math.round(h*dpr)){c.width=Math.round(w*dpr);c.height=Math.round(h*dpr);}
-  const ctx=c.getContext('2d'); ctx.setTransform(dpr,0,0,dpr,0,0);
-  ctx.fillStyle='#ffffff'; ctx.fillRect(0,0,w,h);
-  const T=TW0/ex, yb=h*0.66, amp=h*0.30*ey, has=scopeTau!=null, tau=has?scopeTau:0;
-  const t1=T*0.5-tau*0.5;                // el pulso queda centrado en la ventana
-  // cuadrícula
-  ctx.strokeStyle='#dcdcdc'; ctx.lineWidth=1; ctx.beginPath();
-  for(let i=1;i<18;i++){ const x=Math.round(w*i/18)+0.5; ctx.moveTo(x,0); ctx.lineTo(x,h); }
-  for(let j=1;j<6;j++){ const y=Math.round(h*j/6)+0.5; ctx.moveTo(0,y); ctx.lineTo(w,y); }
-  ctx.stroke();
-  // línea roja horizontal de referencia
-  const yr0=Math.round(h*0.5)+0.5;
-  ctx.strokeStyle='#e8383d'; ctx.lineWidth=1; ctx.beginPath(); ctx.moveTo(0,yr0); ctx.lineTo(w,yr0); ctx.stroke();
-  // señal: línea base con deriva lenta y pequeños escalones, más el pulso
-  const tcut = !has||scopeF>=1 ? T : T*(0.45+0.55*scopeF);
-  const sig = has ? signal(T,tau,t1,w) : null;
-  ctx.strokeStyle='#2a2a2a'; ctx.lineWidth=1.1; ctx.lineJoin='round'; ctx.beginPath();
-  for(let i=0;i<=w;i++){
-    const t=i/w*T; if(t>tcut) break;
-    const drift=(0.5-i/w)*0.32*h*0.30;                         // la base sube suavemente de izquierda a derecha
-    const step=Math.round(drift/1.5)*1.5;
-    const blip=hash(i)>0.94?(hash(i+7)>0.5?1.2:-1.2):0;
-    const y=yb+step+blip-(has?sig[i]*amp:0);
-    if(i===0) ctx.moveTo(i,y+0.5); else ctx.lineTo(i,y+0.5);
-  }
-  ctx.stroke();
-  // cursores: inicio de la subida e inicio de la bajada
-  if(has&&scopeF>=1){
-    const xa=Math.round((t1+(manual?manual.a:0))/T*w)+0.5, xb=Math.round((t1+(manual?manual.b:tau))/T*w)+0.5;
-    ctx.strokeStyle='#4a4af0'; ctx.lineWidth=manual?1.6:1; ctx.beginPath(); ctx.moveTo(xa,0); ctx.lineTo(xa,h); ctx.moveTo(xb,0); ctx.lineTo(xb,h); ctx.stroke();
-    if(manual&&!manual.fijo){ ctx.fillStyle='#4a4af0'; [xa,xb].forEach(x=>{ ctx.beginPath(); ctx.moveTo(x-6,0); ctx.lineTo(x+6,0); ctx.lineTo(x,9); ctx.closePath(); ctx.fill(); ctx.beginPath(); ctx.moveTo(x-6,h); ctx.lineTo(x+6,h); ctx.lineTo(x,h-9); ctx.closePath(); ctx.fill(); }); }
-  }
-  ctx.font='12px Tahoma, "Segoe UI", Arial, sans-serif'; ctx.fillStyle='#1c1c1c'; ctx.textAlign='left'; ctx.textBaseline='alphabetic';
-  ctx.fillText('Intervalo de tiempo = '+(has&&scopeF>=1?tauTxt(manual?tauManual():tau):'0.0')+'  s',8,19);
-  ctx.fillText('Apreciación='+AP_TXT+' s',8,36);
-  ctx.fillText('[Graba hasta 12 s]',6,h-26);
-  ctx.fillText('Autor:  Diego L. Aristizábal R.   Copyright 2010-2013',6,h-9);
-  const [tv,tu]=pair(tau,U.tau);
-  const mide=!!manual&&!manual.fijo; $('#scope').style.cursor=mide?'ew-resize':''; document.body.classList.toggle('midiendo',mide);
-  $('#scopeInfo').textContent = !has ? 'Sin señal: suelta la esfera para registrar el pulso.'
+  const has=scopeTau!=null, mide=has&&!!manual&&!manual.fijo;
+  ps.senal(has?Lab.senales.esferaEnHaz({d:P.d,tau:scopeTau}):null);
+  if(!has) ps.cursores(null); else if(manual) ps.cursores(manual.a,manual.b,{mover:mide}); else ps.cursores(0,scopeTau);
+  document.body.classList.toggle('midiendo',mide);
+  const [tv,tu]=pair(has?scopeTau:0,U.tau);
+  ps.nota(!has ? 'Sin señal: suelta la esfera para registrar el pulso.'
     : manual&&manual.fijo ? 'Registrado con tus cursores: τ = '+fx(tauManual(),4)+' s. La incertidumbre de lectura es la apreciación del programa.'
     : manual ? 'Ahora mides tú: arrastra los dos cursores azules. Uno donde la señal empieza a subir y otro donde empieza a bajar. Usa + Ex para ampliar el tiempo.'
-    : 'Esfera de d = '+fx(P.d*1000,2)+' mm. Cursores en el inicio de la subida y en el inicio de la bajada: τ = '+tv+' ± '+tu+' s (la incertidumbre es la apreciación del programa). La subida dura lo mismo para cualquier esfera; una esfera más grande tapa el haz más tiempo.';
+    : 'Esfera de d = '+fx(P.d*1000,2)+' mm. Cursores en el inicio de la subida y en el inicio de la bajada: τ = '+tv+' ± '+tu+' s (la incertidumbre es la apreciación del programa). La subida dura lo mismo para cualquier esfera; una esfera más grande tapa el haz más tiempo.');
 }
 
 /* ---------- cálculos ---------- */
@@ -1167,20 +1080,6 @@ function go(i){
 (function init(){
   const ol=$('#steps');
   STEPS.forEach((s,i)=>{ const li=document.createElement('li'); const b=document.createElement('button'); b.type='button'; b.innerHTML='<span class="n">'+(i+1)+'</span><span>'+s.label+'</span>'; b.onclick=()=>go(i); li.appendChild(b); ol.appendChild(li); });
-  Lab.ui.ventana('#scopeWrap',{asa:'.ps-title',alCerrar:()=>toggleUI('scope'),alCambiar:()=>requestAnimationFrame(drawScope)});
-  { const sc=$('#scope'); let drag=null; sc.style.touchAction='none';
-    const tAt=e=>{ const r=sc.getBoundingClientRect(), T=TW0/ex; return Math.max(0,Math.min(1,(e.clientX-r.left)/r.width))*T-(T/2-scopeTau/2); };
-    const mueve=e=>{ manual[drag]=tAt(e); drawScope(); medRefresh(); };
-    sc.addEventListener('pointerdown',e=>{ if(!manual||manual.fijo||scopeF<1) return; const t=tAt(e); drag=Math.abs(t-manual.a)<=Math.abs(t-manual.b)?'a':'b'; sc.setPointerCapture(e.pointerId); mueve(e); e.preventDefault(); });
-    sc.addEventListener('pointermove',e=>{ if(drag&&manual) mueve(e); });
-    ['pointerup','pointercancel'].forEach(ev=>sc.addEventListener(ev,()=>{ drag=null; })); }
-  const sel=$('#speed'), vel=$('#dkVel b');
-  sel.onchange=()=>{ speed=parseFloat(sel.value); vel.textContent='×'+String(speed).replace('.',','); };
-  $('#dkVel').onclick=()=>{ sel.selectedIndex=(sel.selectedIndex+1)%sel.options.length; sel.onchange(); };
-  document.querySelectorAll('[data-z]').forEach(b=>b.onclick=()=>{ const k=b.dataset.z;
-    if(k==='ey+') ey=Math.min(4,ey*1.25); else if(k==='ey-') ey=Math.max(0.4,ey/1.25);
-    else if(k==='ex+') ex=Math.min(8,ex*1.4); else ex=Math.max(0.5,ex/1.4);
-    drawScope(); });
   setBallSize(); genTrials(); buildPath(); drawStatic(); ballAt('a'); drawScope();
   document.querySelectorAll('.mode[data-app]').forEach(b=>b.onclick=()=>setApp(b.dataset.app));
   $('#bGuide').onclick=()=>{ guide=!guide; setApp('lab'); };
@@ -1206,7 +1105,6 @@ function go(i){
   setApp(/laboratorio/.test(location.hash)?'lab':'explore');
   window.addEventListener('resize',()=>{ drawScope(); layoutTop(); resize3D(); });
   if(document.fonts&&document.fonts.ready) document.fonts.ready.then(layoutTop);
-  if(window.ResizeObserver) new ResizeObserver(drawScope).observe($('#scope'));
   /* Cambio de tema (botón, tecla O o el sistema): fondo y luces, y se repintan los rótulos y cotas, que son dibujos con el color de ese momento.
      La ventana del PhysicsSensor no cambia (es réplica del programa real). */
   Lab.ui.alCambiarTema(t=>{

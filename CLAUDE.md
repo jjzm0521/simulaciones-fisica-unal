@@ -35,7 +35,8 @@ biblioteca/               lo compartido (ver biblioteca/README.md)
   ├── interfaz/           tokens.css, interfaz.css, interfaz.js  ← sistema de diseño
   ├── catalogo.html       todos los elementos, con su uso (referencia del equipo y del agente)
   ├── fisica/             incertidumbre.js
-  └── piezas/             equipos del laboratorio: soporte.js, fotocompuerta.js (fichas y reglas en piezas/README.md)
+  ├── piezas/             equipos del laboratorio: soporte.js, fotocompuerta.js (fichas y reglas en piezas/README.md)
+  └── instrumentos/       lo que el estudiante lee o maneja: physics-sensor.js (ficha en instrumentos/README.md)
 plantilla/practica/       punto de partida para cualquier práctica nueva
 herramientas/             empaquetar.py, empaquetar-todo.py
 docs/                     propuestas y decisiones (docs/propuesta-biblioteca.md)
@@ -65,7 +66,7 @@ El empaquetador avisa si quedan recursos externos: ese aviso es un error que hay
 1. Lee la guía local (regla 6) y la ficha `README.md` de la carpeta de la práctica.
 2. Copia `plantilla/practica/` a `fisica-N/<practica>/` y llena los `TODO`.
 3. **Antes de modelar un equipo, lee `biblioteca/piezas/README.md`** (y míralo en 3D en `biblioteca/catalogo.html`). Si la pieza existe, úsala igual y cambia solo sus parámetros; no la copies ni la rediseñes. Si no existe (y mientras la carpeta crece, mira `fisica-1/movimiento-parabolico/src/`), créala como pieza nueva: archivo propio, metros reales, origen en su punto útil, parámetros y anclajes, fila en el README, visible en el catálogo, estado *borrador*; y avisa para que se apruebe.
-4. Arma el panel con los elementos de `Lab.ui` (catálogo). Lo que aún no está en la biblioteca (ventana del PhysicsSensor, tabla de datos, "Tus cálculos" con verificación) se toma de `fisica-1/movimiento-parabolico/src/index.src.html` usando sus mismas clases, hasta que pase a la biblioteca.
+4. Arma el panel con los elementos de `Lab.ui` (catálogo). El instrumento sale de `Lab.instrumentos` (lee `biblioteca/instrumentos/README.md`). Lo que aún no está en la biblioteca (tabla de datos, "Tus cálculos" con verificación) se toma de `fisica-1/movimiento-parabolico/src/index.src.html` usando sus mismas clases, hasta que pase a la biblioteca.
 5. Empaqueta, prueba y actualiza la ficha y el índice de la física.
 
 ## Cómo probar
@@ -88,7 +89,8 @@ El empaquetador avisa si quedan recursos externos: ese aviso es un error que hay
 - **Lista con el diseño aprobado:** `fisica-1/movimiento-parabolico`.
 - **Lista con diseño anterior:** `fisica-3/lente-convergente` (pasarla al diseño aprobado; sus fuentes aún cargan de internet).
 - **Hecho de la biblioteca:** núcleo, fuentes, incertidumbre, plantilla, empaquetar-todo; sistema de diseño v2 (tokens, elementos `Lab.ui`, catálogo, modo proyector, rótulos legibles) con parabólico y la plantilla ya migrados.
-- **Falta pasar a la biblioteca:** ventana de instrumento + PhysicsSensor, tabla de datos, verificación de "Tus cálculos", armazón declarativo (modos y pasos). Tema claro/oscuro hecho: `html.oscuro` en tokens.css, `Lab.ui.tema`, botón Tema (O) y `Lab.escena.ambiente`; toda práctica nueva debe llamar a `ambiente` y repintar sus rótulos en `Lab.ui.alCambiarTema`. PhysicsSensor y piezas no cambian de color. Pendiente: pasar lente-convergente.
+- **Instrumentos hechos:** PhysicsSensor (sonograma) con la señal de esfera en el haz; parabólico ya lo usa.
+- **Falta pasar a la biblioteca:** tabla de datos, verificación de "Tus cálculos", armazón declarativo (modos y pasos). Tema claro/oscuro hecho: `html.oscuro` en tokens.css, `Lab.ui.tema`, botón Tema (O) y `Lab.escena.ambiente`; toda práctica nueva debe llamar a `ambiente` y repintar sus rótulos en `Lab.ui.alCambiarTema`. PhysicsSensor y piezas no cambian de color. Pendiente: pasar lente-convergente.
 - **Piezas hechas (borrador, medidas estimadas de foto):** soporte universal (base, varilla, nuez, brazo) y fotocompuerta en C; parabólico ya las usa.
 - **Siguiente:** medir en el laboratorio soporte y fotocompuerta; polea (falta foto); sacar de parabólico mesa, rampa, esfera, cinta y computador.
 - **Pendiente del equipo:** lista de prácticas de Física 3, número oficial de cada práctica de F1, fotos y medidas de equipos, quién aprueba piezas.

@@ -14,6 +14,7 @@ Todo vive en el repositorio `simulaciones-fisica-unal` (en la máquina del monit
 | Reglas, estructura, cómo empaquetar y probar, estado | `CLAUDE.md` (léelo completo antes de empezar) |
 | Qué elementos de interfaz existen y cuándo usar cada uno | `biblioteca/catalogo.html` (ábrelo en el navegador) |
 | Qué equipos ya están modelados y cómo crear uno nuevo | `biblioteca/piezas/README.md` |
+| Qué instrumentos de medida existen (PhysicsSensor…) y cómo usarlos | `biblioteca/instrumentos/README.md` |
 | Cómo se ve una práctica terminada | `fisica-1/movimiento-parabolico/` (la referencia viva) |
 | Datos, señales e incertidumbres realistas | `references/fisica-y-datos.md` |
 | Ideas por práctica | `references/catalogo-practicas.md` |
@@ -40,7 +41,7 @@ Todo vive en el repositorio `simulaciones-fisica-unal` (en la máquina del monit
    - datos reales del montaje que falten (radios, masas, longitudes). No inventes medidas: pídelas o márcalas como supuestas.
 4. **Revisa las piezas.** Lista los equipos del montaje y búscalos en `biblioteca/piezas/README.md`. Los que existan se usan tal cual, con parámetros. Los que falten se crean como pieza nueva **antes** de armar la escena (ver abajo).
 5. **Copia `plantilla/practica/`** a `fisica-N/<practica>/` y llena los `TODO`.
-6. **Arma el panel con `Lab.ui`** y el montaje con `Lab.piezas` y `Lab.escena.ambiente`. Declara parámetros, acciones y teclas; la biblioteca pinta controles, barra táctil e indicador.
+6. **Arma el panel con `Lab.ui`**, el montaje con `Lab.piezas` y `Lab.escena.ambiente`, y la medida con `Lab.instrumentos` (primero ejemplo resuelto, después mide el estudiante). Declara parámetros, acciones y teclas; la biblioteca pinta controles, barra táctil e indicador.
 7. **Escribe la física** con instantes calculados analíticamente y datos con dispersión realista (`references/fisica-y-datos.md`).
 8. **Empaqueta** (`python3 -I ../../herramientas/empaquetar.py src/index.src.html index.html`) y **verifica** (abajo).
 9. **Actualiza** la ficha `README.md` de la práctica, el índice de la física y el estado en `CLAUDE.md`.

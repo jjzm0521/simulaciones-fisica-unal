@@ -168,8 +168,14 @@ Lab.ui.alCambiarTema(t =&gt; { Lab.escena.ambiente(scene, t); dirty = true; });<
   </section>
 
   <section>
-    <h2>Instrumento: PhysicsSensor <code>.pswin</code></h2>
-    <p class="uso">Los instrumentos imitan al programa o equipo real, con su propia tipografía y colores: es lo único que no usa los tokens. Van dentro de la ventana de instrumento, que sí es del sistema.</p>
+    <h2>Instrumento: PhysicsSensor <code>Lab.instrumentos.physicsSensor</code></h2>
+    <p class="uso">Los instrumentos imitan al programa o equipo real, con su propia tipografía y colores: es lo único que no usa los tokens ni cambia con el tema. La práctica decide qué señal y qué cursores mostrar; el instrumento dibuja. Aquí: arrastra los cursores azules. Ficha: <code>instrumentos/README.md</code>.</p>
+    <div class="muestra ancha"><div id="pzSensor" style="position:static;width:min(520px,100%)"></div>
+      <div class="row"><button class="btn" id="psEj">Ejemplo resuelto</button><button class="btn" id="psMed">Que mida el estudiante</button><button class="btn" id="psNo">Sin señal</button></div></div>
+    <pre>const ps = Lab.instrumentos.physicsSensor('#scopeWrap', {alCerrar, alMover});
+ps.senal(Lab.senales.esferaEnHaz({d:0.016, tau:0.0134}));
+ps.cursores(0, 0.0134);                          // ejemplo resuelto
+ps.cursores(c.a, c.b, {mover:true});             // el estudiante mide;  ps.intervalo() da su lectura</pre>
   </section>
 </div>
 
@@ -178,6 +184,7 @@ Lab.ui.alCambiarTema(t =&gt; { Lab.escena.ambiente(scene, t); dirty = true; });<
 <script src="nucleo/ambiente.js"></script>
 <script src="piezas/soporte.js"></script>
 <script src="piezas/fotocompuerta.js"></script>
+<script src="instrumentos/physics-sensor.js"></script>
 <script src="interfaz/interfaz.js"></script>
 <script>
 (function(){
@@ -198,6 +205,13 @@ Lab.ui.alCambiarTema(t =&gt; { Lab.escena.ambiente(scene, t); dirty = true; });<
     '<div class="pila">'+U.interruptor({id:'ejeX',texto:'Invertir eje x (positivo hacia la izquierda)',activo:false})+U.interruptor({id:'ejeY',texto:'Invertir eje y (positivo hacia arriba)',activo:true})+'</div>';
   $('#dLec').innerHTML=U.lecturas([{id:'a',etiqueta:'t (s)',valor:'0,312'},{id:'b',etiqueta:'x (m)',valor:'0,511',color:'var(--mag-x)'},{id:'c',etiqueta:'y (m)',valor:'0,476',color:'var(--mag-y)'},{id:'d',etiqueta:'Vₓ (m/s)',valor:'1,64',color:'var(--mag-x)'},{id:'e',etiqueta:'V<sub>y</sub> (m/s)',valor:'3,05',color:'var(--mag-y)'}])+
     U.fila('Tiempo promedio','τ̄','0,0131 ± 0,0003 s')+U.fila('Con la fotocompuerta','V₀ₓ = d / τ̄','1,22 ± 0,03 m/s',true);
+  /* instrumento */
+  { const TAU=0.0134, ps=Lab.instrumentos.physicsSensor('#pzSensor',{alMover:()=>{ ps.nota('Tu lectura: τ = '+String(ps.intervalo().toFixed(4)).replace('.',',')+' s (real: 0,0134 s)'); eco('physicsSensor',+ps.intervalo().toFixed(5)); }});
+    const sen=()=>ps.senal(Lab.senales.esferaEnHaz({d:0.016,tau:TAU}));
+    const ej=()=>{ sen(); ps.cursores(0,TAU); ps.nota('Ejemplo resuelto: cursores en el inicio de la subida y en el inicio de la bajada.'); ps.barrer(); };
+    $('#psEj').onclick=ej; $('#psNo').onclick=()=>{ ps.senal(null); ps.cursores(null); ps.nota('Sin señal.'); };
+    $('#psMed').onclick=()=>{ sen(); const c=ps.cursoresIniciales(); ps.cursores(c.a,c.b,{mover:true}); ps.nota('Arrastra los dos cursores azules.'); };
+    ej(); }
   /* visor de piezas */
   const PZ={ab:0.07,cual:'montaje'}, vista=$('#pzVista');
   $('#pzSel').innerHTML=U.opciones({id:'pz',etiqueta:'Pieza',valor:PZ.cual,items:[{v:'montaje',texto:'Fotocompuerta en su soporte'},{v:'fotocompuerta',texto:'Fotocompuerta'},{v:'soporte',texto:'Soporte universal'}]});

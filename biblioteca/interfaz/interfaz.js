@@ -216,7 +216,7 @@
      Lab.ui.ventana('#scopeWrap', {asa:'.ps-title', alCerrar: fn, alCambiar: fn});
      Dentro: botones con data-ven="plegar" y data-ven="cerrar". */
   function ventana(sel, o){
-    const v = $(sel); if(!v) return; o = o || {}; const asa = $(o.asa, v) || v; let d = null;
+    const v = typeof sel === 'string' ? $(sel) : sel; if(!v) return; o = o || {}; const asa = $(o.asa, v) || v; let d = null;
     const suelta = () => { v.style.left = v.style.top = v.style.right = v.style.bottom = v.style.width = ''; };
     asa.style.touchAction = 'none'; asa.style.cursor = 'move';
     asa.addEventListener('pointerdown', e => { if(e.target.closest('button') || innerWidth <= 760) return;

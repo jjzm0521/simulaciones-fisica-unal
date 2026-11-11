@@ -1,20 +1,21 @@
 <!doctype html>
-<html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"></head><body>
+<html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Laboratorio de movimiento parabólico</title>
-<meta name="claude:viewport-fit-sides" content="cover">
 <link rel="stylesheet" data-inline="../../../biblioteca/fuentes/fuentes.css">
+<link rel="stylesheet" data-inline="../../../biblioteca/interfaz/tokens.css">
 <link rel="stylesheet" data-inline="../../../biblioteca/interfaz/interfaz.css">
+</head><body>
 
 <div class="wrap">
   <header class="top">
-    <div>
+    <div class="titulo">
       <div class="eyebrow">Universidad Nacional de Colombia · Sede Medellín · Física Mecánica · Práctica 7</div>
       <h1>Laboratorio de movimiento parabólico</h1>
     </div>
     <div class="modes" role="group" aria-label="Modo">
       <button class="mode" type="button" data-app="explore">Explorar</button>
       <button class="mode" type="button" data-app="lab">Laboratorio</button>
-      <button class="mode guide" type="button" id="bGuide" aria-pressed="true" title="Mostrar u ocultar la guía de la práctica">Paso a paso</button>
+      <button class="interruptor" type="button" id="bGuide" role="switch" aria-checked="true" title="Mostrar u ocultar la guía de la práctica">Paso a paso</button>
     </div>
     <div class="speed">
       <label for="speed">Velocidad de la simulación</label>
@@ -31,18 +32,14 @@
     <button class="dk" type="button" data-ui="card" title="Panel de la práctica (P)"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="2.5" y="3.5" width="15" height="13" rx="2"/><path d="M12 3.5v13"/></svg>Panel</button>
     <button class="dk" type="button" data-ui="scope" title="Ventana del PhysicsSensor (S)"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"><rect x="2.5" y="3.5" width="15" height="13" rx="2"/><path d="M4.5 12h3l1-4h3l1 4h3"/></svg>Sensor</button>
     <button class="dk" type="button" data-ui="labels" title="Etiquetas y medidas en la escena (E)"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M3 10.5 9.5 4H16v6.5L9.5 17z"/><circle cx="13" cy="7" r="1.2"/></svg>Rótulos</button>
-    <button class="dk sep" type="button" data-ui="clean" title="Ver solo la escena (H)"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M3 7V3h4M13 3h4v4M17 13v4h-4M7 17H3v-4"/></svg>Limpia</button>
+    <button class="dk" type="button" data-ui="proyector" title="Letra grande, para proyector (L)"><b>Aa</b>Letra</button>
+  <button class="dk solo-movil" type="button" id="dkVel" title="Velocidad de la simulación"><b>×0,5</b>Ritmo</button>
+  <button class="dk sep" type="button" data-ui="clean" title="Ver solo la escena (H)"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M3 7V3h4M13 3h4v4M17 13v4h-4M7 17H3v-4"/></svg>Limpia</button>
   </div>
+  <div class="vivo" id="vivo" hidden></div>
   <button class="unclean" type="button" id="unclean">Mostrar paneles · H</button>
   <div class="hud" id="hud" hidden aria-live="polite"></div>
-  <div class="pad" id="pad" hidden role="group" aria-label="Controles del lanzamiento">
-    <div class="pad-top"><button class="pad-type" type="button" id="padType" title="Cambiar el tipo de lanzamiento"></button><span class="pad-val" id="padVal"></span></div>
-    <div class="pad-row">
-      <span class="pad-grp" id="padTh"><button class="pb" type="button" data-pad="th-" aria-label="Bajar el ángulo">θ−</button><button class="pb" type="button" data-pad="th+" aria-label="Subir el ángulo">θ+</button></span>
-      <button class="pb go" type="button" id="padGo">Lanzar</button>
-      <span class="pad-grp" id="padV"><button class="pb" type="button" data-pad="v-" aria-label="Bajar la rapidez">V−</button><button class="pb" type="button" data-pad="v+" aria-label="Subir la rapidez">V+</button></span>
-    </div>
-  </div>
+  <div class="pad" id="pad" hidden role="group" aria-label="Controles del lanzamiento"></div>
 
   <main class="layout">
     <section class="stage">
@@ -54,14 +51,13 @@
           <button class="vb" type="button" data-v="top" data-s="Arriba">Superior</button>
           <button class="vb" type="button" data-v="gate" data-s="Compuerta">Fotocompuerta</button>
         </div>
-        <span class="viewhint">Arrastra para girar · rueda o pellizco para acercar</span>
       </div>
       <div class="scopeblock" id="scopeWrap" hidden>
         <div class="pswin" role="group" aria-label="Programa PhysicsSensor 1.1">
           <div class="ps-title">
             <span class="ps-un">un</span>
             <span class="ps-tt">PhysicsSensor: Sonograma -muestreo a 44100 Hz-</span>
-            <span class="ps-wbtns" aria-hidden="true"><span class="ps-wb">⤢</span><span class="ps-wb">✕</span></span>
+            <span class="ps-wbtns"><button class="ps-wb" type="button" data-ven="plegar" title="Plegar o desplegar" aria-label="Plegar o desplegar la ventana">–</button><button class="ps-wb" type="button" data-ven="cerrar" title="Cerrar (S)" aria-label="Cerrar la ventana">✕</button></span>
           </div>
           <div class="ps-menu">Archivos</div>
           <div class="ps-slider" aria-hidden="true"><span class="ps-thumb"></span></div>
@@ -83,7 +79,6 @@
         </div>
         <p class="note" id="scopeInfo">Sin señal: suelta la esfera para registrar el pulso.</p>
       </div>
-      <p class="note">Escena a escala real: 1 unidad = 1 m. La esfera se dibuja unas tres veces más grande que la real para que se vea (su tamaño cambia con d). g = 9,77 m/s² (valor típico en Medellín).</p>
     </section>
     <section class="card" id="card" aria-live="polite"></section>
   </main>
@@ -91,6 +86,9 @@
 
 <script data-inline="../../../biblioteca/nucleo/three-r159.min.js"></script>
 <script data-inline="../../../biblioteca/nucleo/camara.js"></script>
+<script data-inline="../../../biblioteca/nucleo/rotulos.js"></script>
+<script data-inline="../../../biblioteca/piezas/soporte.js"></script>
+<script data-inline="../../../biblioteca/piezas/fotocompuerta.js"></script>
 <script data-inline="../../../biblioteca/fisica/incertidumbre.js"></script>
 <script data-inline="../../../biblioteca/interfaz/interfaz.js"></script>
 <script>
@@ -110,10 +108,12 @@ const P={H:NOM.H,h:NOM.h,d:NOM.d};
 const U={H:0.001,d:0.00005,D:0.001,tau:AP,h:0.001};
 let seed=11, trials=[], path=[], Troll=0, recorded=[], speed=0.5, cur=0, seen=new Set([0]);
 let anim=null, chainToken=0, busy=false, scopeTau=null;
+let manual=null, pend=null;   // manual: cursores que mueve el estudiante {a,b} (s, desde el inicio del pulso) · pend: lanzamiento sin registrar
+const did={tau:false,vuelo:false,calc:false};
 let app='explore', guide=true, page='', curPage=null, expN=0, answers={}, showSol=false;
-const UI={card:true,scope:true,labels:true,clean:false,scopeX:false};
-try{ Object.assign(UI,JSON.parse(localStorage.getItem('parabolico-ui')||'{}'),{clean:false}); }catch(e){}
-if(window.matchMedia&&matchMedia('(max-width:760px)').matches&&!localStorage.getItem('parabolico-ui')) UI.scope=false;
+const CLAVE='parabolico-ui';
+const UI=Lab.ui.cargarPreferencias(CLAVE,{scopeX:false});
+try{ if(matchMedia('(max-width:760px)').matches&&!localStorage.getItem(CLAVE)) UI.scope=false; }catch(e){}
 let lastCfg=null;
 const AX={x:1,y:1};   // x: +1 hacia la derecha · y: +1 hacia abajo (marco de la guía); −1 invierte el eje
 
@@ -202,7 +202,7 @@ function labelSprite(text,color,h,mono){
   x.strokeStyle=sv('--surface'); x.strokeText(text,w/2,c.height/2+2); x.fillStyle=color; x.fillText(text,w/2,c.height/2+2);
   const t=new THREE.CanvasTexture(c); t.anisotropy=4;
   const sp=new THREE.Sprite(new THREE.SpriteMaterial({map:t,transparent:true,depthTest:false}));
-  sp.scale.set(h*c.width/c.height,h,1); sp.renderOrder=10; return sp;
+  sp.scale.set(h*c.width/c.height,h,1); sp.renderOrder=10; sp.userData.px=mono?[16,34]:[18,40]; return sp;
 }
 function pillSprite(text,dot,h){
   const fs=44, f='500 '+fs+'px "IBM Plex Mono",monospace';
@@ -213,7 +213,7 @@ function pillSprite(text,dot,h){
   x.font=f; x.fillStyle='#ffffff'; x.textAlign='left'; x.textBaseline='middle'; x.fillText(text,pad+34,H/2+2);
   const t=new THREE.CanvasTexture(c); t.anisotropy=4;
   const sp=new THREE.Sprite(new THREE.SpriteMaterial({map:t,transparent:true,depthTest:false}));
-  sp.scale.set(h*w/H,h,1); sp.renderOrder=10; return sp;
+  sp.scale.set(h*w/H,h,1); sp.renderOrder=10; sp.userData.px=[18,30]; return sp;
 }
 function box(w,h,d,mat,x,y,z){ const m=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),mat); m.position.set(x,y,z); m.castShadow=true; m.receiveShadow=true; return m; }
 function poly(pts,color,dash){
@@ -442,23 +442,13 @@ function drawStatic(keep){
   const rampEdge=new THREE.LineSegments(new THREE.EdgesGeometry(rg),new THREE.LineBasicMaterial({color:0xcfe6ff})); rampEdge.position.y=H; G_('gTable').add(rampEdge);
   // fotocompuerta en U (amarilla) con el haz justo en el borde de la rampa (x = 0), a la altura del centro de la esfera
   const gx=wx(XG), by=wy(gateY());
-  const yel=new THREE.MeshStandardMaterial({color:0xffd500,roughness:0.4,metalness:0.05});
-  const steel=new THREE.MeshStandardMaterial({color:0xb9c0c8,roughness:0.3,metalness:0.8});
-  const lensM=new THREE.MeshStandardMaterial({color:0x1b1f27,roughness:0.3});
-  const zA=0.062, aTop=by+0.05, aBot=by-0.016;
-  [-zA,zA].forEach(z=>G_('gGate').add(box(0.022,aTop-aBot,0.012,yel,gx,(aTop+aBot)/2,z)));
-  G_('gGate').add(box(0.022,0.014,2*zA+0.012,yel,gx,aTop+0.007,0));
-  [-1,1].forEach(sg=>{ const l=new THREE.Mesh(new THREE.CylinderGeometry(0.0045,0.0045,0.004,14),lensM); l.rotation.x=Math.PI/2; l.position.set(gx,by,sg*(zA-0.008)); G_('gGate').add(l); });
-  beamMesh=new THREE.Mesh(new THREE.CylinderGeometry(0.0016,0.0016,2*zA-0.02,8),new THREE.MeshBasicMaterial({color:sv('--bad'),transparent:true}));
-  beamMesh.rotation.x=Math.PI/2; beamMesh.position.set(gx,by,0); G_('gGate').add(beamMesh);
-  ledMesh=new THREE.Mesh(new THREE.SphereGeometry(0.003,10,8),new THREE.MeshBasicMaterial({color:'#3ad16a'})); ledMesh.position.set(gx+0.011,aTop+0.006,-zA+0.01); G_('gGate').add(ledMesh);
-  // soporte: base, varilla y brazo detrás de la rampa (no estorban el paso de la esfera)
-  const rz=-0.13, rx=gx-0.012;
-  G_('gGate').add(box(0.07,0.012,0.07,lensM,rx-0.02,H+0.006,rz));
-  G_('gGate').add(box(0.008,aTop+0.03-H,0.008,steel,rx,(aTop+0.03+H)/2,rz));
-  G_('gGate').add(box(0.008,0.008,-zA-rz,steel,rx,aTop-0.01,(rz-zA)/2));
-  G_('gGate').add(box(0.018,0.018,0.018,lensM,rx,aTop-0.01,rz));
-  const gl=pillSprite('Fotocompuerta','#38bdf8',0.032); gl.position.set(0.02,aTop+0.06,0); G_('gGate').add(gl);
+  // Piezas de la biblioteca. La rampa se dibuja más ancha que la real: por eso la abertura es mayor que la de la pieza real.
+  const fc=Lab.piezas.fotocompuerta({abertura:0.108,alto:0.05,etiqueta:'7a'}); fc.grupo.position.set(gx,by,0); G_('gGate').add(fc.grupo);
+  beamMesh=fc.haz; ledMesh=fc.led;
+  const aTop=by+0.05, rz=-0.17;
+  const sop=Lab.piezas.soporte({alto:0.5,alturaNuez:by+fc.anclajes.sujecion.y-H,brazo:-rz,direccion:'z+',base:'x-',margen:0.012});
+  sop.grupo.position.set(gx-0.012,H,rz); G_('gGate').add(sop.grupo);
+  const gl=pillSprite('Fotocompuerta','#38bdf8',0.032); gl.position.set(0.02,aTop+0.13,0); G_('gGate').add(gl);
   // cota H
   const dx=-0.97, dz=0.3;
   G_('gDimH').add(poly([[dx,0,dz],[dx,H,dz]],sv('--muted')));
@@ -612,21 +602,21 @@ function setView(n){
   else if(n==='gate'){ camera.position.set(0.30,H+0.17,0.40); controls.target.set(-0.03,H+0.025,0); }
   else { camera.position.set(1.35,H*0.75+0.55,2.2); controls.target.set(0.22,H*0.42,0); }
   // a pantalla completa la escena tiene más espacio: la cámara se aleja un poco (menos en el acercamiento a la fotocompuerta)
-  const k={iso:1.3,side:1.15,top:1.1,gate:1}[n]||1.3; camera.position.sub(controls.target).multiplyScalar(k).add(controls.target);
+  const k={iso:1.3,side:1.15,top:1.1,gate:1.4}[n]||1.3; camera.position.sub(controls.target).multiplyScalar(k).add(controls.target);
   controls.update(); dirty=true;
 }
 function resize3D(){
   const w=view.clientWidth, h=view.clientHeight; if(!w||!h) return;
   renderer.setSize(w,h,false); camera.aspect=w/h;
-  const card=$('#card'), side=window.innerWidth>760&&UI.card&&!UI.clean&&card?card.offsetWidth+24:0, left=window.innerWidth>760&&!UI.clean?56:0;
+  const card=$('#card'), side=window.innerWidth>760&&UI.card&&!UI.clean&&card?card.offsetWidth+24:0, left=window.innerWidth>760&&!UI.clean?120:0;
   const pd=$('#pad'), padH=pd&&!pd.hidden?pd.offsetHeight+12:0;
   // en celular la escena se centra entre las barras de arriba y el control táctil
-  let topH=0; if(window.innerWidth<=760&&!UI.clean){ const vb=$('.viewbtns'); if(vb&&getComputedStyle(vb).display!=='none') topH=vb.getBoundingClientRect().bottom; }
+  const vv=$('#vivo'); let topH=window.innerWidth>760&&vv&&!vv.hidden&&!UI.clean?vv.offsetHeight+16:0; if(window.innerWidth<=760&&!UI.clean){ const vb=$('.viewbtns'); if(vb&&getComputedStyle(vb).display!=='none') topH=vb.getBoundingClientRect().bottom; if(vv&&!vv.hidden) topH=vv.getBoundingClientRect().bottom; }
   const oy=(padH-topH)/2;
   if(side||left||oy) camera.setViewOffset(w,h,(side-left)/2,oy,w,h); else camera.clearViewOffset();
   camera.updateProjectionMatrix(); dirty=true;
 }
-(function loop(){ requestAnimationFrame(loop); if(dirty){ dirty=false; renderer.render(scene,camera); } })();
+(function loop(){ requestAnimationFrame(loop); if(dirty){ dirty=false; Lab.escena.rotulosLegibles(scene,camera,view.clientHeight); renderer.render(scene,camera); } })();
 
 /* ---------- sonograma del PhysicsSensor ---------- */
 /* Forma de la señal tomada del sonograma real (carpeta adicional): la señal sube rápido y de forma cóncava al
@@ -634,6 +624,8 @@ function resize3D(){
    cola exponencial. τ se mide entre el punto donde la gráfica EMPIEZA A SUBIR y el punto donde EMPIEZA A BAJAR. */
 const TW0=0.12; let ex=1, ey=1, scopeF=1;
 const tauTxt=t=>String(Number(t.toPrecision(15)));
+const tauManual=()=>Math.round(Math.abs(manual.b-manual.a)/AP)*AP;
+function nuevoManual(){ const T=TW0/ex, t1=T/2-scopeTau/2; return {a:0.30*T-t1,b:0.74*T-t1}; }
 function sweepScope(){ scopeF=0; const t0=performance.now(); (function f(now){ scopeF=Math.min(1,(now-t0)/800); drawScope(); if(scopeF<1) requestAnimationFrame(f); })(t0); }
 function hash(i){ const v=Math.sin(i*12.9898+78.233)*43758.5453; return v-Math.floor(v); }
 /* La señal se genera con la geometría real: el haz es un disco de radio RB a la altura del centro de la esfera,
@@ -690,16 +682,20 @@ function drawScope(){
   ctx.stroke();
   // cursores: inicio de la subida e inicio de la bajada
   if(has&&scopeF>=1){
-    const xa=Math.round(t1/T*w)+0.5, xb=Math.round((t1+tau)/T*w)+0.5;
-    ctx.strokeStyle='#4a4af0'; ctx.lineWidth=1; ctx.beginPath(); ctx.moveTo(xa,0); ctx.lineTo(xa,h); ctx.moveTo(xb,0); ctx.lineTo(xb,h); ctx.stroke();
+    const xa=Math.round((t1+(manual?manual.a:0))/T*w)+0.5, xb=Math.round((t1+(manual?manual.b:tau))/T*w)+0.5;
+    ctx.strokeStyle='#4a4af0'; ctx.lineWidth=manual?1.6:1; ctx.beginPath(); ctx.moveTo(xa,0); ctx.lineTo(xa,h); ctx.moveTo(xb,0); ctx.lineTo(xb,h); ctx.stroke();
+    if(manual&&!manual.fijo){ ctx.fillStyle='#4a4af0'; [xa,xb].forEach(x=>{ ctx.beginPath(); ctx.moveTo(x-6,0); ctx.lineTo(x+6,0); ctx.lineTo(x,9); ctx.closePath(); ctx.fill(); ctx.beginPath(); ctx.moveTo(x-6,h); ctx.lineTo(x+6,h); ctx.lineTo(x,h-9); ctx.closePath(); ctx.fill(); }); }
   }
   ctx.font='12px Tahoma, "Segoe UI", Arial, sans-serif'; ctx.fillStyle='#1c1c1c'; ctx.textAlign='left'; ctx.textBaseline='alphabetic';
-  ctx.fillText('Intervalo de tiempo = '+(has&&scopeF>=1?tauTxt(tau):'0.0')+'  s',8,19);
+  ctx.fillText('Intervalo de tiempo = '+(has&&scopeF>=1?tauTxt(manual?tauManual():tau):'0.0')+'  s',8,19);
   ctx.fillText('Apreciación='+AP_TXT+' s',8,36);
   ctx.fillText('[Graba hasta 12 s]',6,h-26);
   ctx.fillText('Autor:  Diego L. Aristizábal R.   Copyright 2010-2013',6,h-9);
   const [tv,tu]=pair(tau,U.tau);
+  const mide=!!manual&&!manual.fijo; $('#scope').style.cursor=mide?'ew-resize':''; document.body.classList.toggle('midiendo',mide);
   $('#scopeInfo').textContent = !has ? 'Sin señal: suelta la esfera para registrar el pulso.'
+    : manual&&manual.fijo ? 'Registrado con tus cursores: τ = '+fx(tauManual(),4)+' s. La incertidumbre de lectura es la apreciación del programa.'
+    : manual ? 'Ahora mides tú: arrastra los dos cursores azules. Uno donde la señal empieza a subir y otro donde empieza a bajar. Usa + Ex para ampliar el tiempo.'
     : 'Esfera de d = '+fx(P.d*1000,2)+' mm. Cursores en el inicio de la subida y en el inicio de la bajada: τ = '+tv+' ± '+tu+' s (la incertidumbre es la apreciación del programa). La subida dura lo mismo para cualquier esfera; una esfera más grande tapa el haz más tiempo.';
 }
 
@@ -716,10 +712,12 @@ function stats(){
   const err=(Vt-Ve)/Vt*100;
   return {n,Dm,sD,uD,tm,sT,uT,Vt,uVt,Ve,uVe,err};
 }
-const row=(lab,expr,val,key)=>'<div class="calc'+(key?' key':'')+'"><span class="lab">'+lab+'</span><span class="expr">'+expr+'</span><span class="val">'+val+'</span></div>';
-const v0=s=>'<var>V</var><sub>0x</sub>';
+const row=Lab.ui.fila;
+const lecturasHTML=()=>Lab.ui.lecturas([{id:'lt',etiqueta:'t (s)',valor:'0,000'},{id:'lx',etiqueta:'x (m)',valor:'0,000',color:'var(--mag-x)'},{id:'ly',etiqueta:'y (m)',valor:'0,000',color:'var(--mag-y)'},
+  {id:'lvx',etiqueta:'Vₓ (m/s)',color:'var(--mag-x)'},{id:'lvy',etiqueta:'V<sub>y</sub> (m/s)',valor:'0,00',color:'var(--mag-y)'}]);
 
 /* ---------- pasos ---------- */
+let medRefresh=()=>{};
 function tableHTML(){
   let rows='';
   for(let i=0;i<5;i++){
@@ -732,46 +730,53 @@ function tableHTML(){
     '<tr><th><var>H</var> (m)</th><th><var>u<sub>H</sub></var> (m)</th><th><var>D</var> (m)</th><th><var>u<sub>D</sub></var> (m)</th><th>τ (s)</th><th><var>u<sub>τ</sub></var> (s)</th></tr></thead><tbody>'+rows+'</tbody></table></div>';
 }
 function needData(){
-  return '<p class="lead">Para este paso necesitas los cinco lanzamientos de la tabla.</p><div class="row"><button class="btn primary" id="goData">Ir a tomar los datos</button></div>';
+  return '<p class="lead">Para este paso necesitas los cinco lanzamientos de la tabla.</p><div class="row"><button class="btn primary" data-principal id="goData">Ir a tomar los datos</button></div>';
 }
-function paramField(id,lab,sym,val,lim,k,dec,unit,hint){
-  return '<div class="field"><label for="'+id+'">'+lab+' <var>'+sym+'</var></label><output id="'+id+'o">'+fx(val,dec)+' '+unit+'</output>'+
-    '<input type="range" id="'+id+'" min="'+(lim[0]*k).toFixed(3)+'" max="'+(lim[1]*k).toFixed(3)+'" step="'+(lim[2]*k).toFixed(3)+'" value="'+val.toFixed(3)+'"><span class="u">'+hint+'</span></div>';
+function paramField(id,lab,sym,val,lim,k,dec,unit,hint,nom){
+  return Lab.ui.deslizador({id,etiqueta:lab,simbolo:sym,valor:+val.toFixed(3),min:+(lim[0]*k).toFixed(3),max:+(lim[1]*k).toFixed(3),paso:+(lim[2]*k).toFixed(3),dec,unidad:unit,nota:hint,nominal:nom});
 }
-function applyParams(){ setBallSize(); resetData(); setView(lastView); if(curPage) applyScene(curPage.scene); if(page==='explore') xDraw(); }
+/* Cambiar el montaje borra los lanzamientos: se avisa y se puede deshacer. */
+let undo=null, pRaf=0;
+function guardaUndo(){ if(recorded.length&&!undo) undo={P:Object.assign({},P),rec:recorded.slice(),seed,taus:recorded.map(i=>trials[i].tau)}; }
+function avisaBorrado(){ if(!undo) return; const u=undo;
+  Lab.ui.aviso('Cambiaste el montaje: se '+(u.rec.length===1?'borró 1 lanzamiento':'borraron '+u.rec.length+' lanzamientos')+'.',{
+    accion:()=>{ undo=null; Object.assign(P,u.P); seed=u.seed; applyParams(); recorded=u.rec.slice(); recorded.forEach((i,j)=>{ trials[i].tau=u.taus[j]; }); refreshPage(); },
+    alCerrar:()=>{ undo=null; }}); }
+function applyParams(){ setBallSize(); resetData(); setView(lastView); if(curPage) applyScene(curPage.scene); if(page==='explore') xDraw(); avisaBorrado(); }
+/* Todo control del panel (Lab.ui.montar) llega aquí con su id y su valor. */
+const PK={pd:['d',1000],pH:['H',100],ph:['h',100]};
+function onCtl(id,v){
+  if(PK[id]){ guardaUndo(); P[PK[id][0]]=v/PK[id][1]; if(!pRaf) pRaf=requestAnimationFrame(()=>{ pRaf=0; applyParams(); }); }
+  else if(id==='xth') xSet('th',v);
+  else if(id==='xv0') xSet('v0',v);
+  else if(id==='xt') xSet('type',v);
+  else if(id==='xVec'){ XL.vec=v; xVectors(null); }
+  else if(id==='xPred'){ XL.pred=v; xDraw(); }
+  else if(id==='ax-x'||id==='ax-y'){ AX[id.slice(3)]=v?-1:1; drawStatic(true); refreshPage(); }
+}
 /* Ejes: el origen sigue en b; invertir un eje solo cambia signos, y el resultado para V₀ₓ es el mismo. */
 function axesHTML(){
-  const b=(k,txt)=>'<button class="check" type="button" data-ax="'+k+'" aria-pressed="'+(AX[k]<0)+'"><span class="box">'+(AX[k]<0?'✓':'')+'</span><span>'+txt+'</span></button>';
-  return '<div class="axes2">'+b('x','Invertir eje x (positivo hacia la izquierda)')+b('y','Invertir eje y (positivo hacia arriba)')+'</div>';
+  return '<div class="pila">'+Lab.ui.interruptor({id:'ax-x',texto:'Invertir eje x (positivo hacia la izquierda)',activo:AX.x<0})+
+    Lab.ui.interruptor({id:'ax-y',texto:'Invertir eje y (positivo hacia arriba)',activo:AX.y<0})+'</div>';
 }
 function eqHTML(){
   const sx=AX.x>0?'':'−', sy=AX.y>0?'':'−';
-  return '<div class="eq">x = '+sx+'V₀ₓ·t &nbsp;&nbsp; Vₓ = '+sx+'V₀ₓ<br>y = '+sy+'½·g·t² &nbsp;&nbsp; V<sub>y</sub> = '+sy+'g·t<br>'+
+  return '<div class="eq"><span class="mx">x = '+sx+'V₀ₓ·t &nbsp;&nbsp; Vₓ = '+sx+'V₀ₓ</span><br><span class="my">y = '+sy+'½·g·t² &nbsp;&nbsp; V<sub>y</sub> = '+sy+'g·t</span><br>'+
     'Al llegar al piso: x = '+sx+'D, y = '+sy+'H<br>⇒ '+sy+'H = '+sy+'½·g·t² → t = √(2H/g)<br>⇒ '+sx+'D = '+sx+'V₀ₓ·t → V₀ₓ = D·√(g / 2H)</div>'+
     '<p class="small">'+(AX.x<0||AX.y<0?'Con los ejes invertidos cambian los signos de x, y, Vₓ o V<sub>y</sub>, pero al despejar se llega a la misma V₀ₓ.':'Prueba a invertir un eje: cambian los signos, no el resultado.')+'</p>';
 }
-function mountAxes(){ document.querySelectorAll('[data-ax]').forEach(b=>b.onclick=()=>{ AX[b.dataset.ax]*=-1; drawStatic(true); refreshPage(); }); }
-function mountParams(){
-  const keys={pd:'d',pH:'H',ph:'h'}, scale={d:1000,H:100,h:100}, dec={d:2,H:1,h:1};
-  let raf=0;
-  Object.keys(keys).forEach(id=>{ const inp=$('#'+id); if(!inp) return; const k=keys[id];
-    inp.oninput=()=>{ P[k]=parseFloat(inp.value)/scale[k]; $('#'+id+'o').textContent=fx(P[k]*scale[k],dec[k])+(k==='d'?' mm':' cm');
-      if(!raf) raf=requestAnimationFrame(()=>{ raf=0; applyParams(); }); }; });
-  const n=$('#nominal'); if(n) n.onclick=()=>{ Object.assign(P,NOM); applyParams(); refreshPage(); };
-}
+function mountParams(){ const n=$('#nominal'); if(n) n.onclick=()=>{ guardaUndo(); Object.assign(P,NOM); applyParams(); refreshPage(); }; }
 function paramsHTML(){ return `<fieldset class="params">
     <legend>Parámetros del montaje</legend>
-    ${paramField('pd','Diámetro de la esfera','d',P.d*1000,LIM.d,1000,2,'mm','calibrador · el tiempo τ depende de d')}
-    ${paramField('pH','Altura de la mesa','H',P.H*100,LIM.H,100,1,'cm','cinta métrica · cambia el tiempo de vuelo')}
-    ${paramField('ph','Altura de la rampa','h',P.h*100,LIM.h,100,1,'cm','desde donde se suelta la esfera hasta el borde · cambia V₀ₓ')}
-    <div class="row"><span class="small">Al cambiar un parámetro se borran los lanzamientos registrados.</span><button class="btn" id="nominal" type="button">Valores nominales</button></div>
+    ${paramField('pd','Diámetro de la esfera','d',P.d*1000,LIM.d,1000,2,'mm','calibrador · el tiempo τ depende de d',NOM.d*1000)}
+    ${paramField('pH','Altura de la mesa','H',P.H*100,LIM.H,100,1,'cm','cinta métrica · cambia el tiempo de vuelo',NOM.H*100)}
+    ${paramField('ph','Altura de la rampa','h',P.h*100,LIM.h,100,1,'cm','desde donde se suelta la esfera hasta el borde · cambia V₀ₓ',NOM.h*100)}
+    <div class="row entre"><span class="small">La marca bajo cada barra es el valor del laboratorio.</span><button class="btn discreto" id="nominal" type="button">Volver a los valores del laboratorio</button></div>
   </fieldset>`; }
 
 /* ---------- tus cálculos: el estudiante ingresa sus resultados y la simulación los verifica ---------- */
 const CF=[['D','Alcance promedio','D̄','m'],['T','Tiempo promedio','τ̄','s'],['Vt','V₀ₓ con la fotocompuerta','d / τ̄','m/s'],['Ve','V₀ₓ con la parábola','D̄·√(g/2H)','m/s']];
-const num=t=>{ t=String(t||'').trim().replace(',','.'); return t===''||isNaN(+t)?null:+t; };
-const decs=t=>{ t=String(t||'').trim().replace(',','.'); const i=t.indexOf('.'); return i<0?0:t.length-i-1; };
-function sigFigs(t){ t=String(t||'').trim().replace(',','.').replace('-',''); const d=t.replace('.','').replace(/^0+/,''); return d.length; }
+const {num,decs,cifras:sigFigs}=Lab.fisica;
 function refs(){ const s=stats(); return {D:[s.Dm,s.uD],T:[s.tm,s.uT],Vt:[s.Vt,s.uVt],Ve:[s.Ve,s.uVe],err:Math.abs(s.err)}; }
 function calcHTML(){
   const n=recorded.length, dis=n<5?'disabled':'';
@@ -781,7 +786,7 @@ function calcHTML(){
   const e=answers.err||{};
   h+='<label class="lab" for="cferr">Porcentaje de error</label><input id="cferr" data-k="err" data-p="v" inputmode="decimal" value="'+(e.v||'')+'" '+dis+'><span></span><span></span><span class="un">%</span><span class="msg" id="cmerr"></span></div>';
   return '<p class="small">Escribe tus resultados en metros y segundos (puedes usar coma decimal). Cada incertidumbre con <b>una cifra significativa</b> y el valor redondeado a esa misma posición decimal.</p>'+h+
-    '<div class="row"><button class="btn primary" id="verify" '+dis+'>Verificar mis cálculos</button><button class="btn" id="sol" '+dis+'>'+(showSol?'Ocultar':'Ver')+' la solución</button></div><div id="calcOut">'+(n<5?'<p class="small">Primero completa los cinco lanzamientos.</p>':'')+'</div><div id="solOut"></div>';
+    '<div class="row"><button class="btn primary" data-principal id="verify" '+dis+'>Verificar mis cálculos</button><button class="btn" id="sol" '+dis+'>'+(showSol?'Ocultar':'Ver')+' la solución</button></div><div id="calcOut">'+(n<5?'<p class="small">Primero completa los cinco lanzamientos.</p>':'')+'</div><div id="solOut"></div>';
 }
 function verifyCalc(){
   const R=refs(); let ok=0, tot=0;
@@ -802,6 +807,7 @@ function verifyCalc(){
   if(e==null){ me.className='msg bad'; me.textContent='Falta el porcentaje de error.'; ie.className=''; }
   else if(Math.abs(Math.abs(e)-R.err)<=Math.max(0.5,0.05*R.err)){ ok++; me.className='msg ok'; me.textContent='Correcto.'; ie.className='ok'; }
   else { me.className='msg bad'; me.textContent='Revisa: % = |V_foto − V_parábola| / V_foto × 100.'; ie.className='bad'; }
+  did.calc=ok===tot; marcaPasos();
   $('#calcOut').innerHTML='<p>'+(ok===tot?'<span class="badge ok">'+ok+' de '+tot+'</span> ¡Todo bien! Tus resultados coinciden con los de la simulación.':'<span class="badge bad">'+ok+' de '+tot+'</span> Corrige lo marcado en rojo y vuelve a verificar.')+'</p>';
 }
 function solHTML(){ const R=refs(); return '<details open><summary>Solución con estos datos</summary>'+
@@ -822,7 +828,7 @@ const STEPS=[
     <div class="mini"><b>B · Parábola</b><span class="small">Mide la altura <var>H</var> y el alcance <var>D</var>.</span><span class="eq">V₀ₓ = D·√(g / 2H)</span></div>
   </div>
   ${paramsHTML()}
-  <div class="row"><button class="btn primary" id="demo">Ver un lanzamiento</button></div>`;},
+  <div class="row"><button class="btn primary" data-principal id="demo">Ver un lanzamiento</button></div>`;},
  mount(){
    $('#demo').onclick=()=>{ if(busy)return; clearMarksView(); start('full',0,{done:()=>{ballAt('c',0);drawDimD(trials[0].D);}}); };
    mountParams();
@@ -839,56 +845,65 @@ const STEPS=[
   <p class="small"><b>Marco de referencia.</b> Puedes elegir otro sentido para los ejes: cambian los signos de las ecuaciones, no la velocidad que se obtiene.</p>
   ${axesHTML()}
   ${eqHTML()}`;},
- mount(){ mountAxes(); }},
+ mount(){}},
 
 {label:'Medir τ',title:'La fotocompuerta mide τ',
  scene:{ghost:false,dimH:false,dimD:null,labels:true,axes:false,scope:true},
  render(){return `
   <p class="lead">Suelta la esfera en <b>a</b>. El haz de la fotocompuerta está justo en el borde de la rampa; cuando la esfera lo interrumpe, la señal del PhysicsSensor sube y, cuando lo libera, baja.</p>
   <p class="small">τ se mide con los cursores: uno en el punto donde la gráfica <b>empieza a subir</b> y otro en el punto donde <b>empieza a bajar</b> (no todo el ancho del pulso). Usa <b>+ Ex</b> para ampliar la escala de tiempo.</p>
-  <div class="row"><button class="btn primary" id="rel">Soltar la esfera</button></div>
+  <div class="row"><button class="btn primary" data-principal id="rel">Soltar la esfera</button></div>
   <div id="res4"><p class="small">Todavía no hay medida.</p></div>`;},
  mount(){
-   $('#rel').onclick=()=>{ if(busy)return; busy=true; $('#rel').disabled=true; scopeTau=null; drawScope();
+   $('#rel').onclick=()=>{ if(busy)return; busy=true; $('#rel').disabled=true; scopeTau=null; manual=null; drawScope();
      start('full',0,{
        onGate:k=>{ scopeTau=trials[k].tau; sweepScope();
          const t=trials[k].tau, V=P.d/t, uV=Math.sqrt(Math.pow(U.d/t,2)+Math.pow(P.d*U.tau/(t*t),2)); const [a,b]=pair(V,uV);
          $('#res4').innerHTML=row('Tiempo entre cursores','τ',pair(t,U.tau).join(' ± ')+' s')+row('Velocidad','V₀ₓ = d / τ',a+' ± '+b+' m/s',true); },
-       done:()=>{ busy=false; ballAt('c',0); const b=$('#rel'); if(b){b.disabled=false;b.textContent='Soltar de nuevo';} } }); };
+       done:()=>{ busy=false; did.tau=true; marcaPasos(); ballAt('c',0); const b=$('#rel'); if(b){b.disabled=false;b.textContent='Soltar de nuevo';} } }); };
    setView('gate'); }},
 
 {label:'Vuelo',title:'El vuelo: dos movimientos a la vez',
  scene:{ghost:false,dimH:true,dimD:null,labels:false,axes:true,scope:false},
  render(){return `
-  <p class="lead">Al salir por <b>b</b>, la sombra sobre el piso avanza <b style="color:var(--x)">a ritmo constante</b> y la sombra sobre el borde de la mesa cae <b style="color:var(--y)">cada vez más rápido</b>.</p>
-  <div class="row"><button class="btn primary" id="fly">Lanzar desde b</button></div>
-  <div class="live" aria-label="Valores en vivo">
-    <div><span>t (s)</span><b id="lt">0,000</b></div><div><span>x (m)</span><b id="lx">0,000</b></div><div><span>y (m)</span><b id="ly">0,000</b></div><div><span>Vₓ (m/s)</span><b id="lvx">—</b></div><div><span>V<sub>y</sub> (m/s)</span><b id="lvy">0,00</b></div>
-  </div>
+  <p class="lead">Al salir por <b>b</b>, la sombra sobre el piso avanza <b class="mx">a ritmo constante</b> y la sombra sobre el borde de la mesa cae <b class="my">cada vez más rápido</b>.</p>
+  <div class="row"><button class="btn primary" data-principal id="fly">Lanzar desde b</button></div>
+  
   <p class="small" id="r5">Al llegar al piso: <var>x</var> = ${AX.x>0?'':'−'}<var>D</var> y <var>y</var> = ${AX.y>0?'':'−'}<var>H</var>.</p>
   ${axesHTML()}`;},
  mount(){
    $('#fly').onclick=()=>{ if(busy)return; busy=true; $('#fly').disabled=true; clearMarksView();
      start('flight',0,{strobe:true,speed:Math.min(speed,0.25),
        onFrame:o=>{ $('#lt').textContent=fx(o.t,3);$('#lx').textContent=fx(o.x,3);$('#ly').textContent=fx(o.y,3);$('#lvx').textContent=fx(o.vx,2);$('#lvy').textContent=fx(o.vy,2); },
-       done:()=>{ busy=false; const D=trials[0].D; if(!$('#r5')) return; $('#r5').innerHTML='Tiempo de vuelo t = √(2H/g) = <b>'+fx(TF(),3)+' s</b>. Alcance D = <b>'+fx(D,3)+' m</b>.'; drawDimD(D); const b=$('#fly'); if(b){b.disabled=false;b.textContent='Lanzar de nuevo';} } }); }; mountAxes(); }},
+       done:()=>{ busy=false; did.vuelo=true; marcaPasos(); const D=trials[0].D; if(!$('#r5')) return; $('#r5').innerHTML='Tiempo de vuelo t = √(2H/g) = <b>'+fx(TF(),3)+' s</b>. Alcance D = <b>'+fx(D,3)+' m</b>.'; drawDimD(D); const b=$('#fly'); if(b){b.disabled=false;b.textContent='Lanzar de nuevo';} } }); }; }},
 
 {label:'Tomar datos',title:'Cinco lanzamientos',
  scene:{ghost:false,dimH:true,dimD:null,labels:false,axes:false,scope:true},
  render(){const n=recorded.length; return `
-  <p class="lead">Suelta la esfera siempre desde <b>a</b>. En cada lanzamiento se registran el alcance <var>D</var> y el tiempo τ.</p>
+  <p>Suelta la esfera siempre desde <b>a</b>. El alcance <var>D</var> se lee en la cinta; el tiempo τ lo mides tú con los cursores del PhysicsSensor, como en el paso 3.</p>
   <div class="row">
-    <button class="btn primary" id="one" ${n>=5?'disabled':''}>${n>=5?'Tabla completa':'Lanzar ('+(n+1)+' de 5)'}</button>
-    <button class="btn" id="all" ${n>=5?'disabled':''}>Completar los que faltan</button>
+    <button class="btn primary" data-principal id="one" ${n>=5?'disabled':''}>${n>=5?'Tabla completa':'Lanzar ('+(n+1)+' de 5)'}</button>
+    <button class="btn" id="all" ${n>=5?'disabled':''}>Completar sin medir</button>
   </div>
+  <div id="med"></div>
   <div id="tbl">${tableHTML()}</div>`;},
  mount(){
-   const refresh=()=>{ if(page==='s4'||page==='labfree'){ $('#tbl').innerHTML=tableHTML(); const n=recorded.length; $('#one').disabled=busy||n>=5; $('#one').textContent=n>=5?'Tabla completa':'Lanzar ('+(n+1)+' de 5)'; $('#all').disabled=busy||n>=5; } };
-   const launch=(cb,sp)=>{ const idx=recorded.length+1; busy=true; refresh();
-     start('full',idx,{speed:sp||speed,onGate:k=>{scopeTau=trials[k].tau;sweepScope();},
-       done:()=>{ recorded.push(idx); window.__fresh=true; ballAt('c',idx); drawMarks(); busy=false; refresh(); if(page==='labfree'&&recorded.length===5) refreshPage(); if(cb)cb(); } }); };
-   $('#one').onclick=()=>{ if(!busy&&recorded.length<5) launch(null,null); };
-   $('#all').onclick=()=>{ if(busy)return; const tok=++chainToken; const next=()=>{ if(tok!==chainToken||recorded.length>=5||(page!=='s4'&&page!=='labfree')) return; launch(()=>{ setTimeout(next,250); },Math.max(speed,0.5)); }; next(); }; }},
+   const here=()=>page==='s4'||page==='labfree';
+   const medHTML=msg=>row('τ entre tus cursores','inicio de la subida → inicio de la bajada',fx(tauManual(),4)+' s',true)+(msg?'<p class="nota-mal">'+msg+'</p>':'');
+   const refresh=()=>{ if(!here()) return; $('#tbl').innerHTML=tableHTML(); const n=recorded.length, o=$('#one');
+     o.disabled=busy||n>=5; o.textContent=n>=5?'Tabla completa':(pend!=null?'Registrar τ':'Lanzar')+' ('+(n+1)+' de 5)';
+     $('#all').disabled=busy||n>=5; $('#med').innerHTML=pend!=null?medHTML():''; marcaPasos(); hud(); };
+   medRefresh=()=>{ const m=$('#med'); if(m&&pend!=null&&here()) m.innerHTML=medHTML(); };
+   const commit=tau=>{ const idx=pend; pend=null; if(tau!=null){ trials[idx].tau=tau; manual.fijo=true; } else manual=null; recorded.push(idx); window.__fresh=true; drawMarks(); drawScope(); refresh(); if(page==='labfree'&&recorded.length===5) refreshPage(); };
+   const launch=(cb,sp,auto)=>{ const idx=recorded.length+1; busy=true; manual=null; refresh();
+     start('full',idx,{speed:sp||speed,onGate:k=>{ scopeTau=trials[k].tau; manual=auto?null:nuevoManual(); sweepScope(); },
+       done:()=>{ ballAt('c',idx); busy=false; pend=idx; if(auto) commit(null); else { if(!UI.scope){ UI.scope=true; applyUI(); } refresh(); } if(cb)cb(); } }); };
+   $('#one').onclick=()=>{ if(busy||recorded.length>=5) return; if(pend==null) return launch(null,null,false);
+     const t=tauManual(), real=trials[pend].tau;
+     if(Math.abs(t-real)>0.15*real){ $('#med').innerHTML=medHTML(t<real?'Tus cursores dejan por fuera parte del pulso. Uno va donde la señal empieza a subir y el otro donde empieza a bajar.':'Tus cursores abarcan más que el pulso. Acércalos: uno donde la señal empieza a subir y el otro donde empieza a bajar. + Ex amplía el tiempo.'); return; }
+     commit(t); };
+   $('#all').onclick=()=>{ if(busy)return; if(pend!=null) commit(null); const tok=++chainToken; const next=()=>{ if(tok!==chainToken||recorded.length>=5||!here()) return; launch(()=>{ setTimeout(next,250); },Math.max(speed,0.5),true); }; next(); };
+   if(pend!=null) refresh(); }},
 
 {label:'Resultados',title:'Resultados y porcentaje de error',
  scene:{ghost:false,dimH:true,dimD:'mean',labels:false,axes:false,scope:false},
@@ -990,7 +1005,7 @@ function xSet(k,v){
   if(k==='type'){ XL.type=v; }
   if(k==='th'){ XL.th=Math.max(XL.type==='floor'?5:-45,Math.min(85,Math.round(v))); }
   if(k==='v0'){ XL.v0=Math.max(0.3,Math.min(4,Math.round(v*10)/10)); }
-  if(page==='explore'&&!busy){ if(k==='type') refreshPage(); else { const a=$('#xth'),b=$('#xv0'); if(a){a.value=XL.th;$('#xtho').textContent=XL.th+'°';} if(b){b.value=XL.v0;$('#xv0o').textContent=fx(XL.v0,1)+' m/s';} xDraw(); hud(); } }
+  if(page==='explore'&&!busy){ if(k==='type') refreshPage(); else { Lab.ui.ponerDeslizador('xth',XL.th); Lab.ui.ponerDeslizador('xv0',XL.v0); xDraw(); hud(); } }
   else hud();
 }
 const EXPLORE={title:'Explora el movimiento parabólico',
@@ -998,25 +1013,21 @@ const EXPLORE={title:'Explora el movimiento parabólico',
  render(){ const t=XL.type, free=t!=='ramp';
   return `
   <p class="lead">Modo libre: elige cómo lanzar la esfera, cambia las condiciones y observa. Nada se califica.</p>
-  <div class="pills" role="group" aria-label="Tipo de lanzamiento" style="display:grid;grid-template-columns:1fr 1fr;gap:6px">
-    ${Object.keys(XT).map(k=>'<button class="check" type="button" data-xt="'+k+'" aria-pressed="'+(k===t)+'"><span class="box">'+XT[k].k+'</span><span>'+XT[k].n+'</span></button>').join('')}
-  </div>
+  ${Lab.ui.opciones({id:'xt',etiqueta:'Tipo de lanzamiento',valor:t,items:Object.keys(XT).map(k=>({v:k,texto:XT[k].n,tecla:XT[k].k}))})}
   ${free?`<fieldset class="params"><legend>Condiciones del lanzamiento</legend>
-    ${t!=='horiz'?'<div class="field"><label for="xth">Ángulo de lanzamiento θ</label><output id="xtho">'+XL.th+'°</output><input type="range" id="xth" min="'+(t==='floor'?5:-45)+'" max="85" step="1" value="'+XL.th+'"><span class="u">sobre la horizontal · teclas ← →</span></div>':''}
-    <div class="field"><label for="xv0">Rapidez de lanzamiento V₀</label><output id="xv0o">${fx(XL.v0,1)} m/s</output><input type="range" id="xv0" min="0.3" max="4" step="0.1" value="${XL.v0}"><span class="u">teclas ↑ ↓</span></div>
-    ${t!=='floor'?paramField('pH','Altura de la mesa','H',P.H*100,LIM.H,100,1,'cm','punto de lanzamiento a la altura H'):''}
-    <div class="row"><button class="check" type="button" id="xVec" aria-pressed="${XL.vec}" style="width:auto"><span class="box">${XL.vec?'✓':''}</span><span>Vectores de velocidad (V)</span></button><button class="check" type="button" id="xPred" aria-pressed="${XL.pred}" style="width:auto"><span class="box">${XL.pred?'✓':''}</span><span>Trayectoria prevista (T)</span></button></div>
+    ${t!=='horiz'?Lab.ui.deslizador({id:'xth',etiqueta:'Ángulo de lanzamiento',simbolo:'θ',valor:XL.th,min:t==='floor'?5:-45,max:85,paso:1,dec:0,unidad:'°',nota:'sobre la horizontal',teclas:'← →'}):''}
+    ${Lab.ui.deslizador({id:'xv0',etiqueta:'Rapidez de lanzamiento',simbolo:'V₀',valor:XL.v0,min:0.3,max:4,paso:0.1,dec:1,unidad:'m/s',teclas:'↑ ↓'})}
+    ${t!=='floor'?paramField('pH','Altura de la mesa','H',P.H*100,LIM.H,100,1,'cm','punto de lanzamiento a la altura H',NOM.H*100):''}
+    <div class="row">${Lab.ui.casilla({id:'xVec',texto:'Vectores de velocidad',marcado:XL.vec,tecla:'V'})}${Lab.ui.casilla({id:'xPred',texto:'Trayectoria prevista',marcado:XL.pred,tecla:'T'})}</div>
   </fieldset>`:paramsHTML()}
-  <div class="row"><button class="btn primary" id="xLaunch">Lanzar <span class="small" style="color:inherit;opacity:.8">· Espacio</span></button>${t==='ramp'?'<button class="btn" id="xGate" type="button">Ver la fotocompuerta</button>':''}</div>
-  <div class="live" aria-label="Valores en vivo">
-    <div><span>t (s)</span><b id="lt">0,000</b></div><div><span>x (m)</span><b id="lx">0,000</b></div><div><span>y (m)</span><b id="ly">0,000</b></div><div><span>Vₓ (m/s)</span><b id="lvx">—</b></div><div><span>V<sub>y</sub> (m/s)</span><b id="lvy">0,00</b></div>
-  </div>
+  <div class="row"><button class="btn primary" data-principal id="xLaunch">Lanzar</button>${t==='ramp'?'<button class="btn" id="xGate" type="button">Ver la fotocompuerta</button>':''}</div>
+  
   <div id="xRes"><p class="small">${free?'Lanza la esfera para ver el tiempo de vuelo, el alcance y la altura máxima.':'Lanza la esfera para ver τ, el alcance D y las dos velocidades.'}</p></div>
-  <details><summary>Marco de referencia y ecuaciones</summary><div style="display:flex;flex-direction:column;gap:8px;margin-top:8px">${axesHTML()}${xEqHTML()}</div></details>
-  <details><summary>Teclado</summary><ul class="tight" style="margin-top:8px">
+  <details><summary>Marco de referencia y ecuaciones</summary><div class="pila">${axesHTML()}${xEqHTML()}</div></details>
+  <details><summary>Teclado</summary><ul class="tight">
     <li><b>Espacio</b> o <b>Enter</b>: lanzar</li><li><b>← →</b>: ángulo (con Shift, de 5 en 5)</li><li><b>↑ ↓</b>: rapidez V₀ (en la rampa: altura de la rampa)</li>
-    <li><b>1–4</b>: tipo de lanzamiento</li><li><b>V</b> vectores · <b>T</b> trayectoria prevista · <b>C</b> borrar la traza</li><li><b>H</b> vista limpia · <b>P</b> panel · <b>S</b> sensor · <b>E</b> rótulos</li></ul></details>
-  <details><summary>Ideas para probar</summary><ul class="tight" style="margin-top:8px">
+    <li><b>1–4</b>: tipo de lanzamiento</li><li><b>V</b> vectores · <b>T</b> trayectoria prevista · <b>C</b> borrar la traza</li><li><b>H</b> vista limpia · <b>P</b> panel · <b>S</b> sensor · <b>E</b> rótulos · <b>L</b> letra grande</li></ul></details>
+  <details><summary>Ideas para probar</summary><ul class="tight">
     <li>Desde el piso, ¿qué ángulo da el mayor alcance? ¿Y desde la mesa?</li>
     <li>30° y 60° desde el piso con la misma V₀: compara los alcances.</li>
     <li>Lanzamiento horizontal: duplica V₀. ¿Cambia el tiempo de vuelo?</li>
@@ -1024,16 +1035,12 @@ const EXPLORE={title:'Explora el movimiento parabólico',
     <li>Invierte un eje y comprueba que el resultado no cambia.</li></ul></details>`; },
  mount(){
    const t=XL.type, free=t!=='ramp';
-   document.querySelectorAll('[data-xt]').forEach(b=>b.onclick=()=>xSet('type',b.dataset.xt));
-   mountParams(); mountAxes(); const det=document.querySelectorAll('#card details')[0]; if(det&&(AX.x<0||AX.y<0)) det.open=true;
-   const th=$('#xth'), v0=$('#xv0'); if(th) th.oninput=()=>xSet('th',+th.value); if(v0) v0.oninput=()=>xSet('v0',+v0.value);
-   const xv=$('#xVec'); if(xv) xv.onclick=()=>{ XL.vec=!XL.vec; refreshPage(); };
-   const xp=$('#xPred'); if(xp) xp.onclick=()=>{ XL.pred=!XL.pred; refreshPage(); };
+   mountParams(); const det=document.querySelectorAll('#card details')[0]; if(det&&(AX.x<0||AX.y<0)) det.open=true;
    const xg=$('#xGate'); if(xg) xg.onclick=()=>setView(lastView==='gate'?'iso':'gate');
    xVectors(null); xDraw(); hud();
    $('#xLaunch').onclick=()=>{ if(busy)return; $('#xLaunch').disabled=true;
      if(free){ xLaunchFree(); return; }
-     busy=true; clearMarksView(); scopeTau=null; drawScope();
+     busy=true; clearMarksView(); scopeTau=null; manual=null; drawScope();
      const k=expN++%trials.length;
      start('full',k,{
        onGate:j=>{ scopeTau=trials[j].tau; sweepScope(); },
@@ -1049,42 +1056,40 @@ const EXPLORE={title:'Explora el movimiento parabólico',
  }};
 /* indicador flotante con el tipo, el ángulo, la rapidez y las teclas (se ve en vista limpia o sin panel) */
 const isTouch=Lab.ui.esTactil;   // biblioteca/interfaz/interfaz.js
-function padUpdate(){ const pd=$('#pad'); if(!pd) return; const was=pd.hidden;
-  const ex=app==='explore', on=isTouch()&&!UI.clean?(ex||!UI.card):isTouch()&&UI.clean;
-  pd.hidden=!on; if(was!==pd.hidden) requestAnimationFrame(resize3D); if(!on) return;
-  const t=XL.type, free=t!=='ramp';
-  $('#padType').hidden=!ex; $('#padType').textContent=ex?XT[t].sh:'';
-  $('#padTh').hidden=!ex||!free||t==='horiz'; $('#padV').hidden=!ex;
-  $('#padVal').textContent=ex?(free?(t!=='horiz'?'θ '+XL.th+'° · ':'')+'V₀ '+fx(XL.v0,1)+' m/s':'h '+fx(P.h*100,1)+' cm'):'';
-  const b=ex?$('#xLaunch'):$('#card .btn.primary:not(#next)'); const g=$('#padGo');
-  g.textContent=ex?'Lanzar':(b?b.textContent.replace(/·.*$/,'').trim():'Lanzar'); g.disabled=busy||!b||b.disabled;
+/* Barra táctil e indicador de teclas: una sola declaración (Lab.ui.barraAccion). */
+const barra=Lab.ui.barraAccion({pad:'#pad',hud:'#hud',accion:padAct});
+function hud(){
+  const ex=app==='explore', tac=isTouch(), t=XL.type, free=t!=='ramp', ang=free&&t!=='horiz', b=Lab.ui.principal(), was=$('#pad').hidden;
+  barra.pintar({pad:tac&&(UI.clean||ex||!UI.card), hud:!tac&&ex&&(UI.clean||!UI.card),
+    titulo:ex?XT[t].sh:'', tituloCambia:ex,
+    valores:!ex?[]:free?(ang?['θ = '+XL.th+'°']:[]).concat('V₀ = '+fx(XL.v0,1)+' m/s'):['h = '+fx(P.h*100,1)+' cm'],
+    grupos:!ex?[]:(ang?[{id:'th',menos:'θ−',mas:'θ+',nombre:'el ángulo'}]:[]).concat(free?{id:'v',menos:'V−',mas:'V+',nombre:'la rapidez'}:{id:'h',menos:'h−',mas:'h+',nombre:'la altura de la rampa'}),
+    principal:{texto:b?b.textContent.trim():'Lanzar',inactivo:busy||!b||b.disabled},
+    teclas:[['Espacio','lanzar']].concat(ang?[['← →','ángulo']]:[],[['↑ ↓',free?'rapidez':'rampa'],['1-4','tipo']])});
+  if(was!==$('#pad').hidden) requestAnimationFrame(resize3D);
 }
+const padUpdate=hud;
+function principalClick(){ const b=Lab.ui.principal(); if(!b||b.disabled) return false; b.click(); setTimeout(hud,30); }
+function cambiaRampa(d){ if(busy) return; guardaUndo(); P.h=Math.max(LIM.h[0],Math.min(LIM.h[1],Math.round((P.h+d)*1000)/1000)); applyParams(); refreshPage(); hud(); }
 function padAct(a){
-  if(a==='go'){ const b=app==='explore'?$('#xLaunch'):$('#card .btn.primary:not(#next):not(:disabled)'); if(b&&!b.disabled) b.click(); setTimeout(padUpdate,30); return; }
-  if(app!=='explore') return; const free=XL.type!=='ramp';
-  if(a==='th+'||a==='th-'){ if(free&&XL.type!=='horiz') xSet('th',XL.th+(a==='th+'?1:-1)); }
-  else if(a==='v+'||a==='v-'){ const d=a==='v+'?1:-1; if(free) xSet('v0',XL.v0+d*0.1); else if(!busy){ P.h=Math.max(LIM.h[0],Math.min(LIM.h[1],Math.round((P.h+d*0.005)*1000)/1000)); applyParams(); refreshPage(); } }
-  padUpdate();
-}
-function hud(){ padUpdate(); const h=$('#hud'); if(!h) return;
-  const on=app==='explore'&&(UI.clean||!UI.card)&&!isTouch(); h.hidden=!on; if(!on) return;
-  const t=XL.type, free=t!=='ramp';
-  h.innerHTML='<b>'+XT[t].sh+'</b>'+(free?(t!=='horiz'?'<span>θ = '+XL.th+'°</span>':'')+'<span>V₀ = '+fx(XL.v0,1)+' m/s</span>':'<span>h = '+fx(P.h*100,1)+' cm</span>')+
-    '<span class="keys"><kbd>Espacio</kbd> lanzar'+(free&&t!=='horiz'?' · <kbd>←</kbd><kbd>→</kbd> ángulo':'')+' · <kbd>↑</kbd><kbd>↓</kbd> '+(free?'rapidez':'rampa')+' · <kbd>1</kbd>–<kbd>4</kbd> tipo</span>';
+  if(a==='principal') return principalClick();
+  if(app!=='explore') return;
+  if(a==='titulo'){ const ks=Object.keys(XT); xSet('type',ks[(ks.indexOf(XL.type)+1)%ks.length]); }
+  else if(a==='th+'||a==='th-') xSet('th',XL.th+(a==='th+'?1:-1));
+  else if(a==='v+'||a==='v-') xSet('v0',XL.v0+(a==='v+'?0.1:-0.1));
+  else if(a==='h+'||a==='h-') cambiaRampa(a==='h+'?0.005:-0.005);
+  hud();
 }
 const LABFREE={title:'Laboratorio: toma los datos y calcula',
  scene:{ghost:false,dimH:true,dimD:null,labels:false,axes:false,scope:true},
  render(){ return row('Altura de la mesa H','cinta métrica',pair(P.H,U.H).join(' ± ')+' m')+row('Diámetro de la esfera d','calibrador',pair(P.d,U.d).join(' ± ')+' m')+
-   row('Apreciación del PhysicsSensor','u de τ por lectura',pair(AP,U.tau)[0]+' s')+STEPS[4].render()+'<h2 style="font-size:19px;margin-top:6px">Tus cálculos</h2>'+calcHTML()+
+   row('Apreciación del PhysicsSensor','u de τ por lectura',pair(AP,U.tau)[0]+' s')+STEPS[4].render()+'<h3>Tus cálculos</h3>'+calcHTML()+
    '<p class="small">¿Quieres la explicación de cada etapa? Activa <b>Paso a paso</b> arriba.</p>'; },
  mount(){ STEPS[4].mount(); mountCalc(); }};
 
 const layoutTop=Lab.ui.ubicarBarras;   // pasos y panel debajo de la barra superior
 function applyUI(){
-  const b=document.body;
-  b.classList.toggle('no-card',!UI.card); b.classList.toggle('no-scope',!UI.scope); b.classList.toggle('clean',UI.clean);
-  document.querySelectorAll('[data-ui]').forEach(x=>x.setAttribute('aria-pressed',String(!!UI[x.dataset.ui])));
-  try{ localStorage.setItem('parabolico-ui',JSON.stringify({card:UI.card,scope:UI.scope,labels:UI.labels})); }catch(e){}
+  Lab.ui.aplicarClases(UI); Lab.ui.guardarPreferencias(CLAVE,UI);
   const sb=$('[data-ui="scope"]'); if(sb) sb.setAttribute('aria-pressed',String(page==='explore'?UI.scopeX:UI.scope));
   if(lastCfg) applyScene(lastCfg);
   layoutTop(); resize3D(); requestAnimationFrame(drawScope); hud();
@@ -1093,7 +1098,7 @@ function toggleUI(k){ if(k==='scope'&&page==='explore') k='scopeX'; UI[k]=!UI[k]
 function refreshPage(){ if(page.startsWith('s')) go(cur); else if(curPage) show(curPage,page); }
 function syncModes(){
   document.querySelectorAll('.mode[data-app]').forEach(b=>b.classList.toggle('on',b.dataset.app===app));
-  const g=$('#bGuide'); g.hidden=app!=='lab'; g.setAttribute('aria-pressed',String(guide));
+  const g=$('#bGuide'); g.hidden=app!=='lab'; g.setAttribute('aria-checked',String(guide));
   $('nav.steps').hidden=!(app==='lab'&&guide);
   document.body.classList.toggle('navon',app==='lab'&&guide); layoutTop();
   try{ history.replaceState(null,'',app==='lab'?'#laboratorio':'#explorar'); }catch(e){}
@@ -1102,7 +1107,7 @@ function setApp(a){ app=a; syncModes(); if(a!=='explore'){ clear(xG); xVectors(n
 
 /* ---------- navegación ---------- */
 function clearMarksView(){ clear(G_('gMarks')); drawDimD(null); }
-function resetData(){ chainToken++; stopAnim(); busy=false; recorded=[]; scopeTau=null; genTrials(); buildPath(); drawStatic(); drawScope(); clearTransient(); ballAt('a'); }
+function resetData(){ chainToken++; stopAnim(); busy=false; recorded=[]; scopeTau=null; manual=null; pend=null; did.calc=false; genTrials(); buildPath(); drawStatic(); drawScope(); clearTransient(); ballAt('a'); }
 
 function applyScene(cfg){
   G_('gGhost').visible=!!cfg.ghost; G_('gAxes').visible=!!cfg.axes; G_('gDimH').visible=!!cfg.dimH; G_('gLabels').visible=!!cfg.labels;
@@ -1116,19 +1121,27 @@ function applyScene(cfg){
   else drawDimD(null);
   requestAnimationFrame(drawScope);
 }
+/* lecturas en vivo, sobre la escena */
+function vivo(on){ const v=$('#vivo'); v.hidden=!on; v.innerHTML=on?lecturasHTML():''; document.body.classList.toggle('con-vivo',on); requestAnimationFrame(resize3D); }
+/* pasos: ✓ cuando se hizo lo que el paso pide; "Siguiente" se resalta solo entonces */
+const HECHO=[()=>true,()=>true,()=>did.tau,()=>did.vuelo,()=>recorded.length>=5,()=>did.calc,()=>recorded.length>=5];
+function marcaPasos(){ if(!(app==='lab'&&guide)) return;
+  document.querySelectorAll('#steps button').forEach((b,j)=>{ b.classList.toggle('seen',seen.has(j)&&j!==cur); b.classList.toggle('done',seen.has(j)&&HECHO[j]()&&(j!==cur||j>1)); });
+  const n=$('#next'); if(n) n.classList.toggle('primary',HECHO[cur]()); }
 function show(st,id){
-  chainToken++; stopAnim(); busy=false; window.__fresh=false; page=id; curPage=st;
+  chainToken++; stopAnim(); busy=false; window.__fresh=false; page=id; curPage=st; manual=null; pend=null; vivo(id==='explore');
   clearTransient(); projEls=null;
   const k=recorded.length? recorded[recorded.length-1]:null;
   if(id==='explore'){ if(lastView==='gate') setView('iso'); ballAt('a'); clear(G_('gMarks')); }
   else { if(lastView==='gate') setView('iso'); drawMarks(); if(k!=null) ballAt('c',k); else ballAt('a'); }
   $('#card').innerHTML='<p class="kicker">'+(id==='explore'?'Modo explorar':'Modo laboratorio')+'</p><h2>'+st.title+'</h2>'+st.render();
   if(st.mount) st.mount();
+  Lab.ui.montar('#card',onCtl);
   applyScene(st.scene); padUpdate();
 }
 function go(i){
   if(app!=='lab'||!guide){ app='lab'; guide=true; syncModes(); }
-  chainToken++; stopAnim(); busy=false; window.__fresh=false; cur=i; seen.add(i); page='s'+i;
+  chainToken++; stopAnim(); busy=false; window.__fresh=false; cur=i; seen.add(i); page='s'+i; manual=null; pend=null; vivo(i===3);
   clearTransient(); projEls=null;
   if(i!==2&&lastView==='gate') setView('iso');
   const st=STEPS[i]; curPage=st;
@@ -1140,8 +1153,9 @@ function go(i){
     '<div class="pager"><button class="btn" id="prev" '+(i===0?'disabled':'')+'>← Anterior</button><button class="btn primary" id="next" '+(i===STEPS.length-1?'disabled':'')+'>Siguiente →</button></div>';
   $('#prev').onclick=()=>go(i-1); $('#next').onclick=()=>go(i+1);
   if(st.mount) st.mount();
-  applyScene(st.scene);
-  document.querySelectorAll('#steps button').forEach((b,j)=>{ if(j===i) b.setAttribute('aria-current','step'); else b.removeAttribute('aria-current'); b.classList.toggle('seen',seen.has(j)&&j!==i); });
+  Lab.ui.montar('#card',onCtl);
+  applyScene(st.scene); padUpdate();
+  document.querySelectorAll('#steps button').forEach((b,j)=>{ if(j===i) b.setAttribute('aria-current','step'); else b.removeAttribute('aria-current'); }); marcaPasos();
   const ab=$('#steps button[aria-current]'); if(ab&&ab.scrollIntoView) ab.scrollIntoView({block:'nearest',inline:'center'});
 }
 
@@ -1149,7 +1163,16 @@ function go(i){
 (function init(){
   const ol=$('#steps');
   STEPS.forEach((s,i)=>{ const li=document.createElement('li'); const b=document.createElement('button'); b.type='button'; b.innerHTML='<span class="n">'+(i+1)+'</span><span>'+s.label+'</span>'; b.onclick=()=>go(i); li.appendChild(b); ol.appendChild(li); });
-  $('#speed').onchange=e=>{ speed=parseFloat(e.target.value); };
+  Lab.ui.ventana('#scopeWrap',{asa:'.ps-title',alCerrar:()=>toggleUI('scope'),alCambiar:()=>requestAnimationFrame(drawScope)});
+  { const sc=$('#scope'); let drag=null; sc.style.touchAction='none';
+    const tAt=e=>{ const r=sc.getBoundingClientRect(), T=TW0/ex; return Math.max(0,Math.min(1,(e.clientX-r.left)/r.width))*T-(T/2-scopeTau/2); };
+    const mueve=e=>{ manual[drag]=tAt(e); drawScope(); medRefresh(); };
+    sc.addEventListener('pointerdown',e=>{ if(!manual||manual.fijo||scopeF<1) return; const t=tAt(e); drag=Math.abs(t-manual.a)<=Math.abs(t-manual.b)?'a':'b'; sc.setPointerCapture(e.pointerId); mueve(e); e.preventDefault(); });
+    sc.addEventListener('pointermove',e=>{ if(drag&&manual) mueve(e); });
+    ['pointerup','pointercancel'].forEach(ev=>sc.addEventListener(ev,()=>{ drag=null; })); }
+  const sel=$('#speed'), vel=$('#dkVel b');
+  sel.onchange=()=>{ speed=parseFloat(sel.value); vel.textContent='×'+String(speed).replace('.',','); };
+  $('#dkVel').onclick=()=>{ sel.selectedIndex=(sel.selectedIndex+1)%sel.options.length; sel.onchange(); };
   document.querySelectorAll('[data-z]').forEach(b=>b.onclick=()=>{ const k=b.dataset.z;
     if(k==='ey+') ey=Math.min(4,ey*1.25); else if(k==='ey-') ey=Math.max(0.4,ey/1.25);
     else if(k==='ex+') ex=Math.min(8,ex*1.4); else ex=Math.max(0.5,ex/1.4);
@@ -1159,29 +1182,22 @@ function go(i){
   $('#bGuide').onclick=()=>{ guide=!guide; setApp('lab'); };
   document.querySelectorAll('[data-ui]').forEach(x=>x.onclick=()=>toggleUI(x.dataset.ui));
   $('#unclean').onclick=()=>toggleUI('clean');
-  $('#padType').onclick=()=>{ const ks=Object.keys(XT); xSet('type',ks[(ks.indexOf(XL.type)+1)%ks.length]); padUpdate(); };
-  $('#padGo').onclick=()=>padAct('go');
-  document.querySelectorAll('[data-pad]').forEach(b=>{ let t1=0,t2=0; const stop=()=>{ clearTimeout(t1); clearInterval(t2); };
-    b.addEventListener('pointerdown',e=>{ e.preventDefault(); padAct(b.dataset.pad); t1=setTimeout(()=>{ t2=setInterval(()=>padAct(b.dataset.pad),70); },380); });
-    ['pointerup','pointerleave','pointercancel'].forEach(ev=>b.addEventListener(ev,stop)); b.addEventListener('contextmenu',e=>e.preventDefault()); });
   window.addEventListener('resize',hud);
-  document.addEventListener('keydown',e=>{ if(e.target.closest&&e.target.closest('input,select,textarea')) return; if(e.metaKey||e.ctrlKey||e.altKey) return;
-    if(e.target.closest&&e.target.closest('button')&&(e.key===' '||e.key==='Enter')) return;
-    const key=e.key, lk=key.toLowerCase(), st=e.shiftKey?5:1;
-    const k={h:'clean',p:'card',s:'scope',e:'labels'}[lk]; if(k){ toggleUI(k); e.preventDefault(); return; }
-    if(key==='Escape'&&UI.clean){ toggleUI('clean'); return; }
-    if(key===' '||key==='Enter'){ const b=app==='explore'?$('#xLaunch'):$('#card .btn.primary:not(#next):not(:disabled)'); if(b&&!b.disabled){ b.click(); e.preventDefault(); } return; }
-    if(app!=='explore') return;
-    const free=XL.type!=='ramp';
-    if(key==='ArrowLeft'||key==='ArrowRight'){ if(free&&XL.type!=='horiz') xSet('th',XL.th+(key==='ArrowRight'?st:-st)); e.preventDefault(); }
-    else if(key==='ArrowUp'||key==='ArrowDown'){ const d=key==='ArrowUp'?1:-1;
-      if(free) xSet('v0',XL.v0+d*0.1*st); else if(!busy){ P.h=Math.max(LIM.h[0],Math.min(LIM.h[1],Math.round((P.h+d*0.01*st)*1000)/1000)); applyParams(); refreshPage(); hud(); }
-      e.preventDefault(); }
-    else if('1234'.includes(key)&&key.length===1){ xSet('type',['ramp','horiz','obl','floor'][+key-1]); }
-    else if(lk==='v'){ XL.vec=!XL.vec; refreshPage(); }
-    else if(lk==='t'){ XL.pred=!XL.pred; refreshPage(); }
-    else if(lk==='c'){ clearTransient(); trailN=0; trailGeo.setDrawRange(0,0); clear(G_('gDimD')); dirty=true; }
-  });
+  const enExp=f=>e=>{ if(app!=='explore') return false; f(e); };
+  const lado=d=>e=>{
+    if(app==='lab'&&guide){ const j=cur+d; if(j<0||j>=STEPS.length) return false; go(j); return; }
+    if(app!=='explore') return false;
+    if(XL.type!=='ramp'&&XL.type!=='horiz') xSet('th',XL.th+d*(e.shiftKey?5:1)); };
+  const alto=d=>enExp(e=>{ const st=e.shiftKey?5:1; if(XL.type!=='ramp') xSet('v0',XL.v0+d*0.1*st); else cambiaRampa(d*0.01*st); });
+  const tipo=k=>enExp(()=>xSet('type',k));
+  Lab.ui.teclas({
+    h:()=>toggleUI('clean'), p:()=>toggleUI('card'), s:()=>toggleUI('scope'), e:()=>toggleUI('labels'), l:()=>toggleUI('proyector'),
+    Escape:()=>{ if(!UI.clean) return false; toggleUI('clean'); },
+    ' ':principalClick, Enter:principalClick,
+    ArrowLeft:lado(-1), ArrowRight:lado(1), ArrowUp:alto(1), ArrowDown:alto(-1),
+    '1':tipo('ramp'), '2':tipo('horiz'), '3':tipo('obl'), '4':tipo('floor'),
+    v:enExp(()=>{ XL.vec=!XL.vec; refreshPage(); }), t:enExp(()=>{ XL.pred=!XL.pred; refreshPage(); }),
+    c:enExp(()=>{ clearTransient(); trailN=0; trailGeo.setDrawRange(0,0); clear(G_('gDimD')); dirty=true; })});
   applyUI();
   setApp(/laboratorio/.test(location.hash)?'lab':'explore');
   window.addEventListener('resize',()=>{ drawScope(); layoutTop(); resize3D(); });
@@ -1194,7 +1210,6 @@ function go(i){
   if(window.ResizeObserver) new ResizeObserver(resize3D).observe(view);
   resize3D(); setView('iso');
   if(document.fonts&&document.fonts.ready) document.fonts.ready.then(()=>drawStatic(true));
-  document.addEventListener('keydown',e=>{ if(e.target.closest&&e.target.closest('input,select,textarea')) return; if(!(app==='lab'&&guide)) return; if(e.key==='ArrowRight'&&cur<STEPS.length-1) go(cur+1); if(e.key==='ArrowLeft'&&cur>0) go(cur-1); });
 })();
 })();
 </script>

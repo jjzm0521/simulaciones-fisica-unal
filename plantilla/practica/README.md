@@ -8,4 +8,6 @@ Punto de partida para cualquier práctica nueva, de Física 1 o de Física 3, co
 
        python3 -I ../../herramientas/empaquetar.py src/index.src.html index.html
 
-Para lo que la plantilla no trae (sensor, tabla de datos, "Tus cálculos" con verificación, tipos de lanzamiento, ejes invertibles), copia el patrón de `fisica-1/movimiento-parabolico/src/index.src.html` hasta que esas partes pasen a la biblioteca.
+El panel se arma con los elementos de `Lab.ui` (míralos en `biblioteca/catalogo.html`): la plantilla trae un deslizador, el botón principal, la barra táctil y el teclado ya conectados. No escribas a mano el HTML de un control ni uses colores o tamaños fuera de los tokens.
+
+Para lo que la biblioteca no trae aún (sensor, tabla de datos, "Tus cálculos" con verificación), toma el patrón de `fisica-1/movimiento-parabolico/src/index.src.html`.

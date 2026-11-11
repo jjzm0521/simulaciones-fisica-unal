@@ -5,46 +5,46 @@
      Empaquetar desde la carpeta de la práctica:  python3 -I ../../herramientas/empaquetar.py src/index.src.html index.html
      (desde plantilla/practica las rutas ../../../ apuntan a biblioteca/ igual que desde fisica-N/<practica>/src/) -->
 <link rel="stylesheet" data-inline="../../../biblioteca/fuentes/fuentes.css">
+<link rel="stylesheet" data-inline="../../../biblioteca/interfaz/tokens.css">
 <link rel="stylesheet" data-inline="../../../biblioteca/interfaz/interfaz.css">
+<!-- TODO (opcional): colores de las magnitudes de ESTA práctica:  <style>:root{--mag-x:#0A7D4A;--mag-y:#2563D1}</style> -->
 </head><body>
 <div class="wrap">
   <header class="top">
-    <div>
+    <div class="titulo">
       <div class="eyebrow">Universidad Nacional de Colombia · Sede Medellín · TODO: Física Mecánica · Práctica N</div>
       <h1>TODO: Nombre de la práctica</h1>
     </div>
     <div class="modes" role="group" aria-label="Modo">
       <button class="mode" type="button" data-app="explore">Explorar</button>
       <button class="mode" type="button" data-app="lab">Laboratorio</button>
-      <button class="mode guide" type="button" id="bGuide" aria-pressed="true">Paso a paso</button>
+      <button class="interruptor" type="button" id="bGuide" role="switch" aria-checked="true">Paso a paso</button>
     </div>
   </header>
   <nav class="steps" aria-label="Pasos de la práctica"><ol id="steps"></ol></nav>
   <div class="dock" role="toolbar" aria-label="Qué mostrar">
     <button class="dk" type="button" data-ui="card" title="Panel de la práctica (P)"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="2.5" y="3.5" width="15" height="13" rx="2"/><path d="M12 3.5v13"/></svg>Panel</button>
     <button class="dk" type="button" data-ui="labels" title="Rótulos en la escena (E)"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M3 10.5 9.5 4H16v6.5L9.5 17z"/><circle cx="13" cy="7" r="1.2"/></svg>Rótulos</button>
-    <button class="dk sep" type="button" data-ui="clean" title="Ver solo la escena (H)"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M3 7V3h4M13 3h4v4M17 13v4h-4M7 17H3v-4"/></svg>Limpia</button>
+    <button class="dk" type="button" data-ui="proyector" title="Letra grande, para proyector (L)"><b>Aa</b>Letra</button>
+  <button class="dk sep" type="button" data-ui="clean" title="Ver solo la escena (H)"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M3 7V3h4M13 3h4v4M17 13v4h-4M7 17H3v-4"/></svg>Limpia</button>
   </div>
   <button class="unclean" type="button" id="unclean">Mostrar paneles · H</button>
   <div class="hud" id="hud" hidden></div>
-  <div class="pad" id="pad" hidden><div class="pad-row"><button class="pb go" type="button" id="padGo">Lanzar</button></div></div>
-  <main class="layout">
-    <section class="stage">
-      <div class="panel viewpanel">
+  <div class="pad" id="pad" hidden role="group" aria-label="Controles"></div>
+  <div class="viewpanel">
         <div id="view" role="img" aria-label="TODO: describe la escena"></div>
         <div class="viewbtns" role="group" aria-label="Cámara">
           <button class="vb" type="button" data-v="iso" data-s="3D">Vista 3D</button>
           <button class="vb" type="button" data-v="side" data-s="Lado">Lateral</button>
           <button class="vb" type="button" data-v="top" data-s="Arriba">Superior</button>
         </div>
-      </div>
-    </section>
-    <section class="card" id="card" aria-live="polite"></section>
-  </main>
+  </div>
+  <section class="card" id="card" aria-live="polite"></section>
 </div>
 
 <script data-inline="../../../biblioteca/nucleo/three-r159.min.js"></script>
 <script data-inline="../../../biblioteca/nucleo/camara.js"></script>
+<script data-inline="../../../biblioteca/nucleo/rotulos.js"></script>
 <script data-inline="../../../biblioteca/fisica/incertidumbre.js"></script>
 <script data-inline="../../../biblioteca/interfaz/interfaz.js"></script>
 <script>
@@ -82,63 +82,78 @@ function setView(n){
 function resize(){
   const w=view.clientWidth,h=view.clientHeight; if(!w||!h) return;
   renderer.setSize(w,h,false); camera.aspect=w/h;
-  const card=$('#card'), side=innerWidth>760&&UI.card&&!UI.clean&&card?card.offsetWidth+24:0, left=innerWidth>760&&!UI.clean?56:0;
+  const card=$('#card'), side=innerWidth>760&&UI.card&&!UI.clean&&card?card.offsetWidth+24:0, left=innerWidth>760&&!UI.clean?120:0;
   if(side||left) camera.setViewOffset(w,h,(side-left)/2,0,w,h); else camera.clearViewOffset();
   camera.updateProjectionMatrix(); dirty=true;
 }
-(function loop(){ requestAnimationFrame(loop); if(dirty){ dirty=false; renderer.render(scene,camera); } })();
+(function loop(){ requestAnimationFrame(loop); if(dirty){ dirty=false; Lab.escena.rotulosLegibles(scene,camera,view.clientHeight); renderer.render(scene,camera); } })();
 
 /* ---------- ejemplo de acción: lanzar (TODO: la física de la práctica) ---------- */
+const P={v0:1.2};   // parámetros que el estudiante puede cambiar
 let busy=false;
 function lanzar(){
-  if(busy) return; busy=true; const v0=1.2, H=0.95+0.02, g=9.77, tf=Math.sqrt(2*0.95/g), t0=performance.now();
+  if(busy) return; busy=true; const v0=P.v0, H=0.95+0.02, g=9.77, tf=Math.sqrt(2*0.95/g), t0=performance.now();
   (function paso(now){ const t=Math.min(tf,(now-t0)/1000*0.5); esfera.position.set(v0*t,H-0.5*g*t*t,0); dirty=true;
-    if(t<tf) requestAnimationFrame(paso); else { busy=false; const o=$('#res'); if(o) o.textContent='Alcance D = '+fx(v0*tf,3)+' m'; } })(t0);
+    if(t<tf) requestAnimationFrame(paso); else { busy=false; const o=$('#res'); if(o) o.innerHTML=Lab.ui.fila('Alcance','D = V₀·√(2H/g)',fx(v0*tf,3)+' m',true); } })(t0);
 }
+/* Todo control del panel llega aquí con su id y su valor (Lab.ui.montar). */
+function alCambiar(id,v){ if(id==='v0'){ P.v0=v; actualizarBarra(); } }
 
-/* ---------- páginas: Explorar, Laboratorio y pasos (TODO) ---------- */
-const EXPLORE={title:'Explora',render:()=>'<p class="lead">TODO: modo libre. Cambia condiciones y observa; nada se califica.</p><div class="row"><button class="btn primary" id="go">Lanzar · Espacio</button></div><p class="small" id="res"></p>',mount(){ $('#go').onclick=lanzar; }};
-const LABFREE={title:'Laboratorio',render:()=>'<p class="lead">TODO: toma de datos, tabla y "Tus cálculos" con verificación (ver parabólico).</p><div class="row"><button class="btn primary" id="go">Lanzar · Espacio</button></div><p class="small" id="res"></p>',mount(){ $('#go').onclick=lanzar; }};
+/* ---------- páginas: Explorar, Laboratorio y pasos (TODO) ----------
+   Los elementos salen de Lab.ui (ver biblioteca/catalogo.html): deslizador, opciones, casilla, interruptor, lecturas, fila.
+   El botón de la acción del paso lleva data-principal: lo disparan Espacio, Enter y la barra táctil. Uno por página. */
+const BOTON='<div class="row"><button class="btn primary" data-principal id="go">Lanzar</button></div><div id="res"></div>';
+const EXPLORE={title:'Explora',render:()=>'<p>TODO: modo libre. Cambia condiciones y observa; nada se califica.</p>'+
+  '<fieldset class="params"><legend>Condiciones</legend>'+Lab.ui.deslizador({id:'v0',etiqueta:'Rapidez de salida',simbolo:'V₀',valor:P.v0,min:0.3,max:3,paso:0.1,dec:1,unidad:'m/s',teclas:'↑ ↓',nominal:1.2})+'</fieldset>'+BOTON,mount(){ $('#go').onclick=lanzar; }};
+const LABFREE={title:'Laboratorio',render:()=>'<p>TODO: toma de datos, tabla y "Tus cálculos" con verificación (ver parabólico).</p>'+BOTON,mount(){ $('#go').onclick=lanzar; }};
 const STEPS=[
-  {label:'La idea',title:'TODO: qué se mide y por qué',render:()=>'<p class="lead">TODO</p>'},
-  {label:'Montaje',title:'TODO: montaje y medidas',render:()=>'<p class="lead">TODO</p><div class="eq">'+pair(0.950,0.001).join(' ± ')+' m</div>'},
-  {label:'Tomar datos',title:'TODO: toma de datos',render:()=>'<div class="row"><button class="btn primary" id="go">Lanzar</button></div><p class="small" id="res"></p>',mount(){ $('#go').onclick=lanzar; }},
+  {label:'La idea',title:'TODO: qué se mide y por qué',render:()=>'<p>TODO</p>'},
+  {label:'Montaje',title:'TODO: montaje y medidas',render:()=>'<p>TODO</p>'+Lab.ui.fila('Altura de la mesa H','cinta métrica',pair(0.950,0.001).join(' ± ')+' m')},
+  {label:'Tomar datos',title:'TODO: toma de datos',render:()=>BOTON,mount(){ $('#go').onclick=lanzar; }},
 ];
 let app='explore', guide=true, cur=0;
 function pinta(st,kicker,pager){
   $('#card').innerHTML='<p class="kicker">'+kicker+'</p><h2>'+st.title+'</h2>'+st.render()+(pager?'<div class="pager"><button class="btn" id="prev" '+(cur===0?'disabled':'')+'>← Anterior</button><button class="btn primary" id="next" '+(cur===STEPS.length-1?'disabled':'')+'>Siguiente →</button></div>':'');
   if(pager){ $('#prev').onclick=()=>go(cur-1); $('#next').onclick=()=>go(cur+1); }
-  if(st.mount) st.mount(); actualizarPad();
+  if(st.mount) st.mount(); Lab.ui.montar('#card',alCambiar); actualizarBarra();
 }
 function go(i){ app='lab'; guide=true; cur=i; sincroniza(); pinta(STEPS[i],'Paso '+(i+1)+' de '+STEPS.length,true);
   document.querySelectorAll('#steps button').forEach((b,j)=>j===i?b.setAttribute('aria-current','step'):b.removeAttribute('aria-current')); }
 function setApp(a){ app=a; sincroniza(); if(a==='explore') pinta(EXPLORE,'Modo explorar'); else if(guide) go(cur); else pinta(LABFREE,'Modo laboratorio'); }
 function sincroniza(){
   document.querySelectorAll('.mode[data-app]').forEach(b=>b.classList.toggle('on',b.dataset.app===app));
-  $('#bGuide').hidden=app!=='lab'; $('#bGuide').setAttribute('aria-pressed',String(guide));
+  $('#bGuide').hidden=app!=='lab'; $('#bGuide').setAttribute('aria-checked',String(guide));
+  document.body.classList.toggle('navon',app==='lab'&&guide);
   $('nav.steps').hidden=!(app==='lab'&&guide); Lab.ui.ubicarBarras();
 }
 
 /* ---------- qué mostrar, teclado y control táctil ---------- */
 const CLAVE='practica-ui';   // TODO: una clave por práctica
 const UI=Lab.ui.cargarPreferencias(CLAVE);
-function aplicaUI(){ Lab.ui.aplicarClases(UI); Lab.ui.guardarPreferencias(CLAVE,UI); rotulos.visible=UI.labels&&!UI.clean; Lab.ui.ubicarBarras(); resize(); actualizarPad(); }
+function aplicaUI(){ Lab.ui.aplicarClases(UI); Lab.ui.guardarPreferencias(CLAVE,UI); rotulos.visible=UI.labels&&!UI.clean; Lab.ui.ubicarBarras(); resize(); actualizarBarra(); }
 function alterna(k){ UI[k]=!UI[k]; if(k!=='clean') UI.clean=false; aplicaUI(); }
-function actualizarPad(){ const on=Lab.ui.esTactil()&&(UI.clean||!UI.card); $('#pad').hidden=!on;
-  const h=$('#hud'); h.hidden=!(!Lab.ui.esTactil()&&(UI.clean||!UI.card)); h.innerHTML='<span class="keys"><kbd>Espacio</kbd> lanzar · <kbd>H</kbd> paneles</span>'; }
-Lab.ui.teclas({h:()=>alterna('clean'),p:()=>alterna('card'),e:()=>alterna('labels'),
-  Escape:()=>{ if(!UI.clean) return false; alterna('clean'); }, ' ':()=>lanzar(), Enter:()=>lanzar(),
-  ArrowRight:()=>{ if(!(app==='lab'&&guide)||cur>=STEPS.length-1) return false; go(cur+1); },
-  ArrowLeft:()=>{ if(!(app==='lab'&&guide)||cur<=0) return false; go(cur-1); }});
+/* Barra táctil e indicador de teclas: se declaran una vez; aparecen cuando el panel está oculto. */
+const principal=()=>{ const b=Lab.ui.principal(); if(!b||b.disabled) return false; b.click(); };
+const barra=Lab.ui.barraAccion({pad:'#pad',hud:'#hud',accion:a=>{ if(a==='principal') principal(); else cambiaV0(a==='v+'?0.1:-0.1); }});
+function cambiaV0(d){ P.v0=Math.max(0.3,Math.min(3,Math.round((P.v0+d)*10)/10)); Lab.ui.ponerDeslizador('v0',P.v0); actualizarBarra(); }
+function actualizarBarra(){ const sinPanel=UI.clean||!UI.card, tac=Lab.ui.esTactil(), ex=app==='explore';
+  barra.pintar({pad:tac&&sinPanel, hud:!tac&&sinPanel, valores:ex?['V₀ = '+fx(P.v0,1)+' m/s']:[],
+    grupos:ex?[{id:'v',menos:'V−',mas:'V+',nombre:'la rapidez'}]:[], principal:{texto:'Lanzar',inactivo:busy},
+    teclas:[['Espacio','lanzar']].concat(ex?[['↑ ↓','rapidez']]:[],[['H','paneles']])}); }
+const pasoA=d=>()=>{ const j=cur+d; if(!(app==='lab'&&guide)||j<0||j>=STEPS.length) return false; go(j); };
+const enExp=f=>()=>{ if(app!=='explore') return false; f(); };
+Lab.ui.teclas({h:()=>alterna('clean'),p:()=>alterna('card'),e:()=>alterna('labels'),l:()=>alterna('proyector'),
+  Escape:()=>{ if(!UI.clean) return false; alterna('clean'); }, ' ':principal, Enter:principal,
+  ArrowRight:pasoA(1), ArrowLeft:pasoA(-1), ArrowUp:enExp(()=>cambiaV0(0.1)), ArrowDown:enExp(()=>cambiaV0(-0.1))});
 
 /* ---------- arranque ---------- */
 STEPS.forEach((s,i)=>{ const li=document.createElement('li'),b=document.createElement('button'); b.type='button'; b.innerHTML='<span class="n">'+(i+1)+'</span><span>'+s.label+'</span>'; b.onclick=()=>go(i); li.appendChild(b); $('#steps').appendChild(li); });
 document.querySelectorAll('.mode[data-app]').forEach(b=>b.onclick=()=>setApp(b.dataset.app));
 $('#bGuide').onclick=()=>{ guide=!guide; setApp('lab'); };
 document.querySelectorAll('[data-ui]').forEach(b=>b.onclick=()=>alterna(b.dataset.ui));
-$('#unclean').onclick=()=>alterna('clean'); $('#padGo').onclick=lanzar;
+$('#unclean').onclick=()=>alterna('clean');
 document.querySelectorAll('.vb').forEach(b=>b.onclick=()=>setView(b.dataset.v));
-new ResizeObserver(resize).observe(view); addEventListener('resize',()=>{ Lab.ui.ubicarBarras(); actualizarPad(); });
+new ResizeObserver(resize).observe(view); addEventListener('resize',()=>{ Lab.ui.ubicarBarras(); actualizarBarra(); });
 esfera.position.set(0,0.97,0); setView('iso'); aplicaUI(); setApp(/laboratorio/.test(location.hash)?'lab':'explore');
 })();
 </script>

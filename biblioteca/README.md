@@ -4,10 +4,11 @@ Lo que usan todas las simulaciones. Ver la propuesta completa en [`docs/propuest
 
 | Carpeta | Contenido | Estado |
 |---|---|---|
-| `nucleo/` | `three-r159.min.js` (motor 3D común) y `camara.js` (girar, desplazar, zoom hacia el cursor, pellizco) | Listo |
+| `nucleo/` | `three-r159.min.js` (motor 3D común), `camara.js` (girar, desplazar, zoom hacia el cursor, pellizco) y `rotulos.js` (rótulos de la escena legibles a cualquier distancia) | Listo |
 | `fuentes/` | `fuentes.css`: Bricolage Grotesque, IBM Plex Sans y Plex Mono incrustadas (sin internet) | Listo |
-| `interfaz/` | `interfaz.css` (diseño aprobado completo: colores, paneles flotantes, barra *Qué mostrar*, vista limpia, HUD, control táctil, celular) e `interfaz.js` (ubicar barras, preferencias, teclado, botón que repite) | Listo |
-| `piezas/` | Equipos del laboratorio: fotocompuerta, rampa, esfera, mesa, cinta métrica, PhysicsSensor, lente… | Fase 2 |
+| `interfaz/` | Sistema de diseño. `tokens.css` (colores, letra, espacio, radio; modo proyector), `interfaz.css` (armazón a pantalla completa y elementos) e `interfaz.js` (`Lab.ui`: deslizador, opciones, casilla, interruptor, lecturas, fila, aviso con deshacer, barra de acción, teclado, preferencias) | Listo (v2) |
+| `catalogo.html` | Todos los elementos en vivo, con cuándo usar cada uno y su código. Es la referencia para aprobar y para el agente | Listo |
+| `piezas/` | Equipos del laboratorio, modelados una vez: `soporte.js` (base, varilla, nuez, brazo) y `fotocompuerta.js`. Reglas y fichas en [`piezas/README.md`](piezas/README.md) | En curso (borradores) |
 | `fisica/` | `incertidumbre.js` (una cifra significativa, coma decimal, validar lo que escribe el estudiante); luego verificación de cálculos y señales del sensor | En curso |
 
 Se incluyen en una simulación con marcadores en la fuente, por ejemplo:

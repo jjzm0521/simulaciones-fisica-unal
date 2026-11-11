@@ -1,0 +1,61 @@
+/* =====================================================================
+   TOKENS · Sistema de diseño de las simulaciones (F1 y F3)
+   Tres capas. Los componentes (interfaz.css) solo usan estas variables:
+   nunca un color, tamaño de letra, radio o espacio escrito a mano.
+
+   1. BASE        escalas fijas: letra, espacio, radio, tamaño táctil
+   2. SEMÁNTICOS  para qué sirve cada color: superficie, tinta, acento, estado
+   3. MAGNITUDES  colores de las cantidades físicas; cada práctica puede
+                  redefinirlos en su propio <style> (:root{--mag-x:…})
+   ===================================================================== */
+:root{
+  /* 1 · BASE ---------------------------------------------------------- */
+  /* letra: 5 tamaños. El mínimo legible es --t-xs (12 px). En rem: el modo proyector los agranda todos. */
+  --t-xs:.75rem;     /* 12 · notas, unidades, etiquetas de la barra */
+  --t-sm:.8125rem;   /* 13 · controles, tablas, botones secundarios */
+  --t-md:.9375rem;   /* 15 · texto del panel */
+  --t-lg:1.125rem;   /* 18 · título de la práctica, subtítulos */
+  --t-xl:1.375rem;   /* 22 · título del paso */
+  /* espacio */
+  --e-1:4px; --e-2:8px; --e-3:12px; --e-4:16px; --e-5:24px;
+  /* radio: control, tarjeta, panel flotante, píldora */
+  --r-1:6px; --r-2:10px; --r-3:14px; --r-full:999px;
+  /* alto de un control: con mouse y con el dedo */
+  --ctl:36px; --toque:44px;
+
+  --font-display:'Bricolage Grotesque','Segoe UI',system-ui,sans-serif;
+  --font-body:'IBM Plex Sans','Segoe UI',system-ui,sans-serif;
+  --font-mono:'IBM Plex Mono',ui-monospace,Menlo,Consolas,monospace;
+
+  /* 2 · SEMÁNTICOS ---------------------------------------------------- */
+  --bg:#DFE6EE;                 /* fondo detrás de la escena */
+  --surface:#FFFFFF;            /* panel */
+  --surface2:#F6F9FC;           /* tarjeta dentro del panel */
+  --surface3:#E7EEF6;           /* relleno suave, hover */
+  --ink:#1A2733;                /* texto */
+  --muted:#5E6F7E;              /* texto secundario (contraste 5:1 sobre --surface) */
+  --line:#DCE5EE;               /* bordes */
+  --accent:#0A6B3C;             /* verde UNAL: acción principal y selección */
+  --accent-ink:#FFFFFF;
+  --accent-suave:color-mix(in srgb,var(--accent) 12%,var(--surface));
+  --ok:#0A7D4A; --bad:#B42318;
+  --panel:color-mix(in srgb,var(--surface) 90%,transparent);   /* fondo de panel flotante */
+  --sombra:0 6px 22px rgba(20,40,60,.10);
+
+  /* 3 · MAGNITUDES ---------------------------------------------------- */
+  --mag-x:#0A7D4A;              /* componente horizontal */
+  --mag-y:#2563D1;              /* componente vertical */
+  --mag-tray:#E4580B;           /* trayectoria, marcas */
+  /* nombres anteriores (parabólico): se conservan como alias */
+  --x:var(--mag-x); --y:var(--mag-y); --path:var(--mag-tray);
+}
+
+/* Modo proyector: letra más grande, paneles opacos, más contraste. Lab.ui.proyector(true) */
+html.proyector{
+  font-size:118.75%;            /* 16 → 19 px: toda la escala sube */
+  --panel:var(--surface);
+  --muted:#3F4E5C; --line:#B5C2CF;
+  --sombra:0 6px 22px rgba(20,40,60,.22);
+}
+/* Pantalla táctil: los controles crecen al tamaño del dedo */
+@media (pointer:coarse){ :root{ --ctl:44px; } }

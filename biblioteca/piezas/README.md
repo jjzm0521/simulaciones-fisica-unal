@@ -50,19 +50,22 @@ Lo que sostiene casi todo: fotocompuerta, péndulo, resorte, polea.
 
 La de las prácticas de Segunda ley, Movimiento circular y Atwood: **PASCO Super Pulley con prensa (ME-9448B)**.
 
-- **Cómo es:** rueda negra de plástico con **10 radios** (los que corta el haz de la fotocompuerta en Movimiento circular) y garganta para la cuerda. Gira en un eje de acero que sale de un brazo horizontal negro. El brazo atraviesa una **prensa en C** que muerde el borde de la mesa: mordaza arriba, tornillo de perilla por debajo; una perilla lateral fija el brazo.
+- **Cómo es:** rueda negra de plástico con **10 radios** (los que corta el haz de la fotocompuerta en Movimiento circular) y garganta para la cuerda. Gira en un eje de acero **sostenido por los dos lados**: el brazo es una horquilla en U que abraza la rueda (un brazo delante y otro detrás, unidos del lado de la prensa). La horquilla atraviesa una **prensa en C** que muerde el borde de la mesa: mordaza arriba, tornillo de perilla por debajo; una perilla lateral fija el brazo.
 - **Medidas:** diámetro exterior 5,1 cm (fabricante) · **radio por donde pasa la cuerda r = 2,465 cm** (dato de los monitores; es el "radio externo r" de las guías) · garganta de 15 cm de circunferencia según el fabricante (r ≈ 2,39 cm) · masa de la rueda ≈ 5 g (fabricante). Brazo, prensa y ancho de la rueda: estimados de foto.
-- **Origen:** eje de la rueda. La rueda gira en el plano XY; la mesa queda hacia −X y el brazo hacia +Z.
+- **Origen:** eje de la rueda. La rueda gira en el plano XY; la mesa queda hacia −X; la horquilla y la prensa quedan centradas en la rueda (Z = 0).
 - **Parámetros:** `diametro`, `radio` (de la cuerda), `radios`, `grosor`, `brazo`, `mesaY` (superficie de la mesa sobre el eje), `mesaGrosor`, `color`.
 - **Anclajes:** `eje`, `arriba` (donde llega la cuerda horizontal), `bajada` (donde sale la vertical), `mesa` (esquina del borde que muerde la prensa).
-- **Acciones:** `girar(ángulo)`, `girarPorLongitud(x)` (= x / r), `angulo()`.
-- **Por medir:** largo del brazo, altura del eje sobre la mesa, ancho de la rueda, abertura máxima de la prensa; contar los radios en la polea real.
+- **Acciones:** `girar(ángulo)`, `girarPorLongitud(x)` (= x / r), `angulo()`, `cuerda(desde, hasta)` (línea que siempre llega y sale tangente a la garganta, con el arco sobre la rueda; `actualizar(desde, hasta)` en cada cuadro) y `trayectoriaCuerda(desde, hasta)` (solo los puntos). Puntos en coordenadas del mundo.
+- **Radios y fotocompuerta:** el radio k está en el ángulo 2πk/10 de la rueda; pasa un radio por el haz cada 2π·r/10 = 1,549 cm de cuerda. `instantesHaz({a, v0, ang0, rb, beta, tMax})` da los instantes **exactos** (sin muestrear) en que cada radio entra y sale del haz cuando la cuerda acelera con a (x = v0·t + ½·a·t² → θ = x / r): con eso se arma la señal del PhysicsSensor de Movimiento circular y de Segunda ley. `angulosHaz(haz, a0, a1)` da los mismos intervalos en ángulo y `radioEnHaz(haz)` si está tapado ahora. El haz se describe con `rb` (distancia al eje, entre `medidas.radioHazMin` y `radioHazMax`) y `beta` (ángulo; por defecto debajo del eje, anclaje `haz`). Ancho del radio: 3,2 mm (estimado: medir).
+- **Por medir:** ancho de los radios (cambia cuánto dura cada interrupción del haz), largo del brazo, altura del eje sobre la mesa, ancho de la rueda, abertura máxima de la prensa; contar los radios en la polea real.
 
 ```js
 const po = Lab.piezas.polea();
 escena.add(po.grupo);
 po.grupo.position.copy(bordeDeLaMesa).sub(po.anclajes.mesa);
 po.girarPorLongitud(x);           // la cuerda avanzó x
+const c = po.cuerda(carrito, pesa); escena.add(c.linea);
+c.actualizar(carrito, pesa);      // en cada cuadro: sigue tangente aunque se muevan
 ```
 
 ## Montaje típico: fotocompuerta en su soporte

@@ -30,7 +30,7 @@ kbd{font-family:var(--font-mono);font-size:var(--t-xs);padding:1px 5px;border:1p
 
 /* ===== B. Armazón ===== */
 /* superficie de todo panel flotante */
-.flota,.vivo,.titulo,.modes,.speed,nav.steps ol,.card,.pswin,.dock,.viewbtns,.unclean,.hud,.pad,.aviso{
+.flota,.ventana,.vivo,.titulo,.modes,.speed,nav.steps ol,.card,.pswin,.dock,.viewbtns,.unclean,.hud,.pad,.aviso{
   background:var(--panel);-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);
   border:1px solid var(--line);border-radius:var(--r-3);box-shadow:var(--sombra)}
 
@@ -68,6 +68,8 @@ nav.steps button[aria-current="step"] .n{background:var(--accent-ink);color:var(
 
 /* panel de la práctica */
 .card{position:fixed;top:var(--cardt,70px);right:var(--e-3);bottom:var(--e-3);width:min(410px,calc(100vw - 24px));z-index:5;overflow:auto;padding:18px;display:flex;flex-direction:column;gap:var(--e-3);min-width:0}
+/* los hijos no se encogen: en un panel bajo (celular) una tabla o ecuación con desplazamiento propio quedaría aplastada */
+.card>*{flex-shrink:0}
 .card h2{font-family:var(--font-display);font-size:var(--t-xl);line-height:1.15;margin:0;letter-spacing:-.01em;text-wrap:balance}
 .card h3{font-family:var(--font-display);font-size:var(--t-lg);line-height:1.2;margin:6px 0 0}
 .kicker{margin:0;font-family:var(--font-mono);font-size:var(--t-xs);letter-spacing:.06em;text-transform:uppercase;color:var(--accent)}
@@ -105,6 +107,25 @@ ul.tight{margin:0;padding-left:18px;display:flex;flex-direction:column;gap:var(-
 .vivo{position:fixed;top:var(--cardt,70px);left:84px;z-index:5;width:min(430px,calc(100vw - 540px));padding:6px}
 .vivo .lectura{background:transparent;border-width:0;border-top:3px solid var(--lc,var(--line));border-radius:0;padding:4px 6px}
 .ventana-asa{cursor:move}
+/* ventana de la práctica (diagrama, mapa, gráfica…): misma ubicación que la del instrumento, pero con tokens.
+   Cabecera con título, pestañas (Lab.ui.pestanas) y botones data-ven="plegar"/"cerrar"; se mueve con Lab.ui.ventana. */
+.ventana{overflow:hidden}
+.scopeblock.ventana{width:min(420px,calc(100vw - 560px))}
+.ventana-cab{display:flex;align-items:center;gap:var(--e-2);padding:var(--e-1) var(--e-1) var(--e-1) var(--e-3);border-bottom:1px solid var(--line);min-width:0}
+.ventana-titulo{font-weight:600;font-size:var(--t-sm);white-space:nowrap}
+.ventana-dato{margin-left:auto;font-family:var(--font-mono);font-size:var(--t-xs);color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
+.ventana-btn{flex:none;width:var(--ctl);height:var(--ctl);border:0;border-radius:var(--r-1);background:transparent;color:var(--muted);cursor:pointer;font-size:var(--t-sm)}
+.ventana-btn:hover{background:var(--surface3);color:var(--ink)}
+.ventana-cuerpo{padding:0 var(--e-3) var(--e-3)}
+.ventana-lienzo{display:block;width:100%;height:150px;touch-action:none}
+.ventana-pie{font-size:var(--t-xs);color:var(--muted);margin:var(--e-1) 0 0}
+.scopeblock.plegada .ventana-cuerpo{display:none}
+/* pestañas: cambian lo que muestra una ventana (no son un parámetro de la física) */
+.pestanas{display:flex;gap:2px;overflow-x:auto;padding:var(--e-1) 0;min-width:0}
+.ventana-cab .pestanas{flex:1}
+.pestana{flex:none;min-height:var(--ctl);padding:0 10px;border:0;border-radius:var(--r-1);background:transparent;color:var(--muted);font-size:var(--t-sm);cursor:pointer;white-space:nowrap}
+.pestana:hover{background:var(--surface3);color:var(--ink)}
+.pestana[aria-selected="true"]{background:var(--accent-suave);color:var(--accent);font-weight:600}
 .scopeblock.plegada .ps-group,.scopeblock.plegada .ps-nota{display:none}
 
 /* vista limpia y paneles ocultos */
@@ -288,6 +309,8 @@ body:not(.clean) .hud{bottom:68px}
   .scopeblock,body.no-card .scopeblock{left:var(--e-2);right:60px;width:auto;bottom:auto;top:calc(var(--navt,56px) + 48px)}
   body.navon .scopeblock{top:calc(var(--navt,56px) + 100px)}
   .ps-lienzo{height:96px}
+  .ventana-lienzo{height:128px}
+  .scopeblock.ventana{width:auto}
   .ps-controles,.ps-nota{display:none}
   body.midiendo .ps-controles{display:block}
   .vivo{left:var(--e-2);right:60px;width:auto;top:calc(var(--navt,56px) + 48px);padding:2px}

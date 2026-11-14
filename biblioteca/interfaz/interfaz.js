@@ -3,7 +3,7 @@
    Uso: Lab.ui.<función>. Catálogo con todos los elementos: biblioteca/catalogo.html
 
    Elementos (devuelven HTML; se activan con Lab.ui.montar(raíz, alCambiar)):
-     deslizador · opciones · casilla · interruptor · lecturas · fila
+     deslizador · opciones · pestanas · casilla · interruptor · lecturas · fila · marcar
    Armazón:
      ubicarBarras · cargarPreferencias · guardarPreferencias · aplicarClases
      proyector · tema · alternarTema · alCambiarTema · aviso · barraAccion · ventana · principal · teclas · mantener · esTactil
@@ -50,6 +50,11 @@
       o.items.map(i => '<button type="button" class="opcion" role="radio" aria-checked="' + (i.v === o.valor) + '" data-v="' + i.v + '">' +
         '<span>' + i.texto + '</span>' + (i.tecla ? '<kbd>' + i.tecla + '</kbd>' : '') + '</button>').join('') + '</div>';
   }
+  /* Pestañas: cambian lo que muestra una ventana (no son un parámetro de la física). items = [{v, texto}] */
+  function pestanas(o){
+    return '<div class="pestanas" role="tablist" aria-label="' + esc(o.etiqueta) + '" data-pestanas="' + o.id + '">' +
+      o.items.map(i => '<button type="button" class="pestana" role="tab" aria-selected="' + (i.v === o.valor) + '" data-v="' + i.v + '">' + i.texto + '</button>').join('') + '</div>';
+  }
   /* Casilla: mostrar u ocultar algo. */
   function casilla(o){
     return '<label class="casilla"><input type="checkbox" data-casilla="' + o.id + '"' + (o.marcado ? ' checked' : '') + '>' +
@@ -67,6 +72,14 @@
   /* Fila de resultado: nombre, expresión y valor. clave = true la resalta. */
   function fila(nombre, expresion, valor, clave){
     return '<div class="calc' + (clave ? ' key' : '') + '"><span class="lab">' + nombre + '</span><span class="expr">' + (expresion || '') + '</span><span class="val">' + valor + '</span></div>';
+  }
+
+  /* Cambia lo marcado sin disparar alCambiar: opciones y pestañas (v = texto), casilla e interruptor (v = true/false). */
+  function marcar(id, v){
+    $$('[data-opciones="' + id + '"] .opcion').forEach(b => b.setAttribute('aria-checked', String(b.dataset.v === String(v))));
+    $$('[data-pestanas="' + id + '"] .pestana').forEach(b => b.setAttribute('aria-selected', String(b.dataset.v === String(v))));
+    $$('[data-casilla="' + id + '"]').forEach(c => { c.checked = !!v; });
+    $$('[data-interruptor="' + id + '"]').forEach(b => b.setAttribute('aria-checked', String(!!v)));
   }
 
   /* Activa los elementos que haya dentro de raíz. alCambiar(id, valor) recibe:
@@ -88,6 +101,8 @@
     });
     $$('[data-opciones]', raiz).forEach(g => $$('.opcion', g).forEach(b => b.addEventListener('click', () => {
       $$('.opcion', g).forEach(x => x.setAttribute('aria-checked', String(x === b))); alCambiar(g.dataset.opciones, b.dataset.v); })));
+    $$('[data-pestanas]', raiz).forEach(g => $$('.pestana', g).forEach(b => b.addEventListener('click', () => {
+      $$('.pestana', g).forEach(x => x.setAttribute('aria-selected', String(x === b))); alCambiar(g.dataset.pestanas, b.dataset.v); })));
     $$('[data-casilla]', raiz).forEach(c => c.addEventListener('change', () => alCambiar(c.dataset.casilla, c.checked)));
     $$('[data-interruptor]', raiz).forEach(b => b.addEventListener('click', () => {
       const on = b.getAttribute('aria-checked') !== 'true'; b.setAttribute('aria-checked', String(on)); alCambiar(b.dataset.interruptor, on); }));
@@ -256,7 +271,7 @@
   }
 
   Lab.ui = Object.assign(Lab.ui || {}, {
-    deslizador, ponerDeslizador, opciones, casilla, interruptor, lecturas, fila, montar,
+    deslizador, ponerDeslizador, opciones, pestanas, marcar, casilla, interruptor, lecturas, fila, montar,
     esTactil, ubicarBarras, cargarPreferencias, guardarPreferencias, aplicarClases, proyector, tema, alternarTema, alCambiarTema,
-    aviso, principal, barraAccion, ventana, mantener, teclas, version: '2.2'});
+    aviso, principal, barraAccion, ventana, mantener, teclas, version: '2.3'});
 })();

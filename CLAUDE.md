@@ -87,10 +87,10 @@ El empaquetador avisa si quedan recursos externos: ese aviso es un error que hay
 ## Estado actual (actualízalo cuando cambie)
 
 - **Lista con el diseño aprobado:** `fisica-1/movimiento-parabolico`.
-- **Lista con diseño anterior:** `fisica-3/lente-convergente` (pasarla al diseño aprobado; sus fuentes aún cargan de internet).
+- **Lente convergente (F3):** pasada al diseño de la biblioteca (Lab.ui, tokens, tema, CamaraOrbita, sin internet) en la rama `feat/lentes-diseno`, pendiente de revisión. Conserva su iluminación y su vista "a través de la lente" propias (no usa `ambiente` salvo el color de fondo).
 - **Hecho de la biblioteca:** núcleo, fuentes, incertidumbre, plantilla, empaquetar-todo; sistema de diseño v2 (tokens, elementos `Lab.ui`, catálogo, modo proyector, rótulos legibles) con parabólico y la plantilla ya migrados.
 - **Instrumentos hechos:** PhysicsSensor (sonograma) con la señal de esfera en el haz; parabólico ya lo usa.
-- **Falta pasar a la biblioteca:** tabla de datos, verificación de "Tus cálculos", armazón declarativo (modos y pasos). Tema claro/oscuro hecho: `html.oscuro` en tokens.css, `Lab.ui.tema`, botón Tema (O) y `Lab.escena.ambiente`; toda práctica nueva debe llamar a `ambiente` y repintar sus rótulos en `Lab.ui.alCambiarTema`. PhysicsSensor y piezas no cambian de color. Pendiente: pasar lente-convergente.
+- **Falta pasar a la biblioteca:** tabla de datos, verificación de "Tus cálculos", armazón declarativo (modos y pasos). Tema claro/oscuro hecho: `html.oscuro` en tokens.css, `Lab.ui.tema`, botón Tema (O) y `Lab.escena.ambiente`; toda práctica nueva debe llamar a `ambiente` y repintar sus rótulos en `Lab.ui.alCambiarTema`. PhysicsSensor y piezas no cambian de color. Lente-convergente lo usa con su propia paleta de escena (DAY3).
 - **Piezas hechas (borrador, medidas estimadas de foto):** soporte universal (base, varilla, nuez, brazo) y fotocompuerta en C; parabólico ya las usa.
 - **Siguiente:** medir en el laboratorio soporte y fotocompuerta; polea (falta foto); sacar de parabólico mesa, rampa, esfera, cinta y computador.
 - **Pendiente del equipo:** lista de prácticas de Física 3, número oficial de cada práctica de F1, fotos y medidas de equipos, quién aprueba piezas.

@@ -20,8 +20,9 @@ Los equipos reales, modelados **una sola vez**. Toda simulación que necesite un
 |---|---|---|---|
 | Soporte universal | [`soporte.js`](soporte.js) | Borrador · medidas estimadas de foto | Movimiento parabólico |
 | Fotocompuerta | [`fotocompuerta.js`](fotocompuerta.js) | Borrador · medidas estimadas de foto | Movimiento parabólico |
+| Polea con prensa | [`polea.js`](polea.js) | Borrador · rueda con medidas reales; prensa estimada de foto | (Atwood, Segunda ley, Movimiento circular) |
 
-Pendientes (salen de parabólico o de fotos por llegar): polea con radios, mesa, rampa, esfera, cinta métrica, computador con PhysicsSensor, prensa de mesa, regla-cebra.
+Pendientes (salen de parabólico o de fotos por llegar): mesa, rampa, esfera, cinta métrica, computador con PhysicsSensor, regla-cebra.
 
 ## Soporte universal
 
@@ -44,6 +45,25 @@ Lo que sostiene casi todo: fotocompuerta, péndulo, resorte, polea.
 - **Acciones:** `bloquear(true|false)` atenúa el haz y cambia el LED.
 - **Por medir:** todas las medidas; posición real del emisor; si tiene LED visible.
 - **Nota de uso:** en movimiento parabólico la rampa se dibuja más ancha que la real, así que se pide `abertura: 0.108` para que la abrace. Con la rampa a escala real se usaría la abertura por defecto.
+
+## Polea con prensa
+
+La de las prácticas de Segunda ley, Movimiento circular y Atwood: **PASCO Super Pulley con prensa (ME-9448B)**.
+
+- **Cómo es:** rueda negra de plástico con **10 radios** (los que corta el haz de la fotocompuerta en Movimiento circular) y garganta para la cuerda. Gira en un eje de acero que sale de un brazo horizontal negro. El brazo atraviesa una **prensa en C** que muerde el borde de la mesa: mordaza arriba, tornillo de perilla por debajo; una perilla lateral fija el brazo.
+- **Medidas:** diámetro exterior 5,1 cm (fabricante) · **radio por donde pasa la cuerda r = 2,465 cm** (dato de los monitores; es el "radio externo r" de las guías) · garganta de 15 cm de circunferencia según el fabricante (r ≈ 2,39 cm) · masa de la rueda ≈ 5 g (fabricante). Brazo, prensa y ancho de la rueda: estimados de foto.
+- **Origen:** eje de la rueda. La rueda gira en el plano XY; la mesa queda hacia −X y el brazo hacia +Z.
+- **Parámetros:** `diametro`, `radio` (de la cuerda), `radios`, `grosor`, `brazo`, `mesaY` (superficie de la mesa sobre el eje), `mesaGrosor`, `color`.
+- **Anclajes:** `eje`, `arriba` (donde llega la cuerda horizontal), `bajada` (donde sale la vertical), `mesa` (esquina del borde que muerde la prensa).
+- **Acciones:** `girar(ángulo)`, `girarPorLongitud(x)` (= x / r), `angulo()`.
+- **Por medir:** largo del brazo, altura del eje sobre la mesa, ancho de la rueda, abertura máxima de la prensa; contar los radios en la polea real.
+
+```js
+const po = Lab.piezas.polea();
+escena.add(po.grupo);
+po.grupo.position.copy(bordeDeLaMesa).sub(po.anclajes.mesa);
+po.girarPorLongitud(x);           // la cuerda avanzó x
+```
 
 ## Montaje típico: fotocompuerta en su soporte
 

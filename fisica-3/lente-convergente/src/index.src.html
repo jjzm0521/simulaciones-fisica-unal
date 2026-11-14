@@ -1,495 +1,109 @@
 <!doctype html>
-<html lang="es">
-<head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Lentes · Imagen real y virtual</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-<script>try{if(localStorage.getItem('lentes-tema')==='dia')document.documentElement.classList.add('day');}catch(e){}</script>
+<html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>La lente convergente · Imagen real y virtual</title>
+<!-- Física 3 · La lente convergente. Diseño de biblioteca/interfaz (tokens + Lab.ui).
+     Empaquetar desde fisica-3/lente-convergente:  python3 -I ../../herramientas/empaquetar.py src/index.src.html index.html -->
+<link rel="stylesheet" data-inline="../../../biblioteca/fuentes/fuentes.css">
+<link rel="stylesheet" data-inline="../../../biblioteca/interfaz/tokens.css">
+<link rel="stylesheet" data-inline="../../../biblioteca/interfaz/interfaz.css">
 <style>
-:root{
-  --ink:#f4f6fc; --ink2:#dde3f0; --muted:#b4bed3; --faint:rgba(var(--t),.1);
-  --panel:rgba(13,18,32,.84); --panel2:rgba(16,22,38,.96);
-  --obj:#ffb454; --real:#7fe3ff; --virt:#c4b0ff; --foc:#7dffb0; --ok:#7dffb0; --no:#ff8f9d;
-  --m:32px;
-  --t:255,255,255; --bg:#04060c; --cv:#060a12; --warn:#ffd27a;
-  --sans:Outfit,"Avenir Next","Segoe UI",system-ui,Arial,sans-serif;
-  --mono:"DM Mono",ui-monospace,Menlo,monospace;
-}
-*{box-sizing:border-box}
-html,body{margin:0;height:100%;overflow:hidden;background:var(--bg);color:var(--ink);font-family:var(--sans);-webkit-font-smoothing:antialiased;-webkit-user-select:none;user-select:none}
-.modal,.tbody table,.eqn{-webkit-user-select:text;user-select:text}
-#gl{position:fixed;inset:0;width:100vw;height:100vh;display:block;cursor:grab;touch-action:none}
-#gl.drag{cursor:grabbing} #gl.can{cursor:move}
-.mono{font-family:var(--mono)}
-.obj{color:var(--obj)} .real{color:var(--real)} .virt{color:var(--virt)} .foc{color:var(--foc)}
-body:not(.app-lab) .only-lab{display:none!important}
-body.app-lab .only-exp{display:none!important}
-.panel{background:var(--panel);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);border-radius:14px;box-shadow:0 10px 40px rgba(0,0,0,.35)}
-.lab{font-size:13px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:var(--muted)}
-
-/* ---------- hero ---------- */
-.hero{position:fixed;left:var(--m);top:24px;width:460px;pointer-events:none;z-index:3}
-.hero h1{margin:0;line-height:.95;text-shadow:0 2px 18px rgba(0,0,0,.67)}
-.hero h1 .big{display:block;font-size:40px;font-weight:800;letter-spacing:-.5px;color:var(--real);white-space:nowrap}
-.hero h1 .sub{display:block;font-size:17px;font-weight:700;color:var(--ink);margin-top:7px}
-.stats{display:flex;gap:6px;margin-top:12px}
-.stat{background:var(--panel);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);border-radius:10px;padding:8px 11px 7px;min-width:0;flex:1 1 0}
-.stat .k{font-size:13px;font-weight:600;color:var(--muted);white-space:nowrap}
-.stat .v{font-family:var(--mono);font-size:23px;font-weight:500;margin-top:2px;white-space:nowrap}
-.stat .u{font-family:var(--mono);font-size:13px;color:var(--muted);margin-top:1px;white-space:nowrap}
-.chips{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px;align-items:center}
-.chip{font-size:13.5px;font-weight:600;padding:5px 11px;border-radius:999px;background:var(--panel);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);display:inline-flex;align-items:center;gap:7px;white-space:nowrap}
-.chip i{width:8px;height:8px;border-radius:50%;background:currentColor;box-shadow:0 0 8px currentColor}
-.chip.dash i{background:transparent;border:1.5px dashed currentColor;box-shadow:none}
-.more{pointer-events:auto;font-family:var(--sans);font-size:13.5px;font-weight:600;border:0;border-radius:999px;padding:5px 11px;background:rgba(var(--t),.14);color:var(--ink);cursor:pointer}
-.more:hover{background:rgba(var(--t),.22)}
-.caption{margin-top:8px;padding:11px 14px;font-size:15px;line-height:1.5;max-width:62ch;border-radius:10px;background:var(--panel);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px)}
-.caption b{font-weight:700}
-.caption[hidden]{display:none}
-
-/* ---------- guía ---------- */
-.guide{position:fixed;left:var(--m);top:300px;width:460px;padding:14px 16px;z-index:4}
-.guide .gh{display:flex;align-items:center;gap:8px}
-.guide .gh .dots{flex:1}
-.guide .dots{display:flex;gap:5px}
-.guide .dots i{width:8px;height:8px;border-radius:50%;background:rgba(var(--t),.2)}
-.guide .dots i.done{background:rgba(127,227,255,.6)}
-.guide .dots i.cur{background:#fff}
-.guide h3{margin:8px 0 4px;font-size:18px;font-weight:700}
-.guide .gb{font-size:15px;line-height:1.5;color:var(--ink2);max-width:62ch}
-.guide .gb b{color:var(--ink)}
-.guide .ga{display:flex;gap:8px;margin-top:12px;align-items:center;flex-wrap:wrap}
-.guide .nav{display:inline-flex;align-items:center;gap:2px;background:rgba(var(--t),.07);border-radius:10px;padding:2px}
-.guide .nav .btn{background:transparent;padding:8px 9px}
-.guide .nav .btn:hover{background:rgba(var(--t),.12)}
-.guide .nav span{font-family:var(--mono);font-size:13.5px;padding:0 6px;white-space:nowrap}
-.guide .ok{font-size:13.5px;color:var(--ok);font-weight:600}
-.btn[disabled]{opacity:.35;cursor:default}
-.gx{background:none;border:0;color:var(--muted);cursor:pointer;font-size:16px;padding:2px 4px}
-
-/* ---------- controles ---------- */
-.controls{position:fixed;right:var(--m);top:24px;width:380px;padding:6px 16px;z-index:4;max-height:calc(100vh - 48px);overflow:auto;scrollbar-width:thin}
-details.sec{border-bottom:1px solid var(--faint)}
-details.sec:last-child{border-bottom:0}
-details.sec>summary{cursor:pointer;list-style:none;display:flex;justify-content:space-between;align-items:center;padding:10px 0}
-details.sec>summary::-webkit-details-marker{display:none}
-details.sec>summary::after{content:"+";font-family:var(--mono);font-size:16px;color:var(--muted)}
-details.sec[open]>summary::after{content:"–"}
-details.sec .inner{padding:2px 0 12px}
-.row{display:grid;grid-template-columns:1fr 1fr;gap:12px 16px}
-.ctl .top{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:5px;gap:6px}
-.ctl .top .lab{white-space:nowrap}
-.ctl .top .val{font-family:var(--mono);font-size:14px;font-weight:500;white-space:nowrap}
-.ctl.off{opacity:.35;pointer-events:none}
-input[type=range]{-webkit-appearance:none;appearance:none;width:100%;height:20px;background:transparent;margin:0}
-input[type=range]::-webkit-slider-runnable-track{height:4px;border-radius:4px;background:rgba(var(--t),.2)}
-input[type=range]::-moz-range-track{height:4px;border-radius:4px;background:rgba(var(--t),.2)}
-input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:17px;height:17px;border-radius:50%;background:#fff;margin-top:-6.5px;box-shadow:0 0 0 3px rgba(var(--t),.14),0 2px 6px rgba(0,0,0,.5)}
-input[type=range]::-moz-range-thumb{width:17px;height:17px;border:0;border-radius:50%;background:#fff}
-.mid{position:relative}
-.mid::after{content:"";position:absolute;left:50%;top:3px;width:1px;height:14px;background:rgba(var(--t),.4);pointer-events:none}
-.pills{display:flex;gap:4px;flex-wrap:wrap}
-.pill{font-family:var(--sans);font-size:14px;border:0;border-radius:9px;padding:6px 10px;background:transparent;color:var(--ink2);cursor:pointer;display:inline-flex;align-items:center;gap:6px;transition:background .15s,color .15s}
-.pill:hover{background:rgba(var(--t),.08)}
-.pill.on{background:#eef4ff;color:#101626}
-.pill .dot{width:8px;height:8px;border-radius:50%;background:currentColor}
-.pill.c-obj .dot{background:var(--obj)} .pill.c-virt .dot{background:var(--virt)} .pill.c-real .dot{background:var(--real)}
-.pill.c-obj.on{background:rgba(255,180,84,.24);color:#fff3e2}
-.pill.c-virt.on{background:rgba(196,176,255,.26);color:#f1ecff}
-.pill.c-real.on{background:rgba(127,227,255,.24);color:#eaf9ff}
-.pill.tg .dot{background:transparent;border:1.5px solid currentColor}
-.pill.tg.on{background:rgba(var(--t),.14);color:#fff}
-.pill.tg.on .dot{background:currentColor}
-.lens{display:grid;grid-template-columns:repeat(3,1fr);gap:4px}
-.lens .pill{flex-direction:column;gap:3px;padding:6px 4px;font-size:13px;justify-content:center;text-align:center;line-height:1.15}
-.lens svg{width:30px;height:26px}
-.lens .pill.on{background:rgba(127,227,255,.2);color:#eaf9ff}
-.lens .pill.dv.on{background:rgba(196,176,255,.26);color:#f1ecff}
-.actions{display:flex;gap:6px;align-items:center;flex-wrap:wrap}
-.btn{font-family:var(--sans);font-size:14px;font-weight:600;border:0;border-radius:10px;padding:9px 12px;cursor:pointer;background:rgba(var(--t),.09);color:var(--ink);display:inline-flex;align-items:center;gap:7px;white-space:nowrap}
-.btn:hover{background:rgba(var(--t),.15)}
-.btn.primary{background:rgba(127,227,255,.2);color:#d3f6ff}
-.btn.primary:hover{background:rgba(127,227,255,.3)}
-.btn.primary.o{background:rgba(255,180,84,.2);color:#ffe7c7}
-.btn.primary.o:hover{background:rgba(255,180,84,.3)}
-.btn.icon{padding:9px;width:36px;justify-content:center}
-.btn.sm{font-size:13px;padding:7px 9px}
-.btn svg{width:15px;height:15px}
-details.adv{margin-top:12px}
-details.adv summary{cursor:pointer;list-style:none;display:flex;justify-content:space-between;align-items:center}
-details.adv summary::-webkit-details-marker{display:none}
-details.adv summary::after{content:"+";font-family:var(--mono);color:var(--muted)}
-details.adv[open] summary::after{content:"–"}
-details.adv .row{margin-top:10px}
-.hint{font-size:13.5px;color:var(--muted);line-height:1.45;margin-top:8px;max-width:62ch}
-
-/* ---------- diagrama ---------- */
-.diag{position:fixed;left:var(--m);bottom:24px;width:min(660px,calc(100vw - 380px - 3*var(--m) - 16px));padding:12px 16px 14px;z-index:3}
-.phead{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:8px;gap:10px}
-.phead h2{margin:0;font-size:16px;font-weight:700;white-space:nowrap}
-.phead .read{font-family:var(--mono);font-size:13.5px;color:var(--ink2);white-space:nowrap}
-#diagCv{width:100%;height:190px;display:block;border-radius:8px;background:var(--cv)}
-
-/* ---------- panel con pestañas ---------- */
-.data{position:fixed;right:var(--m);bottom:24px;width:380px;height:340px;padding:12px 16px 14px;z-index:3;display:flex;flex-direction:column}
-.tabs{display:flex;gap:2px;margin-bottom:8px;flex-wrap:wrap}
-.tabs .pill{padding:5px 9px}
-.tbody{flex:1;min-height:0;display:none}
-.tbody.on{display:flex;flex-direction:column}
-.tbody canvas{flex:1;min-height:100px;width:100%;display:block;border-radius:8px;background:var(--cv)}
-#mapCv{cursor:crosshair;touch-action:none}
-#scrCv{flex:none;align-self:center;aspect-ratio:1;height:100%;min-height:0;width:auto;max-width:100%;background:#000}
-.scrwrap{flex:1;min-height:0;display:flex;justify-content:center}
-.sharp{height:5px;border-radius:5px;background:rgba(var(--t),.1);overflow:hidden;margin-top:6px}
-.sharp i{display:block;height:100%;border-radius:5px;width:0}
-.eqn{font-family:var(--mono);font-size:13.5px;color:var(--ink2);margin-top:8px;line-height:1.5}
-.eqn b{font-weight:500}
-#dataBody{overflow:auto;scrollbar-width:thin;scrollbar-color:rgba(var(--t),.25) transparent}
-table{border-collapse:collapse;width:100%;font-family:var(--mono);font-size:13px}
-th{font-family:var(--sans);font-weight:600;font-size:13px;color:var(--muted);text-align:right;padding:4px 5px;border-bottom:1px solid var(--faint);position:sticky;top:0;background:var(--panel2);white-space:nowrap}
-td{text-align:right;padding:4px 5px;border-bottom:1px solid rgba(var(--t),.05);color:var(--ink2);white-space:nowrap}
-td .x{background:none;border:0;color:var(--muted);cursor:pointer;font-size:13px}
-.empty{font-size:14.5px;color:var(--muted);line-height:1.5;padding:8px 2px}
-.fit{display:flex;justify-content:space-between;gap:4px 12px;font-family:var(--mono);font-size:13px;color:var(--ink2);margin-top:8px;flex-wrap:wrap}
-#plotCv{flex:1;min-height:110px;width:100%;display:block;border-radius:8px;background:var(--cv)}
-.plotpane{display:flex;flex-direction:column;height:100%}
-.res{display:grid;gap:8px}
-.card{background:rgba(var(--t),.05);border-radius:10px;padding:9px 12px}
-.card .k{font-size:13.5px;color:var(--muted)}
-.card .v{font-family:var(--mono);font-size:16px;margin-top:3px}
-.card .s{font-size:13.5px;color:var(--muted);margin-top:4px;line-height:1.4}
-.card.big .v{font-size:24px}
-.cmp{display:grid;grid-template-columns:1fr 1fr;gap:8px}
-.bar{height:6px;border-radius:6px;background:rgba(var(--t),.1);margin-top:8px;position:relative;overflow:hidden}
-.bar i{position:absolute;left:0;top:0;bottom:0;border-radius:6px}
-
-/* ---------- etiquetas 3D ---------- */
-#labels{position:fixed;inset:0;pointer-events:none;z-index:2}
-.tag{position:absolute;left:0;top:0;transform:translate(-50%,-50%);display:flex;align-items:center;gap:7px;padding:5px 10px 5px 9px;border-radius:9px;background:var(--panel);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);font-size:14px;font-weight:600;white-space:nowrap;will-change:transform}
-.tag .d{width:9px;height:9px;border-radius:50%;box-shadow:0 0 10px currentColor}
-.tag.dash .d{background:transparent!important;border:1.5px dashed currentColor;box-shadow:none}
-.tag .m{font-family:var(--mono);font-weight:400;font-size:13px;color:var(--ink2)}
-
-/* ---------- barra superior ---------- */
-.foot{position:fixed;left:calc(var(--m) + 460px + 16px);right:calc(var(--m) + 380px + 16px);top:24px;display:flex;gap:6px;z-index:3;flex-wrap:wrap;justify-content:center;align-content:flex-start}
-.fbtn{font-family:var(--sans);font-size:14px;font-weight:600;border:0;border-radius:10px;padding:8px 9px;background:var(--panel);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);color:var(--ink);cursor:pointer;display:inline-flex;gap:6px;align-items:center;white-space:nowrap}
-.fbtn:hover{background:rgba(30,38,58,.95)}
-.fbtn.on{background:#eef4ff;color:#101626}
-.fbtn svg{width:14px;height:14px}
-.fsize{gap:1px;align-items:baseline;line-height:1}
-.fsize .a1{font-size:12px}
-.fsize .a2{font-size:18px}
-.seg{display:inline-flex;background:var(--panel);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);border-radius:11px;padding:3px}
-.seg button{font-family:var(--sans);font-size:14.5px;font-weight:700;border:0;border-radius:8px;padding:7px 10px;background:transparent;color:var(--ink2);cursor:pointer}
-.seg button.on{background:var(--real);color:#06222c}
-
-/* ---------- avisos y guía ---------- */
-.toast{position:fixed;left:50%;top:84px;transform:translate(-50%,-20px);opacity:0;transition:.25s;padding:10px 14px;border-radius:10px;background:rgba(60,20,30,.95);color:#ffdfe5;font-size:15px;z-index:20;pointer-events:none;max-width:min(560px,90vw);text-align:center}
-.toast.good{background:rgba(16,52,40,.95);color:#d4ffe6}
-.toast.show{transform:translate(-50%,0);opacity:1}
-.modal{position:fixed;inset:0;background:rgba(4,7,14,.65);display:none;align-items:center;justify-content:center;z-index:30;padding:24px}
-.modal.show{display:flex}
-.modal .box{max-width:720px;width:100%;max-height:88vh;overflow:auto;padding:28px 32px;background:rgba(13,18,32,.97);border-radius:16px}
-.modal h2{margin:0 0 6px;font-size:28px;font-weight:800;color:var(--real);letter-spacing:-.4px}
-.modal h3{margin:22px 0 6px;font-size:16.5px}
-.modal p,.modal li{font-size:15px;line-height:1.55;color:var(--ink2)}
-.modal ul,.modal ol{padding-left:20px;margin:6px 0}
-.modal .eq{font-family:var(--mono);background:rgba(var(--t),.06);border-radius:8px;padding:8px 10px;margin:6px 0;color:var(--ink);font-size:14px}
-.modal kbd{font-family:var(--mono);font-size:13px;background:rgba(var(--t),.12);border-radius:5px;padding:1px 6px}
-.modal .close{float:right}
-.modal table{font-family:var(--sans);font-size:14px;margin:6px 0}
-.modal td,.modal th{padding:6px;text-align:left;white-space:normal;background:none;position:static;font-size:14px}
-
-/* ---------- letra grande: solo tamaños y contraste; los anchos cambian únicamente si hay espacio ---------- */
-body.proj{--panel:rgba(5,8,15,.96);--muted:#ccd4e4;--ink2:#eaeef7}
-body.proj .stat .k,body.proj .stat .u{font-size:14.5px}
-body.proj .chip,body.proj .more{font-size:15px}
-body.proj .caption,body.proj .guide .gb{font-size:17px}
-body.proj .guide h3{font-size:20px}
-body.proj .lab{font-size:14.5px}
-body.proj .pill,body.proj .btn{font-size:15px}
-body.proj .ctl .top .val{font-size:15px}
-body.proj .phead h2{font-size:18px}
-body.proj .phead .read,body.proj .eqn,body.proj table,body.proj th,body.proj .fit{font-size:15px}
-body.proj .card .v{font-size:18px}
-body.proj .card.big .v{font-size:28px}
-body.proj .card .k,body.proj .card .s{font-size:15px}
-body.proj .tag{font-size:16px;padding:6px 10px}
-body.proj .tag .m{font-size:14.5px}
-body.proj .fbtn,body.proj .seg button{font-size:15px}
-@media (min-width:1600px) and (min-height:760px){
-  body.proj .hero,body.proj .guide{width:520px}
-  body.proj .hero h1 .big{font-size:46px}
-  body.proj .hero h1 .sub{font-size:20px}
-  body.proj .stat .v{font-size:27px}
-  body.proj .controls,body.proj .data{width:430px}
-  body.proj .diag{width:720px}
-  body.proj #diagCv{height:220px}
-  body.proj .foot{left:calc(var(--m) + 520px + 16px);right:calc(var(--m) + 430px + 16px)}
-}
-
-/* ---------- modo día ---------- */
-html.day{--t:20,30,55;--ink:#141a2b;--ink2:#2b3448;--muted:#4f5a70;--faint:rgba(20,30,55,.14);
-  --panel:rgba(255,255,255,.92);--panel2:rgba(250,251,253,.98);
-  --obj:#a25600;--real:#006f8f;--virt:#6a3fd6;--foc:#0a7a43;--ok:#0a7a43;--no:#c01f3b;
-  --bg:#e9edf3;--cv:#f5f7fa;--warn:#8a5e00}
-html.day body.proj{--panel:rgba(255,255,255,.98);--muted:#343d52;--ink2:#1c2435}
-html.day .hero h1{text-shadow:0 1px 12px rgba(255,255,255,.85)}
-html.day .panel{box-shadow:0 6px 24px rgba(20,30,55,.14)}
-html.day .stat,html.day .chip,html.day .caption,html.day .tag,html.day .fbtn,html.day .seg{box-shadow:0 1px 5px rgba(20,30,55,.12)}
-html.day .guide .dots i.done{background:rgba(0,111,143,.55)}
-html.day .guide .dots i.cur{background:var(--ink)}
-html.day input[type=range]::-webkit-slider-thumb{background:var(--ink);box-shadow:0 0 0 3px rgba(20,30,55,.12)}
-html.day input[type=range]::-moz-range-thumb{background:var(--ink)}
-html.day .pill.on,html.day .fbtn.on{background:#1c2438;color:#fff}
-html.day .pill.c-obj.on{background:rgba(162,86,0,.16);color:#6e3a00}
-html.day .pill.c-virt.on,html.day .lens .pill.dv.on{background:rgba(106,63,214,.14);color:#4a25ab}
-html.day .pill.c-real.on,html.day .lens .pill.on{background:rgba(0,111,143,.14);color:#00566f}
-html.day .pill.tg.on{background:rgba(20,30,55,.12);color:var(--ink)}
-html.day .pill.tg .dot[style]{color:#8a5e00!important}
-html.day .btn.primary{background:rgba(0,111,143,.14);color:#00566f}
-html.day .btn.primary:hover{background:rgba(0,111,143,.22)}
-html.day .btn.primary.o{background:rgba(162,86,0,.15);color:#6e3a00}
-html.day .btn.primary.o:hover{background:rgba(162,86,0,.23)}
-html.day .fbtn:hover{background:#fff}
-html.day .fbtn.on:hover{background:#1c2438}
-html.day .seg button.on{color:#fff}
-html.day .toast{background:#fde7ea;color:#7a1024;box-shadow:0 4px 18px rgba(20,30,55,.18)}
-html.day .toast.good{background:#dff5e8;color:#0a5130}
-html.day .modal{background:rgba(20,30,55,.35)}
-html.day .modal .box{background:#fff}
-
-/* ---------- responsive ---------- */
-@media (max-width:1360px){
-  :root{--m:24px}
-  .hero,.guide{width:400px}.hero h1 .big{font-size:34px}.hero h1 .sub{font-size:15px}
-  .stat .v{font-size:20px}
-  .controls,.data{width:350px}
-  .diag{width:min(560px,calc(100vw - 350px - 3*var(--m) - 12px))}
-  .foot{left:calc(var(--m) + 400px + 12px);right:calc(var(--m) + 350px + 12px)}
-}
-@media (max-width:1100px), (max-height:720px){
-  :root{--m:20px}
-  html,body{overflow:auto;height:auto}
-  #gl{position:relative;height:58vh;width:100%}
-  #labels{position:absolute;height:58vh;overflow:hidden}
-  .hero{position:absolute;left:var(--m);top:14px;width:calc(100% - 2*var(--m));max-width:480px}
-  .hero h1 .big{font-size:28px}.hero h1 .sub{font-size:13.5px;margin-top:4px}
-  .stats{gap:4px;margin-top:8px}
-  .stat{padding:5px 8px}.stat .v{font-size:17px}.stat .k,.stat .u{font-size:12px;overflow:hidden;text-overflow:ellipsis}
-  .chip,.more{font-size:12.5px;padding:3px 8px}
-  .tag{font-size:12.5px;padding:4px 7px}.tag .m{font-size:12px}
-  .tag.minor{display:none!important}
-  .foot{position:relative;left:auto;right:auto;top:auto;margin:12px var(--m) 0}
-  .controls{overflow:visible}
-  .guide,.controls,.diag,.data{position:relative;left:auto;right:auto;top:auto!important;bottom:auto;width:auto;max-width:720px;margin:12px auto;max-height:none}
-  .guide,.controls,.diag,.data{margin-left:var(--m);margin-right:var(--m)}
-  .caption{position:relative}
-  .data{height:auto}
-  .tbody canvas{min-height:260px;flex:none}
-  #scrCv{height:240px;min-height:0;width:240px}
-  #diagCv{height:210px}
-  #plotCv{height:220px;flex:none}
-  .plotpane{height:auto}
-  .modal .box{padding:20px}
-}
+/* Magnitudes de esta práctica: objeto, imagen real, imagen o objeto virtual, focos y los tres rayos principales.
+   El mismo color va en la escena, el diagrama, las lecturas y el texto. Contraste ≥ 4,5:1 como texto en cada tema. */
+:root{--mag-obj:#A25600;--mag-real:#006F8F;--mag-virt:#6A3FD6;--mag-foc:#0A7A43;--mag-r1:#B36B00;--mag-r2:#1F2A44;--mag-r3:#D1432F}
+html.oscuro{--mag-obj:#FFB454;--mag-real:#7FE3FF;--mag-virt:#C4B0FF;--mag-foc:#7DFFB0;--mag-r1:#FFD27A;--mag-r2:#FFFFFF;--mag-r3:#FF8F6B}
+.c-obj{color:var(--mag-obj)} .c-real{color:var(--mag-real)} .c-virt{color:var(--mag-virt)} .c-foc{color:var(--mag-foc)}
+.badge.c-obj,.badge.c-real,.badge.c-virt,.badge.c-foc{border-color:currentColor}
+.badge.punteada{border-style:dashed}
+/* rótulos sobre la escena (HTML: se leen igual a cualquier distancia) */
+#labels{position:absolute;inset:0;pointer-events:none;overflow:hidden}
+.tag{position:absolute;left:0;top:0;display:flex;align-items:center;gap:var(--e-1);padding:1px var(--e-2);border-radius:var(--r-full);background:var(--panel);border:1px solid var(--line);font-size:var(--t-xs);font-weight:500;white-space:nowrap;color:var(--ink)}
+.tag .d{width:8px;height:8px;border-radius:50%;flex:none}
+.tag.dash .d{background:transparent!important;border:1.5px dashed currentColor}
+.tag .m{font-family:var(--font-mono);color:var(--muted)}
+.tag .m:empty{display:none}
+.tag.minor{background:transparent;border-color:transparent;padding:0 var(--e-1)}
+body.no-labels #labels{display:none}
+#view canvas{touch-action:none;cursor:grab}
+#view canvas.can{cursor:move}
+/* lecturas sobre la escena + clasificación de la imagen */
+.clasif{display:flex;flex-wrap:wrap;gap:var(--e-1);padding:var(--e-1) var(--e-1) 0}
+/* lente en las opciones */
+.opcion svg{width:26px;height:22px;flex:none;fill:currentColor;fill-opacity:.25;stroke:currentColor;stroke-width:1.2}
+/* pantalla del laboratorio y gráfica dentro del panel */
+.pantalla{display:grid;grid-template-columns:minmax(0,150px) minmax(0,1fr);gap:var(--e-3);align-items:center}
+.pantalla canvas{width:100%;aspect-ratio:1;border-radius:var(--r-2);border:1px solid var(--line);display:block}
+.grafica{display:block;width:100%;height:220px}
+#profWrap .eq{margin-top:var(--e-2);white-space:normal}
+@media (max-width:760px){ .pantalla{grid-template-columns:110px minmax(0,1fr)} .clasif,.ventana-pie{display:none} }
 </style>
-</head>
-<body>
-<canvas id="gl" aria-label="Banco óptico 3D con una lente"></canvas>
-<div id="labels"></div>
-
-<header class="hero">
-  <h1><span class="big">IMAGEN Y OBJETO</span><span class="sub" id="heroSub">REALES Y VIRTUALES · ¿DÓNDE ESTÁ LA IMAGEN?</span></h1>
-  <div class="stats">
-    <div class="stat"><div class="k">s · objeto</div><div class="v obj" id="sS">−40.0</div><div class="u">cm</div></div>
-    <div class="stat"><div class="k">s′ · imagen</div><div class="v real" id="sSp">60.0</div><div class="u">cm</div></div>
-    <div class="stat"><div class="k" id="s3k">f′ · lente</div><div class="v foc" id="s3v">24.0</div><div class="u" id="s3u">cm</div></div>
-    <div class="stat"><div class="k">β · aumento</div><div class="v" id="sB">−1.50</div><div class="u">s′/s</div></div>
-  </div>
-  <div class="chips"><span id="chips" style="display:contents"></span><button class="more" id="bMore" aria-expanded="false" aria-controls="caption">+ Por qué</button></div>
-  <div class="caption" id="caption" hidden></div>
-</header>
-
-<nav class="foot">
-  <div class="seg" role="group" aria-label="Modo">
-    <button id="mExp" class="on">Explorar</button>
-    <button id="mLab">Laboratorio</button>
-  </div>
-  <button class="fbtn only-lab" id="bGuide">Paso a paso</button>
-  <button class="fbtn fsize" id="bProj" title="Letra grande: agranda textos y sube el contraste para proyectar en clase (P)" aria-label="Letra grande"><span class="a1">A</span><span class="a2">A</span></button>
-  <button class="fbtn" id="bTheme"></button>
-  <button class="fbtn" id="bHelp">Guía</button>
-  <button class="fbtn" id="bFull" aria-label="Pantalla completa"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M2.5 6V2.5H6M10 2.5h3.5V6M13.5 10v3.5H10M6 13.5H2.5V10"/></svg></button>
-</nav>
-
-<section class="panel guide only-lab" id="guide" aria-label="Paso a paso" hidden>
-  <div class="gh"><span class="dots" id="gDots"></span><button class="gx" id="gClose" title="Cerrar" aria-label="Cerrar paso a paso">✕</button></div>
-  <h3 id="gTitle"></h3>
-  <div class="gb" id="gBody"></div>
-  <div class="ga">
-    <span class="nav">
-      <button class="btn" id="gPrev" aria-label="Paso anterior"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M10 3 5 8l5 5"/></svg></button>
-      <span id="gStep">1 / 7</span>
-      <button class="btn" id="gNext" aria-label="Paso siguiente"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M6 3l5 5-5 5"/></svg></button>
-    </span>
-    <button class="btn primary" id="gDo"></button>
-    <span class="ok" id="gOk"></span>
-  </div>
-</section>
-
-<aside class="panel controls" id="controls" aria-label="Controles">
-  <details class="sec only-exp" name="ctl" id="secLens" open>
-    <summary><span class="lab">Lente</span></summary>
-    <div class="inner">
-      <div class="lens" id="lensPills"></div>
-      <div class="row" style="margin-top:10px">
-        <div class="ctl"><div class="top"><span class="lab">R₁</span><span class="val" id="vR1"></span></div><div class="mid"><input type="range" id="c1" min="-0.19" max="0.19" step="0.002" value="0.04" aria-label="Radio R1"></div></div>
-        <div class="ctl"><div class="top"><span class="lab">R₂</span><span class="val" id="vR2"></span></div><div class="mid"><input type="range" id="c2" min="-0.19" max="0.19" step="0.002" value="-0.04" aria-label="Radio R2"></div></div>
-      </div>
-      <div class="lab" style="margin:10px 0 5px">Material · n</div>
-      <div class="pills" id="nPills">
-        <button class="pill" data-n="1.33">Agua 1.33</button>
-        <button class="pill" data-n="1.49">Acrílico 1.49</button>
-        <button class="pill on" data-n="1.52">Vidrio 1.52</button>
-        <button class="pill" data-n="1.62">Flint 1.62</button>
-        <button class="pill" data-n="2.42">Diamante 2.42</button>
-      </div>
+</head><body>
+<div class="wrap">
+  <header class="top">
+    <div class="titulo">
+      <div class="eyebrow">Universidad Nacional de Colombia · Sede Medellín · Física 3 · Óptica</div>
+      <h1>La lente convergente</h1>
     </div>
-  </details>
-  <details class="sec only-exp" name="ctl" id="secObj">
-    <summary><span class="lab">Objeto</span></summary>
-    <div class="inner">
-      <div class="actions" id="casePills">
-        <button class="btn sm" data-case="far">Lejos</button>
-        <button class="btn sm" data-case="2f">En 2F</button>
-        <button class="btn sm" data-case="proj">Entre F y 2F</button>
-        <button class="btn sm" data-case="lupa">Dentro de F</button>
-        <button class="btn sm" data-case="virt">Detrás (virtual)</button>
-      </div>
-      <div class="actions" style="margin-top:10px">
-        <button class="btn primary o" id="bSweep"><svg viewBox="0 0 16 16" fill="currentColor"><path d="M4 2.8v10.4c0 .5.6.8 1 .5l8-5.2a.6.6 0 0 0 0-1L5 2.3c-.4-.3-1 0-1 .5z"/></svg><span>Recorrer</span></button>
-        <button class="btn" id="bTrail">Borrar estela</button>
-      </div>
-      <div class="hint">Arrastra la flecha a cualquier lado, también detrás de la lente.</div>
+    <div class="modes" role="group" aria-label="Modo">
+      <button class="mode" type="button" data-app="explore">Explorar</button>
+      <button class="mode" type="button" data-app="lab">Laboratorio</button>
+      <button class="interruptor" type="button" id="bGuide" role="switch" aria-checked="true">Paso a paso</button>
     </div>
-  </details>
-  <details class="sec only-lab" name="ctl" id="secLab">
-    <summary><span class="lab">Medición</span></summary>
-    <div class="inner">
-      <div class="pills" id="modePills">
-        <button class="pill c-obj on" data-mode="real"><span class="dot"></span>Objeto real</button>
-        <button class="pill c-virt" data-mode="virt"><span class="dot"></span>Objeto virtual</button>
-        <button class="pill c-real" data-mode="inf"><span class="dot"></span>Objeto en ∞</button>
-      </div>
-      <div class="row" style="margin-top:10px">
-        <div class="ctl" id="cObj"><div class="top"><span class="lab" id="lObj">s</span><span class="val obj" id="vObj"></span></div><input type="range" id="obj" min="-100" max="-2" step="0.1" value="-50" aria-label="Posición del objeto"></div>
-        <div class="ctl"><div class="top"><span class="lab">Pantalla</span><span class="val real" id="vScr"></span></div><input type="range" id="scr" min="2" max="115" step="0.1" value="50" aria-label="Posición de la pantalla"></div>
-      </div>
-      <div class="actions" style="margin-top:10px">
-        <button class="btn primary" id="bFocus" title="Mover la pantalla hasta la imagen nítida (E)">Enfocar</button>
-        <button class="btn primary o" id="bRec" title="Anotar s y s′ (Enter)">Registrar</button>
-        <button class="btn icon" id="bReset" title="Reiniciar posiciones (R)" aria-label="Reiniciar posiciones"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M3 8a5 5 0 1 0 1.5-3.6M3 2.5V5h2.5"/></svg></button>
-        <button class="btn" id="bCsv">CSV</button>
-        <button class="btn" id="bClear">Borrar</button>
-      </div>
-      <details class="adv">
-        <summary><span class="lab">Fuentes de error</span></summary>
-        <div class="row">
-          <div class="ctl"><div class="top"><span class="lab">Lejano a</span><span class="val" id="vD">8.0 m</span></div><input type="range" id="D" min="2" max="40" step="0.5" value="8" aria-label="Distancia del objeto lejano"></div>
-          <div class="ctl"><div class="top"><span class="lab">Al enfocar</span><span class="val" id="vP">1.0 ×</span></div><input type="range" id="Pr" min="0" max="4" step="0.1" value="1" aria-label="Error al enfocar"></div>
-        </div>
-        <div class="hint">El "infinito" del laboratorio está a pocos metros, así que la imagen queda un poco más lejos que f′.</div>
-      </details>
-    </div>
-  </details>
-  <details class="sec" name="ctl" id="secShow">
-    <summary><span class="lab">Mostrar y vista</span></summary>
-    <div class="inner">
-      <div class="pills" id="showPills">
-        <button class="pill tg on" data-k="beam"><span class="dot" style="color:var(--obj)"></span>Haz</button>
-        <button class="pill tg on" data-k="pr"><span class="dot" style="color:#ffe9c4"></span>Rayos</button>
-        <button class="pill tg on" data-k="ext"><span class="dot" style="color:var(--virt)"></span>Prolongaciones</button>
-        <button class="pill tg on only-exp" data-k="trail"><span class="dot" style="color:var(--real)"></span>Estela</button>
-      </div>
-      <div class="lab" style="margin:10px 0 5px">Vista</div>
-      <div class="pills" id="viewPills">
-        <button class="pill on" data-view="persp">Perspectiva</button>
-        <button class="pill" data-view="side">Lateral</button>
-        <button class="pill only-exp" data-view="low">Rasante</button>
-        <button class="pill only-exp" data-view="top">Planta</button>
-        <button class="pill only-lab" data-view="screen">Pantalla</button>
-        <button class="pill only-lab" data-view="eye">Ojo tras la lente</button>
-      </div>
-    </div>
-  </details>
-</aside>
-
-<section class="panel diag" aria-label="Diagrama de rayos">
-  <div class="phead"><h2>Diagrama de rayos</h2><span class="read" id="diagRead"></span></div>
-  <canvas id="diagCv"></canvas>
-</section>
-
-<section class="panel data" id="dataPanel" aria-label="Paneles de datos">
-  <div class="tabs" id="tabPills">
-    <button class="pill only-lab" data-tab="scr">Pantalla</button>
-    <button class="pill only-lab" data-tab="tab">Tabla</button>
-    <button class="pill only-lab" data-tab="plot">Gráfica</button>
-    <button class="pill only-lab" data-tab="res">Resultados</button>
-    <button class="pill" data-tab="map">Mapa s′–s</button>
-    <button class="pill" data-tab="prof">Lente por dentro</button>
+  </header>
+  <nav class="steps" aria-label="Pasos de la práctica"><ol id="steps"></ol></nav>
+  <div class="dock" role="toolbar" aria-label="Qué mostrar">
+    <button class="dk" type="button" data-ui="card" title="Panel de la práctica (P)"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="2.5" y="3.5" width="15" height="13" rx="2"/><path d="M12 3.5v13"/></svg>Panel</button>
+    <button class="dk" type="button" data-ui="scope" title="Diagrama de rayos, mapa y lente por dentro (S)"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M2 10h16"/><path d="M10 4v12M8.5 5.5 10 4l1.5 1.5M8.5 14.5 10 16l1.5-1.5"/><path d="M3 7l7 3 7 4" stroke-dasharray="2 1.6"/></svg>Diagrama</button>
+    <button class="dk" type="button" data-ui="labels" title="Rótulos en la escena (E)"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M3 10.5 9.5 4H16v6.5L9.5 17z"/><circle cx="13" cy="7" r="1.2"/></svg>Rótulos</button>
+    <button class="dk" type="button" data-ui="proyector" title="Letra grande, para proyector (L)"><b>Aa</b>Letra</button>
+    <button class="dk" type="button" data-ui="tema" title="Tema claro u oscuro (O)"><svg class="i-luna" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"><path d="M16.5 11.8A6.8 6.8 0 0 1 8.2 3.5a6.8 6.8 0 1 0 8.3 8.3z"/></svg><svg class="i-sol" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><circle cx="10" cy="10" r="3.4"/><path d="M10 2.5v2M10 15.5v2M2.5 10h2M15.5 10h2M4.7 4.7l1.4 1.4M13.9 13.9l1.4 1.4M4.7 15.3l1.4-1.4M13.9 6.1l1.4-1.4"/></svg>Tema</button>
+    <button class="dk sep" type="button" data-ui="clean" title="Ver solo la escena (H)"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M3 7V3h4M13 3h4v4M17 13v4h-4M7 17H3v-4"/></svg>Limpia</button>
   </div>
-  <div class="tbody" data-pane="map"><canvas id="mapCv"></canvas></div>
-  <div class="tbody" data-pane="prof"><canvas id="profCv"></canvas><div class="eqn" id="eqn"></div></div>
-  <div class="tbody" data-pane="scr"><div class="scrwrap"><canvas id="scrCv"></canvas></div><div class="lab" id="scrLab" style="margin-top:6px"></div><div class="sharp"><i id="sharpBar"></i></div></div>
-  <div class="tbody" data-pane="data" id="dataBody"></div>
-</section>
-
-<div class="toast" id="toast" role="status"></div>
-
-<div class="modal" id="help" role="dialog" aria-modal="true" aria-label="Guía">
-  <div class="box">
-    <button class="btn icon close" id="bHelpX" aria-label="Cerrar">✕</button>
-    <h2>Lentes: imagen y objeto</h2>
-    <p><b>Explorar</b> es libre: mueves el objeto, cambias la lente y ves a dónde se va la imagen. <b>Laboratorio</b> reproduce la práctica de la lente convergente, con riel, pantalla y datos. Física de Oscilaciones, Ondas y Óptica · UNAL Medellín.</p>
-    <h3>Convención de signos (DIN 1335)</h3>
-    <div class="eq">1/s′ − 1/s = 1/f′        β = s′/s<br>1/f′ = (n − 1)·(1/R₁ − 1/R₂)</div>
-    <p>Las distancias se miden desde la lente, positivas hacia donde va la luz. R &gt; 0 si el centro de curvatura queda a la derecha de la superficie.</p>
-    <table>
-      <tr><th>Caso</th><th>Signo</th><th>Qué significa</th></tr>
-      <tr><td class="obj">Objeto real</td><td class="mono">s &lt; 0</td><td>De él salen rayos de verdad.</td></tr>
-      <tr><td class="virt">Objeto virtual</td><td class="mono">s &gt; 0</td><td>Llegan rayos que iban a juntarse allí, pero la lente los desvía antes. En el laboratorio lo produce otra lente.</td></tr>
-      <tr><td class="real">Imagen real</td><td class="mono">s′ &gt; 0</td><td>Los rayos se cruzan de verdad: una pantalla la recoge.</td></tr>
-      <tr><td class="virt">Imagen virtual</td><td class="mono">s′ &lt; 0</td><td>Solo se cruzan las prolongaciones: se ve a través de la lente, pero una pantalla no la recoge.</td></tr>
-    </table>
-    <h3>Procedimiento en Laboratorio</h3>
-    <ol>
-      <li><b>Objeto en ∞:</b> enfoca la pantalla y registra. Eso da f′∞.</li>
-      <li><b>Objeto real:</b> enfoca y registra 5 distancias separadas 5 o 10 cm.</li>
-      <li><b>Gráfica 1/s′ vs 1/s:</b> recta de pendiente 1 y corte b = 1/f′. Compara con f′∞.</li>
-    </ol>
-    <div class="eq">u(1/s) = u_s / s²      f′ = 1/b      u_f′ = u_b / b²</div>
-    <p>u<sub>s</sub> = 0.1 cm (cinta métrica). En s′ se suma la profundidad de foco δ = 0.05·s′/D, con D = 10 cm el diámetro de la lente.</p>
-    <h3>Lo que se ve a través de la lente</h3>
-    <p>Con el ojo en un lugar fijo y el objeto alejándose desde la lente: dentro de F se ve derecha y mayor. Al cruzar F el tamaño aparente no salta, aunque la imagen pase de −∞ a +∞. Sigue derecha mientras la imagen real se forme detrás del ojo. Cuando esa imagen llega al ojo, la F se ve enorme y se pierde; después aparece invertida, porque la imagen real ya está delante del ojo.</p>
-    <h3>Atajos</h3>
-    <p><kbd>L</kbd> cambiar de modo · <kbd>V</kbd> vista · <kbd>P</kbd> letra grande (para proyectar en clase) · <kbd>N</kbd> modo día/noche · <kbd>?</kbd> guía. En Explorar: <kbd>Espacio</kbd> recorrer, <kbd>←</kbd> <kbd>→</kbd> mover, <kbd>T</kbd> estela. En Laboratorio: <kbd>1</kbd> <kbd>2</kbd> <kbd>3</kbd> caso, <kbd>E</kbd> enfocar, <kbd>Enter</kbd> registrar, <kbd>R</kbd> reiniciar, <kbd>G</kbd> paso a paso.</p>
+  <button class="unclean" type="button" id="unclean">Mostrar paneles · H</button>
+  <div class="hud" id="hud" hidden></div>
+  <div class="pad" id="pad" hidden role="group" aria-label="Controles"></div>
+  <div class="viewpanel">
+    <div id="view" role="img" aria-label="Riel óptico con objeto, lente y pantalla; rayos de luz que forman la imagen"></div>
+    <div id="labels" aria-hidden="true"></div>
+    <div class="viewbtns" id="viewbtns" role="group" aria-label="Cámara"></div>
   </div>
+  <div class="vivo" id="vivo"></div>
+  <section class="scopeblock ventana" id="ventana" aria-label="Diagrama de rayos, mapa y lente por dentro">
+    <div class="ventana-cab ventana-asa"><span id="tabsV"></span><button class="ventana-btn" type="button" data-ven="plegar" aria-label="Plegar la ventana">–</button><button class="ventana-btn" type="button" data-ven="cerrar" aria-label="Cerrar la ventana (S)">✕</button></div>
+    <div class="ventana-cuerpo">
+      <canvas class="ventana-lienzo" id="diagCv" aria-label="Diagrama de rayos principales"></canvas>
+      <canvas class="ventana-lienzo" id="mapCv" hidden aria-label="Mapa de s′ contra s; toca para mover el objeto"></canvas>
+      <div id="profWrap" hidden><canvas class="ventana-lienzo" id="profCv" aria-label="Perfil de la lente con sus radios"></canvas><div class="eq" id="eqn"></div></div>
+      <p class="ventana-pie" id="ventPie"></p>
+    </div>
+  </section>
+  <section class="card" id="card" aria-live="polite"></section>
 </div>
 
 <script data-inline="../../../biblioteca/nucleo/three-r159.min.js"></script>
+<script data-inline="../../../biblioteca/nucleo/camara.js"></script>
+<script data-inline="../../../biblioteca/nucleo/ambiente.js"></script>
+<script data-inline="../../../biblioteca/fisica/incertidumbre.js"></script>
+<script data-inline="../../../biblioteca/interfaz/interfaz.js"></script>
 <script>
 (()=>{
 'use strict';
 /* ================= constantes y estado ================= */
-const COLN={obj:'#ffb454',real:'#7fe3ff',virt:'#c4b0ff',foc:'#7dffb0',ink:'#f4f6fc',muted:'#b4bed3',axis:'rgba(180,190,211,.55)',screen:'rgba(221,227,240,.75)',ext:'#d6caff',rays:['#ffd27a','#ffffff','#ff8f6b'],
-  grid:'rgba(255,255,255,.08)',gridS:'rgba(244,246,252,.5)',plotAx:'rgba(255,255,255,.35)',label:'rgba(244,246,252,.85)',focLine:'rgba(125,255,176,.6)',qR:'127,227,255',qV:'196,176,255',halo:'rgba(255,255,255,.6)',halo0:'rgba(255,255,255,0)'};
-const COLD={obj:'#a25600',real:'#006f8f',virt:'#6a3fd6',foc:'#0a7a43',ink:'#141a2b',muted:'#4f5a70',axis:'rgba(60,70,95,.6)',screen:'rgba(40,50,75,.8)',ext:'#5b33c4',rays:['#b36b00','#1f2a44','#d1432f'],
-  grid:'rgba(20,30,55,.1)',gridS:'rgba(20,30,55,.55)',plotAx:'rgba(20,30,55,.45)',label:'rgba(20,26,43,.9)',focLine:'rgba(10,122,67,.65)',qR:'0,111,143',qV:'106,63,214',halo:'rgba(20,30,55,.22)',halo0:'rgba(20,30,55,0)'};
-const COL={...COLN};
+/* Preferencias primero: ponen el tema (html.oscuro) antes de leer los colores y armar la escena. */
+const CLAVE='lente-ui';
+const UI=Lab.ui.cargarPreferencias(CLAVE,{scope:innerWidth>760});
+/* Colores de lienzos y rayos: salen de los tokens (tokens.css y --mag-* de arriba) y se releen al cambiar de tema. */
+const COL={};
+const cssv=n=>getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+const rgb=h=>{h=h.replace('#','');if(h.length===3)h=h.split('').map(c=>c+c).join('');const n=parseInt(h,16);return `${n>>16&255},${n>>8&255},${n&255}`;};
+function leerColores(){
+  const ink=cssv('--ink'),mut=cssv('--muted');
+  Object.assign(COL,{obj:cssv('--mag-obj'),real:cssv('--mag-real'),virt:cssv('--mag-virt'),foc:cssv('--mag-foc'),ink,muted:mut,
+    axis:`rgba(${rgb(mut)},.7)`,screen:`rgba(${rgb(ink)},.75)`,ext:cssv('--mag-virt'),rays:[cssv('--mag-r1'),cssv('--mag-r2'),cssv('--mag-r3')],
+    grid:cssv('--line'),gridS:`rgba(${rgb(mut)},.8)`,plotAx:mut,label:ink,focLine:`rgba(${rgb(cssv('--mag-foc'))},.7)`,
+    qR:rgb(cssv('--mag-real')),qV:rgb(cssv('--mag-virt')),halo:`rgba(${rgb(ink)},.35)`,halo0:`rgba(${rgb(ink)},0)`});
+}
+leerColores();
+const FB="'IBM Plex Sans', system-ui, sans-serif", FM="'IBM Plex Mono', Menlo, monospace", FD="'Bricolage Grotesque', system-ui, sans-serif";
 // En día los colores neón no se leen: cada color de la escena tiene su versión oscura.
 const DAY3={0xffb454:0xc96f00,0xffc070:0xb85f00,0xffc982:0xd98a2b,0xffd9a0:0xb36b00,0x7fe3ff:0x0089b0,0xc4b0ff:0x6a3fd6,0xd6caff:0x5b33c4,0x7dffb0:0x0a8f4f,0xb4bed3:0x5a6680,0x8f9ab3:0x7a859c,
   0x2a3550:0xc6cedb,0x3c4c70:0xaeb8c9,0x070b14:0xe3e8ef,0x10141f:0x2a3244,0x1c2333:0x3b455c,0x0e121b:0x222938,0xb9c2cf:0x9aa4b3,0xe8f6ff:0xd8f0fa,0x070a12:0xf1f4f8};
@@ -515,8 +129,8 @@ let tab='map',dirty=true,lensDirty=true,focusAnim=null,autoRec=false;
 const isLab=()=>S.app==='lab';
 
 const $=id=>document.getElementById(id);
-const fx=(x,d)=>(Number.isFinite(x)?x.toFixed(d):'—');
-const sg=(x,d)=>(Number.isFinite(x)?(x<0?'−':x>0?'+':'')+Math.abs(x).toFixed(d):'∞');
+const fx=(x,d)=>(Number.isFinite(x)?x.toFixed(d).replace('.',','):'—');
+const sg=(x,d)=>(Number.isFinite(x)?(x<0?'−':x>0?'+':'')+Math.abs(x).toFixed(d).replace('.',','):'∞');
 function randn(){let u=0,v=0;while(!u)u=Math.random();while(!v)v=Math.random();return Math.sqrt(-2*Math.log(u))*Math.cos(2*Math.PI*v);}
 
 /* ================= óptica paraxial ================= */
@@ -585,10 +199,9 @@ function principalRays(xEnd,xBegin){ // plano z = 0: rayo paralelo, por el centr
   }
   return out;
 }
-
 /* ================= escena ================= */
-const canvas=$('gl');
-const renderer=new THREE.WebGLRenderer({canvas,antialias:true,stencil:true});
+const renderer=new THREE.WebGLRenderer({antialias:true,stencil:true});
+const canvas=renderer.domElement;$('view').appendChild(canvas);
 renderer.setPixelRatio(Math.min(devicePixelRatio,2));
 renderer.toneMapping=THREE.ACESFilmicToneMapping;renderer.toneMappingExposure=1.2;renderer.autoClear=false;renderer.setClearColor(0x04060c,1);
 const scene=new THREE.Scene();scene.fog=new THREE.Fog(0x04060c,280,700);
@@ -630,9 +243,9 @@ const floorL=[];
   const axL=mesh(new THREE.BoxGeometry(-XMIN,.06,.35),new THREE.MeshBasicMaterial({color:0x8f9ab3,transparent:true,opacity:.5}));axL.position.set(XMIN/2,.06,0);axL.renderOrder=2;floorL.push(axL);
   const ax=mesh(new THREE.BoxGeometry(XMAX-XMIN,.06,.35),new THREE.MeshBasicMaterial({color:0x8f9ab3,transparent:true,opacity:.5}));ax.position.set((XMAX+XMIN)/2,.06,0);scene.add(ax);
   const lp=mesh(new THREE.BoxGeometry(.35,.06,70),new THREE.MeshBasicMaterial({color:0x7fe3ff}));lp.position.set(0,.07,0);scene.add(lp);
-  for(let x=-100;x<=100;x+=20){if(!x)continue;const cv=document.createElement('canvas');cv.width=128;cv.height=64;const c=cv.getContext('2d');c.font='500 44px "DM Mono", Menlo, monospace';c.fillStyle='#fff';c.textAlign='center';c.textBaseline='middle';c.fillText((x>0?'+':'−')+Math.abs(x),64,32);
+  for(let x=-100;x<=100;x+=20){if(!x)continue;const cv=document.createElement('canvas');cv.width=128;cv.height=64;const c=cv.getContext('2d');c.font='500 44px '+FM;c.fillStyle='#fff';c.textAlign='center';c.textBaseline='middle';c.fillText((x>0?'+':'−')+Math.abs(x),64,32);
     const m=mesh(new THREE.PlaneGeometry(9,4.5),new THREE.MeshBasicMaterial({map:new THREE.CanvasTexture(cv),color:x<0?0xffb454:0x7fe3ff,transparent:true,opacity:.9,depthWrite:false}));m.rotation.x=-Math.PI/2;m.position.set(x,.08,26);scene.add(m);if(x<0){m.renderOrder=3;floorL.push(m);}}
-  const word=(txt,x,col)=>{const cv=document.createElement('canvas');cv.width=1024;cv.height=96;const c=cv.getContext('2d');c.font='700 56px Outfit, Arial';c.fillStyle='#fff';c.textAlign='center';c.textBaseline='middle';c.fillText(txt,512,48);
+  const word=(txt,x,col)=>{const cv=document.createElement('canvas');cv.width=1024;cv.height=96;const c=cv.getContext('2d');c.font='700 56px '+FD;c.fillStyle='#fff';c.textAlign='center';c.textBaseline='middle';c.fillText(txt,512,48);
     const m=mesh(new THREE.PlaneGeometry(68,6.4),new THREE.MeshBasicMaterial({map:new THREE.CanvasTexture(cv),color:col,transparent:true,opacity:.7,depthWrite:false}));m.rotation.x=-Math.PI/2;m.position.set(x,.08,32);scene.add(m);if(x<0){m.renderOrder=3;floorL.push(m);}};
   word('LA LUZ LLEGA  ·  s < 0',-50,0xffb454);word('LA LUZ SALE  ·  s′ > 0',50,0x7fe3ff);
 })();
@@ -713,7 +326,7 @@ let tapeL;
   const L=XMAX-XMIN,ppc=18,cv=document.createElement('canvas');cv.width=Math.round(L*ppc);cv.height=64;const c=cv.getContext('2d');
   c.fillStyle='#e9c44a';c.fillRect(0,0,cv.width,64);c.fillStyle='#1b1406';
   for(let i=0;i<=L*10;i++){const x=i*ppc/10,h=i%100===0?30:i%50===0?22:i%10===0?16:7;c.fillRect(x,0,i%10===0?2:1,h);}
-  c.font='700 24px "DM Mono", Menlo, monospace';c.textBaseline='bottom';
+  c.font='700 24px '+FM;c.textBaseline='bottom';
   for(let cm=0;cm<=L;cm+=10)c.fillText(String(cm),cm*ppc+4,62);
   const t=new THREE.CanvasTexture(cv);t.colorSpace=THREE.SRGBColorSpace;t.anisotropy=8;
   const m=mesh(new THREE.PlaneGeometry(L,2.6),new THREE.MeshStandardMaterial({map:t,roughness:.6,emissive:0xffffff,emissiveMap:t,emissiveIntensity:.25}));m.position.set((XMIN+XMAX)/2,RT/2,3.02);labG.add(m);
@@ -752,7 +365,6 @@ const scrFrame=mesh(new THREE.BoxGeometry(.9,SCR+1.4,SCR+1.4),M.dark);scrFrame.p
 const texCv=document.createElement('canvas');texCv.width=texCv.height=512;const sctx=texCv.getContext('2d');
 const scrTex=new THREE.CanvasTexture(texCv);scrTex.colorSpace=THREE.SRGBColorSpace;
 const scrPlane=mesh(new THREE.PlaneGeometry(SCR,SCR),new THREE.MeshBasicMaterial({map:scrTex,toneMapped:false}));scrPlane.rotation.y=-Math.PI/2;scrPlane.position.set(-.03,Y0,0);scrG.add(scrPlane);
-const prevCv=$('scrCv');prevCv.width=prevCv.height=420;const pctx=prevCv.getContext('2d');
 const farG=new THREE.Group();labG.add(farG);
 const farF=fPlane(0xffc070,1);farF.scale.set(9,9,1);farF.material.fog=false;farG.add(farF);
 const farGlow=glow(0xffb454,60,.35);farGlow.material.fog=false;farGlow.position.set(0,14,0);farG.add(farGlow);
@@ -893,71 +505,8 @@ function drawScreen(){
   c.shadowBlur=0;c.globalCompositeOperation='source-over';c.strokeStyle='rgba(255,255,255,.08)';c.lineWidth=1;
   c.beginPath();c.moveTo(N/2-14,N/2);c.lineTo(N/2+14,N/2);c.moveTo(N/2,N/2-14);c.lineTo(N/2,N/2+14);c.stroke();
   scrTex.needsUpdate=true;
-  pctx.drawImage(texCv,0,0,N,N,0,0,prevCv.width,prevCv.height);
+  const pv=$('scrCv');if(pv){if(pv.width!==300)pv.width=pv.height=300;pv.getContext('2d').drawImage(texCv,0,0,N,N,0,0,300,300);}
 }
-
-/* ---------- cámara ---------- */
-const cam={target:new THREE.Vector3(0,Y0,0),dist:220,az:.25,pol:1.25,anim:null};
-function spanX(){const im=image(),xs=[0];if(isLab()){xs.push(S.mode==='inf'?-50:XD(),S.xs);}else{xs.push(S.s);}
-  if(Number.isFinite(im.sp)&&Math.abs(im.sp)<150)xs.push(im.sp);return [Math.min(...xs),Math.max(...xs)];}
-const sideCenter=()=>{const [a,b]=spanX();return (a+b)/2;};
-const sideDist=()=>{const [a,b]=spanX();return Math.max(130,(b-a+50)/(2*Math.tan(16*Math.PI/180)*Math.max(camera.aspect,.5))*1.3);};
-const VIEWS={
-  persp:()=>isLab()?{target:new THREE.Vector3(sideCenter(),Y0-3,0),dist:Math.max(170,sideDist()),az:-.3,pol:1.3}:{target:new THREE.Vector3(2,Y0-3,0),dist:205,az:.26,pol:1.27},
-  side:()=>({target:new THREE.Vector3(sideCenter(),Y0+1,0),dist:sideDist(),az:0,pol:Math.PI/2-.015}),
-  low:()=>({target:new THREE.Vector3(-5,Y0,0),dist:150,az:1.18,pol:1.47}),
-  top:()=>({target:new THREE.Vector3(0,0,4),dist:260,az:0,pol:.06}),
-  screen:()=>({target:new THREE.Vector3(S.xs,Y0,0),dist:30,az:-1.05,pol:1.48}),
-  eye:()=>{const im=image(),xe=Math.max(24,fP()*1.8),tx=Number.isFinite(im.sp)&&im.sp<0?Math.max(-90,im.sp):Math.min(-10,S.mode==='inf'?-10:XD());return {target:new THREE.Vector3(tx,Y0,0),dist:xe-tx,az:Math.PI/2,pol:Math.PI/2};},
-};
-let view='persp';
-function goView(v,instant){view=v;const t=VIEWS[v]();
-  if(camera.aspect<.9&&(v==='persp'||v==='top')){t.dist*=1.45;t.az=v==='persp'?.2:t.az;t.target.x-=4;}
-  cam.anim={from:{target:cam.target.clone(),dist:cam.dist,az:cam.az,pol:cam.pol},to:t,k:instant?1:0};
-  document.querySelectorAll('#viewPills .pill').forEach(b=>b.classList.toggle('on',b.dataset.view===v));}
-function updateCam(dt){
-  if(cam.anim){const a=cam.anim;a.k=Math.min(1,a.k+dt/1.1);const e=1-Math.pow(1-a.k,3);
-    cam.target.lerpVectors(a.from.target,a.to.target,e);cam.dist=Math.exp(Math.log(a.from.dist)+(Math.log(a.to.dist)-Math.log(a.from.dist))*e);
-    cam.az=a.from.az+(a.to.az-a.from.az)*e;cam.pol=a.from.pol+(a.to.pol-a.from.pol)*e;if(a.k>=1)cam.anim=null;}
-  const sp=Math.sin(cam.pol);
-  camera.position.set(cam.target.x+cam.dist*sp*Math.sin(cam.az),cam.target.y+cam.dist*Math.cos(cam.pol),cam.target.z+cam.dist*sp*Math.cos(cam.az));
-  camera.up.set(0,1,0);if(cam.pol<.1)camera.up.set(0,0,-1);
-  camera.lookAt(cam.target);
-}
-/* arrastre */
-const ray=new THREE.Raycaster(),ndc=new THREE.Vector2();
-function setNdc(e){const r=canvas.getBoundingClientRect();ndc.set((e.clientX-r.left)/r.width*2-1,-(e.clientY-r.top)/r.height*2+1);ray.setFromCamera(ndc,camera);}
-function pickAt(e){setNdc(e);
-  if(isLab()){const c=[scrFrame,scrPlane];if(S.mode!=='inf')c.push(box,face);const h=ray.intersectObjects(c,false)[0];if(!h)return null;return h.object===scrFrame||h.object===scrPlane?'scr':'obj';}
-  return ray.intersectObjects([objHit,...objA.g.children.filter(c=>c.isMesh),...vObjA.g.children.filter(c=>c.isMesh),objA.ring,vObjA.ring],false).length?'arrow':null;}
-function planePoint(e){setNdc(e);const d=camera.getWorldDirection(new THREE.Vector3());
-  const n=new THREE.Vector3(0,0,1);if(Math.abs(d.z)<.25)n.set(0,1,0);
-  const pl=new THREE.Plane().setFromNormalAndCoplanarPoint(n,n.y?new THREE.Vector3():new THREE.Vector3(0,Y0,0)),p=new THREE.Vector3();
-  return ray.ray.intersectPlane(pl,p)?{p,floor:!!n.y}:null;}
-let drag=null;const ptrs=new Map();let pinch0=null;
-canvas.addEventListener('pointerdown',e=>{e.preventDefault();ptrs.set(e.pointerId,{x:e.clientX,y:e.clientY});
-  if(ptrs.size===2){const [a,b]=[...ptrs.values()];pinch0={d:Math.hypot(a.x-b.x,a.y-b.y),dist:cam.dist};drag=null;return;}
-  const what=pickAt(e),q=what&&planePoint(e);
-  if(q){stopSweep();focusAnim=null;
-    if(what==='scr')drag={kind:'scr',dx:S.xs-q.p.x};
-    else if(what==='obj')drag={kind:'obj',dx:XD()-q.p.x};
-    else drag={kind:'arrow',dx:S.s-q.p.x,dy:S.h-(q.p.y-Y0)};
-  }else{drag={kind:'orbit',x:e.clientX,y:e.clientY};cam.anim=null;}
-  canvas.setPointerCapture(e.pointerId);canvas.classList.add('drag');});
-canvas.addEventListener('pointermove',e=>{
-  if(!drag&&e.pointerType==='mouse')canvas.classList.toggle('can',!!pickAt(e));
-  if(ptrs.has(e.pointerId))ptrs.set(e.pointerId,{x:e.clientX,y:e.clientY});
-  if(pinch0&&ptrs.size===2){const [a,b]=[...ptrs.values()];cam.dist=Math.min(700,Math.max(8,pinch0.dist*pinch0.d/Math.max(1,Math.hypot(a.x-b.x,a.y-b.y))));return;}
-  if(!drag)return;
-  if(drag.kind==='orbit'){const dx=e.clientX-drag.x,dy=e.clientY-drag.y;drag.x=e.clientX;drag.y=e.clientY;cam.az-=dx*.006;cam.pol=Math.min(1.6,Math.max(.05,cam.pol-dy*.005));return;}
-  const q=planePoint(e);if(!q)return;const x=q.p.x+drag.dx;
-  if(drag.kind==='scr')setScr(x);
-  else if(drag.kind==='obj')setPos(S.mode==='virt'?x+4*F0:x);
-  else if(q.floor)setPos(x,S.h);else setPos(x,(q.p.y-Y0)+drag.dy);
-});
-const endDrag=e=>{ptrs.delete(e.pointerId);if(ptrs.size<2)pinch0=null;drag=null;canvas.classList.remove('drag');};
-canvas.addEventListener('pointerup',endDrag);canvas.addEventListener('pointercancel',endDrag);
-canvas.addEventListener('wheel',e=>{e.preventDefault();cam.anim=null;cam.dist=Math.min(700,Math.max(8,cam.dist*Math.exp(e.deltaY*.0012)));},{passive:false});
 
 /* ---------- etiquetas ---------- */
 const tags=[];
@@ -966,18 +515,18 @@ function tag(color,name,anchor,val,show,opt={}){const el=document.createElement(
 const tv=new THREE.Vector3();
 const tipY=y=>Y0+y+Math.sign(y||1)*2.8;
 const imgInView=im=>Number.isFinite(im.sp)&&im.sp>XMIN-10&&im.sp<XMAX+10&&Math.abs(im.yp)<30;
-tag('var(--obj)','Objeto real',()=>tv.set(S.s,tipY(S.h),0),()=>sg(S.s,1),()=>!isLab()&&S.s<0);
-tag('var(--virt)','Objeto virtual',()=>tv.set(S.s,tipY(S.h),0),()=>sg(S.s,1),()=>!isLab()&&S.s>0,{dash:true});
-tag('var(--obj)','Objeto luminoso',()=>tv.set(XD()-2,Y0+8,0),()=>S.mode==='virt'?'':sg(S.s,1),()=>isLab()&&S.mode!=='inf');
-tag('var(--obj)','Objeto lejano',()=>tv.set(-300,44,-40),()=>`${fx(S.D,1)} m`,()=>isLab()&&S.mode==='inf');
-tag('var(--virt)','L₀',()=>tv.set(XL0(),Y0+6.5,0),()=>'',()=>isLab()&&S.mode==='virt',{minor:true});
-tag('var(--virt)','Objeto virtual',()=>tv.set(S.sv,Y0-H-3,0),()=>sg(S.sv,1),()=>isLab()&&S.mode==='virt'&&S.ext,{dash:true});
+tag('var(--mag-obj)','Objeto real',()=>tv.set(S.s,tipY(S.h),0),()=>sg(S.s,1),()=>!isLab()&&S.s<0);
+tag('var(--mag-virt)','Objeto virtual',()=>tv.set(S.s,tipY(S.h),0),()=>sg(S.s,1),()=>!isLab()&&S.s>0,{dash:true});
+tag('var(--mag-obj)','Objeto luminoso',()=>tv.set(XD()-2,Y0+8,0),()=>S.mode==='virt'?'':sg(S.s,1),()=>isLab()&&S.mode!=='inf');
+tag('var(--mag-obj)','Objeto lejano',()=>tv.set(-300,44,-40),()=>`${fx(S.D,1)} m`,()=>isLab()&&S.mode==='inf');
+tag('var(--mag-virt)','L₀',()=>tv.set(XL0(),Y0+6.5,0),()=>'',()=>isLab()&&S.mode==='virt',{minor:true});
+tag('var(--mag-virt)','Objeto virtual',()=>tv.set(S.sv,Y0-H-3,0),()=>sg(S.sv,1),()=>isLab()&&S.mode==='virt'&&S.ext,{dash:true});
 tag('var(--ink)','Pantalla',()=>tv.set(S.xs,Y0+SCR/2+3,0),()=>fx(S.xs,1),()=>isLab(),{minor:true});
-tag('var(--real)','Lente',()=>tv.set(0,Y0+AP+3.2,0),()=>{const f=fP();return isLab()?'':Number.isFinite(f)?`f′ ${sg(f,1)}`:'f′ ∞';},()=>true);
-tag('var(--real)','Imagen real',()=>{const im=image();return tv.set(im.sp,tipY(im.yp),0);},()=>sg(image().sp,1),()=>{const im=image();return im.real&&imgInView(im)&&(!isLab()||im.sp<S.xs-1.2);});
-tag('var(--virt)','Imagen virtual',()=>{const im=image();return tv.set(im.sp,tipY(im.yp),0);},()=>sg(image().sp,1),()=>{const im=image();return im.sp<0&&imgInView(im)&&(!isLab()||S.ext);},{dash:true});
-tag('var(--foc)','F′',()=>tv.set(fP(),Y0-2.8,0),()=>'',()=>!isLab()&&Math.abs(fP())<XMAX,{minor:true});
-tag('var(--foc)','F',()=>tv.set(-fP(),Y0-2.8,0),()=>'',()=>!isLab()&&Math.abs(fP())<XMAX,{minor:true});
+tag('var(--mag-real)','Lente',()=>tv.set(0,Y0+AP+3.2,0),()=>{const f=fP();return isLab()?'':Number.isFinite(f)?`f′ ${sg(f,1)}`:'f′ ∞';},()=>true);
+tag('var(--mag-real)','Imagen real',()=>{const im=image();return tv.set(im.sp,tipY(im.yp),0);},()=>sg(image().sp,1),()=>{const im=image();return im.real&&imgInView(im)&&(!isLab()||im.sp<S.xs-1.2);});
+tag('var(--mag-virt)','Imagen virtual',()=>{const im=image();return tv.set(im.sp,tipY(im.yp),0);},()=>sg(image().sp,1),()=>{const im=image();return im.sp<0&&imgInView(im)&&(!isLab()||S.ext);},{dash:true});
+tag('var(--mag-foc)','F′',()=>tv.set(fP(),Y0-2.8,0),()=>'',()=>!isLab()&&Math.abs(fP())<XMAX,{minor:true});
+tag('var(--mag-foc)','F',()=>tv.set(-fP(),Y0-2.8,0),()=>'',()=>!isLab()&&Math.abs(fP())<XMAX,{minor:true});
 function updateTags(){const w=canvas.clientWidth,h=canvas.clientHeight;
   for(const t of tags){if(!t.show()){t.el.style.display='none';continue;}
     const p=t.anchor().clone().project(camera),vis=p.z<1&&Math.abs(p.x)<1.02&&Math.abs(p.y)<1.02;t.el.style.display=vis?'':'none';
@@ -1019,57 +568,30 @@ function setPos(x,h){
   dirty=true;
 }
 function setScr(v){S.xs=Math.max(2,Math.min(115,v));syncLabUI();dirty=true;}
-
-/* ================= HUD ================= */
 const whyCache={};
 function explain(){
   const im=image(),o=mainObj(),f=fP(),conv=P()>0,af=Math.abs(f),d=Math.abs(o.s);
   if(isLab()){
     const dx=im.sp-S.xs;
-    if(S.mode==='inf')return `Los rayos del objeto lejano llegan casi paralelos, así que se cruzan muy cerca de <b class="foc">F′</b>. Como el objeto no está realmente en el infinito, la imagen queda un poco más allá. ${sharpness(scrInfo.blur)>.8?'La pantalla está en ese plano: ya puedes registrar.':`Mueve la pantalla hacia la ${dx>0?'derecha':'izquierda'} hasta verla nítida.`}`;
-    if(S.mode==='virt')return `L₀ manda un haz que iba a juntarse detrás de la lente: ese punto es un <b class="virt">objeto virtual</b>. La lente adelanta el cruce y la imagen sale <b class="real">real</b>, más cerca que el objeto virtual.`;
+    if(S.mode==='inf')return `Los rayos del objeto lejano llegan casi paralelos, así que se cruzan muy cerca de <b class="c-foc">F′</b>. Como el objeto no está realmente en el infinito, la imagen queda un poco más allá. ${sharpness(scrInfo.blur)>.8?'La pantalla está en ese plano: ya puedes registrar.':`Mueve la pantalla hacia la ${dx>0?'derecha':'izquierda'} hasta verla nítida.`}`;
+    if(S.mode==='virt')return `L₀ manda un haz que iba a juntarse detrás de la lente: ese punto es un <b class="c-virt">objeto virtual</b>. La lente adelanta el cruce y la imagen sale <b class="c-real">real</b>, más cerca que el objeto virtual.`;
     if(!Number.isFinite(im.sp))return `El objeto está justo en el foco: los rayos salen paralelos y en la pantalla solo hay una mancha.`;
     if(!im.real)return `Con el objeto dentro de la distancia focal, los rayos salen abiertos y nunca se cruzan. Solo se cruzan sus prolongaciones, por eso la pantalla no la recoge. Solo se ve mirando a través de la lente: usa la vista <b>Ojo tras la lente</b>.`;
     return `Los rayos se cruzan de verdad en el plano de la imagen: en el aire no se ve, pero una pantalla ahí la recoge nítida. ${sharpness(scrInfo.blur)>.8?'La pantalla ya está en ese plano.':dx>0?'La pantalla está antes de ese plano: aléjala de la lente.':'La pantalla ya pasó ese plano: acércala a la lente.'}`;
   }
   if(!Number.isFinite(f))return `Con estos radios la lente no desvía la luz: la imagen coincide con el objeto.`;
-  if(o.s>0)return im.real?`A la lente llegan rayos que iban a juntarse detrás de ella, pero nunca llegan: por eso el objeto es <b class="virt">virtual</b>. La lente ${conv?'adelanta el cruce':'lo retrasa, pero aún hay cruce'}, y ahí los rayos se juntan de verdad.`:`A la lente llegan rayos que iban a juntarse detrás de ella, pero esta lente los abre tanto que divergen. Solo se cruzan sus prolongaciones: imagen <b class="virt">virtual</b>.`;
+  if(o.s>0)return im.real?`A la lente llegan rayos que iban a juntarse detrás de ella, pero nunca llegan: por eso el objeto es <b class="c-virt">virtual</b>. La lente ${conv?'adelanta el cruce':'lo retrasa, pero aún hay cruce'}, y ahí los rayos se juntan de verdad.`:`A la lente llegan rayos que iban a juntarse detrás de ella, pero esta lente los abre tanto que divergen. Solo se cruzan sus prolongaciones: imagen <b class="c-virt">virtual</b>.`;
   if(!Number.isFinite(im.sp))return `El objeto está justo en F: los rayos salen paralelos y la imagen se va al infinito. Muévelo un poco y mira cómo salta de un lado a otro.`;
   if(!conv)return `Una lente divergente abre los rayos de un objeto real, así que nunca se cruzan. Solo sus prolongaciones lo hacen, siempre entre F′ y la lente, sin importar dónde pongas el objeto.`;
   if(im.real)return `Los rayos se cruzan de verdad, así que una pantalla podría recoger la imagen. ${d>2*af+.3?'Más allá de 2F sale menor, como en una cámara.':d<2*af-.3?'Entre F y 2F sale mayor, como en un proyector. Si acercas el objeto a F, la imagen huye al infinito.':'En 2F sale del mismo tamaño.'}`;
   return `Dentro de F los rayos salen abiertos y no se cruzan. Sus prolongaciones sí, del mismo lado del objeto. Así funciona una lupa.`;
 }
-function updateHUD(){
-  const im=image(),o=mainObj(),f=fP(),lab=isLab(),inf=lab&&S.mode==='inf';
-  $('sS').textContent=inf?'−∞':sg(o.s,1);$('sS').className='v '+(o.s<0?'obj':'virt');
-  $('sSp').textContent=sg(im.sp,1);$('sSp').className='v '+(im.real||!Number.isFinite(im.sp)?'real':'virt');
-  if(lab){const sh=sharpness(scrInfo.blur),on=im.real;
-    $('s3k').textContent='Nitidez';$('s3v').textContent=on?fx(sh*100,0):'—';$('s3u').textContent='%';
-    $('s3v').className='v';$('s3v').style.color=on?(sh>.8?'var(--ok)':sh>.3?'var(--warn)':'var(--no)'):'';
-    $('sharpBar').style.width=`${on?sh*100:0}%`;$('sharpBar').style.background=sh>.8?'var(--ok)':sh>.3?'var(--warn)':'var(--no)';
-    $('scrLab').textContent=im.real?(sh>.8?'Imagen nítida':'Fuera de foco'):'Sin imagen, solo luz difusa';
-  }else{
-    $('s3k').textContent='f′ · lente';$('s3v').textContent=Number.isFinite(f)?sg(f,1):'∞';$('s3v').style.color='';$('s3v').className='v '+(P()>=0?'foc':'virt');$('s3u').textContent=`cm · ${fx(100*P(),1)} D`;
-  }
-  $('sB').textContent=inf?'≈0':Number.isFinite(im.beta)?sg(im.beta,2):'∞';
-  const ch=[];
-  ch.push(o.s<0?['obj',inf?'Objeto real lejano':'Objeto real',0]:['virt','Objeto virtual',1]);
-  if(!Number.isFinite(im.sp))ch.push(['foc','Imagen en el infinito',0]);
-  else{ch.push(im.real?['real','Imagen real',0]:['virt','Imagen virtual',1]);
-    ch.push(['ink',im.beta<0?'Invertida':'Derecha',0]);
-    ch.push(['ink',Math.abs(im.beta)>1.005?'Mayor':Math.abs(im.beta)<.995?'Menor':'Igual tamaño',0]);}
-  const html=ch.map(([c,t,d])=>`<span class="chip${d?' dash':''}" style="color:${c==='ink'?'var(--ink)':`var(--${c})`}"><i></i>${t}</span>`).join('');
-  if($('chips').innerHTML!==html)$('chips').innerHTML=html;
-  const cap=explain();if($('caption').innerHTML!==cap)$('caption').innerHTML=cap;
-  $('diagRead').textContent=lab?(Number.isFinite(im.sp)?`s′ = ${sg(im.sp,1)} cm`:'s′ = ∞'):`f′ = ${Number.isFinite(f)?sg(f,1)+' cm':'∞'}`;
-}
-
 /* ================= diagrama de rayos ================= */
 const dctx=$('diagCv').getContext('2d');
 function sizeCanvas(cv){const r=cv.getBoundingClientRect();const d=Math.min(devicePixelRatio,2);const w=Math.max(10,Math.round(r.width*d)),h=Math.max(10,Math.round(r.height*d));if(cv.width!==w)cv.width=w;if(cv.height!==h)cv.height=h;return d;}
 let diagD=1;
 function drawDiagram(){
-  const cv=$('diagCv'),c=dctx,d=diagD,Wc=cv.width,Hc=cv.height;if(Wc<20)return;
+  const cv=$('diagCv'),c=dctx,d=(diagD=sizeCanvas(cv)),Wc=cv.width,Hc=cv.height;if(Wc<20)return;
   c.setTransform(1,0,0,1,0,0);c.clearRect(0,0,Wc,Hc);
   const lab=isLab(),im=image(),o=mainObj(),f=fP(),inf=lab&&S.mode==='inf',fin=Number.isFinite(f);
   const xsL=[0];
@@ -1084,7 +606,7 @@ function drawDiagram(){
   const X=x=>pad+(x-x0)/(x1-x0)*(Wc-2*pad),Yc=padT+(Hc-padT-padB)/2,Y=y=>Yc-y/yM*(Hc-padT-padB)/2;
   c.save();c.beginPath();c.rect(0,0,Wc,Hc);c.clip();
   c.strokeStyle=COL.axis;c.lineWidth=1.2*d;c.setLineDash([5*d,4*d]);c.beginPath();c.moveTo(0,Yc);c.lineTo(Wc,Yc);c.stroke();c.setLineDash([]);
-  c.textAlign='center';c.font=`600 ${13*d}px Outfit, Arial`;
+  c.textAlign='center';c.font=`600 ${13*d}px ${FB}`;
   if(fin&&!lab)[[-f,'F',1],[f,'F′',1],[-2*f,'2F',.85],[2*f,'2F′',.85]].forEach(([x,t,a])=>{if(x<x0||x>x1)return;c.globalAlpha=a;c.fillStyle=COL.foc;c.beginPath();c.arc(X(x),Yc,(a===1?4:3)*d,0,7);c.fill();c.fillText(t,X(x),Yc+18*d);c.globalAlpha=1;});
   const lens=(x,col,Rl,div)=>{c.strokeStyle=col;c.lineWidth=2.6*d;const yt=Y(Rl),yb=Y(-Rl),a=6*d*(div?-1:1);c.beginPath();c.moveTo(X(x),yt);c.lineTo(X(x),yb);c.stroke();
     c.beginPath();c.moveTo(X(x)-6*d,yt+a);c.lineTo(X(x),yt);c.lineTo(X(x)+6*d,yt+a);c.moveTo(X(x)-6*d,yb-a);c.lineTo(X(x),yb);c.lineTo(X(x)+6*d,yb-a);c.stroke();};
@@ -1099,29 +621,16 @@ function drawDiagram(){
     const s=Math.sign(y)||1;c.beginPath();c.moveTo(X(x),Y(y)-s*2*d);c.lineTo(X(x)-5.5*d,Y(y)+s*9*d);c.lineTo(X(x)+5.5*d,Y(y)+s*9*d);c.closePath();c.fill();};
   if(lab&&S.mode==='virt')arrow2(XD(),H,COL.obj);
   if(!inf)arrow2(o.s,o.y,o.s<0?COL.obj:COL.virt,o.s>0);
-  else{c.fillStyle=COL.obj;c.textAlign='left';c.font=`600 ${13*d}px Outfit, Arial`;c.fillText('← objeto en ∞',8*d,padT+6*d);}
+  else{c.fillStyle=COL.obj;c.textAlign='left';c.font=`600 ${13*d}px ${FB}`;c.fillText('← objeto en ∞',8*d,padT+6*d);}
   if(Number.isFinite(im.sp)&&Math.abs(im.yp)<yM*1.3)arrow2(im.sp,im.yp,im.real?COL.real:COL.virt,!im.real);
   const dim=(xa,xb,yy,col,txt)=>{if(!Number.isFinite(xb))return;c.strokeStyle=col;c.fillStyle=col;c.lineWidth=1.3*d;const a=X(xa),b=X(Math.max(x0,Math.min(x1,xb)));c.beginPath();c.moveTo(a,yy);c.lineTo(b,yy);c.stroke();
     const dir=Math.sign(b-a)||1;c.beginPath();c.moveTo(b,yy);c.lineTo(b-dir*7*d,yy-3.5*d);c.lineTo(b-dir*7*d,yy+3.5*d);c.closePath();c.fill();
-    c.font=`500 ${12.5*d}px "DM Mono", Menlo, monospace`;c.textAlign='center';const tx=Math.max(50*d,Math.min(Wc-50*d,(a+b)/2));c.fillText(txt,tx,yy-5*d);};
+    c.font=`500 ${12.5*d}px ${FM}`;c.textAlign='center';const tx=Math.max(50*d,Math.min(Wc-50*d,(a+b)/2));c.fillText(txt,tx,yy-5*d);};
   const yb=Hc-7*d;
   if(!inf)dim(0,o.s,yb,o.s<0?COL.obj:COL.virt,`s = ${sg(o.s,1)}`);
   if(Number.isFinite(im.sp))dim(0,im.sp,yb-(!inf&&Math.sign(im.sp)===Math.sign(o.s)?17*d:0),im.real?COL.real:COL.virt,`s′ = ${sg(im.sp,1)}`);
   c.restore();
 }
-
-/* ================= pestañas ================= */
-const PANE={map:'map',prof:'prof',scr:'scr',tab:'data',plot:'data',res:'data'};
-function setTab(t){
-  tab=t;
-  document.querySelectorAll('#tabPills .pill').forEach(b=>b.classList.toggle('on',b.dataset.tab===t));
-  document.querySelectorAll('.tbody').forEach(p=>p.classList.toggle('on',p.dataset.pane===PANE[t]));
-  if(PANE[t]==='data')renderData();
-  drawTab();
-}
-function drawTab(){if(tab==='map')drawMap();else if(tab==='prof')drawProfile();}
-document.querySelectorAll('#tabPills .pill').forEach(b=>b.onclick=()=>setTab(b.dataset.tab));
-
 /* ---------- mapa ---------- */
 const mapCv=$('mapCv'),mctx=mapCv.getContext('2d'),MR=100;
 function mapXY(d){const Wc=mapCv.width,Hc=mapCv.height,pad=8*d;return {X:s=>pad+(s+MR)/(2*MR)*(Wc-2*pad),Y:sp=>Hc-pad-(sp+MR)/(2*MR)*(Hc-2*pad),iX:px=>(px-pad)/(Wc-2*pad)*2*MR-MR};}
@@ -1140,10 +649,10 @@ function drawMap(){
     const pt=[X(s),Y(Math.max(-MR*1.1,Math.min(MR*1.1,sp)))];
     if(prev&&Math.sign(prev.sp)===Math.sign(sp)){c.strokeStyle=sp>0?COL.real:COL.virt;c.beginPath();c.moveTo(prev.pt[0],prev.pt[1]);c.lineTo(pt[0],pt[1]);c.stroke();}
     prev={pt,sp};}
-  c.font=`600 ${12.5*d}px Outfit, Arial`;c.fillStyle=COL.label;
+  c.font=`600 ${12.5*d}px ${FB}`;c.fillStyle=COL.label;
   c.textAlign='left';c.fillText('real → imagen real',X(-MR)+5*d,Y(MR)+15*d);c.fillText('real → imagen virtual',X(-MR)+5*d,Y(-MR)-7*d);
   c.textAlign='right';c.fillText('virtual → imagen real',X(MR)-5*d,Y(MR)+15*d);c.fillText('virtual → imagen virtual',X(MR)-5*d,Y(-MR)-7*d);
-  c.fillStyle=COL.muted;c.font=`500 ${13*d}px "DM Mono", Menlo`;c.textAlign='right';c.fillText('s',X(MR)-5*d,Y(0)-6*d);c.textAlign='left';c.fillText('s′',X(0)+6*d,Y(MR)+32*d);
+  c.fillStyle=COL.muted;c.font=`500 ${13*d}px ${FM}`;c.textAlign='right';c.fillText('s',X(MR)-5*d,Y(0)-6*d);c.textAlign='left';c.fillText('s′',X(0)+6*d,Y(MR)+32*d);
   if(!isLab())trail.forEach((t,i)=>{const a=(i+1)/trail.length*.7;c.fillStyle=`rgba(${t.real?COL.qR:COL.qV},${a})`;c.beginPath();c.arc(X(t.ox),Y(Math.max(-MR,Math.min(MR,t.x))),2.6*d,0,7);c.fill();});
   const im=image();if(Number.isFinite(im.sp)&&Math.abs(im.s)<=MR){const x=X(im.s),y=Y(Math.max(-MR,Math.min(MR,im.sp)));
     const g=c.createRadialGradient(x,y,0,x,y,16*d);g.addColorStop(0,COL.halo);g.addColorStop(1,COL.halo0);c.fillStyle=g;c.beginPath();c.arc(x,y,16*d,0,7);c.fill();
@@ -1163,19 +672,17 @@ function drawProfile(){
   c.strokeStyle=COL.axis;c.lineWidth=1*d;c.setLineDash([4*d,4*d]);c.beginPath();c.moveTo(0,cy);c.lineTo(Wc,cy);c.stroke();c.setLineDash([]);
   [[S.c1,pr.x1(0),'R₁',COL.obj,'C₁'],[S.c2,pr.x2(0),'R₂',COL.virt,'C₂']].forEach(([cv,x0,lab,col,cn])=>{if(Math.abs(cv)<1e-6)return;const R=1/cv,cxR=x0+R;
     c.globalAlpha=.55;c.strokeStyle=col;c.lineWidth=1.2*d;c.beginPath();c.arc(X(cxR),cy,Math.abs(R)*sc,0,7);c.stroke();c.globalAlpha=1;
-    if(Math.abs(X(cxR)-cx)<Wc/2-8*d){c.fillStyle=col;c.beginPath();c.arc(X(cxR),cy,3.5*d,0,7);c.fill();c.font=`600 ${13*d}px Outfit`;c.textAlign='center';c.fillText(cn,X(cxR),cy+17*d);
+    if(Math.abs(X(cxR)-cx)<Wc/2-8*d){c.fillStyle=col;c.beginPath();c.arc(X(cxR),cy,3.5*d,0,7);c.fill();c.font=`600 ${13*d}px ${FB}`;c.textAlign='center';c.fillText(cn,X(cxR),cy+17*d);
       c.setLineDash([3*d,3*d]);c.strokeStyle=col;c.beginPath();c.moveTo(X(cxR),cy);c.lineTo(X(x0+sag(cv,AP*.7)),Y(AP*.7));c.stroke();c.setLineDash([]);
       c.fillText(lab,(X(cxR)+X(x0+sag(cv,AP*.7)))/2+10*d,(cy+Y(AP*.7))/2);}});
   const n=40;c.beginPath();
   for(let i=-n;i<=n;i++){const r=AP*i/n,x=pr.x1(Math.abs(r));i===-n?c.moveTo(X(x),Y(r)):c.lineTo(X(x),Y(r));}
   for(let i=n;i>=-n;i--){const r=AP*i/n;c.lineTo(X(pr.x2(Math.abs(r))),Y(r));}
   c.closePath();const conv=P()>=0;c.fillStyle=`rgba(${conv?COL.qR:COL.qV},.22)`;c.fill();c.strokeStyle=conv?COL.real:COL.virt;c.lineWidth=2.2*d;c.stroke();
-  c.fillStyle=COL.muted;c.font=`500 ${13*d}px "DM Mono", Menlo`;c.textAlign='left';c.fillText('luz →',8*d,cy-8*d);
+  c.fillStyle=COL.muted;c.font=`500 ${13*d}px ${FM}`;c.textAlign='left';c.fillText('luz →',8*d,cy-8*d);
   const Rs=q=>Math.abs(q)<1e-6?'∞':sg(1/q,1),f=fP();
-  $('eqn').innerHTML=`1/f′ = (n − 1)(1/R₁ − 1/R₂)<br>R₁ ${Rs(S.c1)} · R₂ ${Rs(S.c2)} cm · n ${fx(S.n,2)}<br>${isLab()?'f′ = ¿? Mídela en la práctica.':`<b class="${conv?'foc':'virt'}">f′ = ${Number.isFinite(f)?sg(f,1)+' cm':'∞'} · ${conv&&P()>0?'convergente':P()<0?'divergente':'sin potencia'}</b>`}`;
+  $('eqn').innerHTML=`1/f′ = (n − 1)(1/R₁ − 1/R₂)<br>R₁ ${Rs(S.c1)} · R₂ ${Rs(S.c2)} cm · n ${fx(S.n,2)}<br>${isLab()?'f′ = ¿? Mídela en la práctica.':`<b class="c-${conv?'foc':'virt'}">f′ = ${Number.isFinite(f)?sg(f,1)+' cm':'∞'} · ${conv&&P()>0?'convergente':P()<0?'divergente':'sin potencia'}</b>`}`;
 }
-
-/* ================= datos ================= */
 function fitLine(xs,ys){
   const n=xs.length;if(n<2)return null;
   const mx=xs.reduce((a,b)=>a+b)/n,my=ys.reduce((a,b)=>a+b)/n;let sxx=0,sxy=0,syy=0;
@@ -1184,7 +691,6 @@ function fitLine(xs,ys){
   const s2=n>2?ssr/(n-2):NaN;return {m,b,um:Math.sqrt(s2/sxx),ub:Math.sqrt(s2*(1/n+mx*mx/sxx)),r2:1-ssr/syy,n};
 }
 const sig=u=>u>0?Math.max(0,1-Math.floor(Math.log10(u))):3;
-function pm(v,u){const d=Math.min(6,sig(u));return `(${fx(v,d)} ± ${fx(u,d)})`;}
 function results(){
   const R={};
   if(data.rows.length>=2){const F=fitLine(data.rows.map(r=>100/r.s),data.rows.map(r=>100/r.sp));if(F){R.fit=F;if(F.b>0&&Number.isFinite(F.ub)){R.fg=100/F.b;R.ufg=100*F.ub/(F.b*F.b);}}}
@@ -1192,38 +698,14 @@ function results(){
   if(R.fg&&R.finf){R.err=Math.abs(R.finf-R.fg)/R.finf*100;R.nsig=Math.abs(R.finf-R.fg)/Math.hypot(R.ufg,R.ufinf);}
   return R;
 }
-function renderData(){
-  const body=$('dataBody');
-  if(tab==='tab'){
-    let h=`<div class="card" style="margin-bottom:8px"><div class="k">Objeto en ∞ · f′∞ = s′</div><div class="v foc">${data.finf?pm(data.finf.v,data.finf.u)+' cm':'—'}</div></div>`;
-    if(!data.rows.length)h+=`<div class="empty">Sin datos de objeto real. Enfoca la pantalla y pulsa <b>Registrar</b>. La guía pide 5 distancias separadas 5 o 10 cm.</div>`;
-    else{h+=`<table><thead><tr><th>s</th><th>u</th><th>s′</th><th>u</th><th>1/s</th><th>1/s′</th><th></th></tr></thead><tbody>`;
-      data.rows.forEach((r,i)=>{h+=`<tr><td class="obj">${sg(r.s,1)}</td><td>${fx(r.us,1)}</td><td class="real">${fx(r.sp,1)}</td><td>${fx(r.usp,1)}</td><td>${sg(100/r.s,2)}</td><td>${fx(100/r.sp,2)}</td><td><button class="x" data-del="${i}" aria-label="Quitar fila ${i+1}">✕</button></td></tr>`;});
-      h+=`</tbody></table><div class="hint">s, s′ y u en cm; 1/s y 1/s′ en m⁻¹.${data.rows.length<5?` Llevas ${data.rows.length} de 5.`:''}</div>`;}
-    body.innerHTML=h;body.querySelectorAll('[data-del]').forEach(b=>b.onclick=()=>{data.rows.splice(+b.dataset.del,1);renderData();});
-  }else if(tab==='plot'){
-    const R=results();
-    body.innerHTML=`<div class="plotpane"><canvas id="plotCv"></canvas><div class="fit">${R.fit?`<span>m = ${R.fit.n>2?pm(R.fit.m,R.fit.um):fx(R.fit.m,3)}</span><span>b = ${R.fit.n>2?pm(R.fit.b,R.fit.ub):fx(R.fit.b,3)} m⁻¹</span><span>R² = ${fx(R.fit.r2,5)}</span>`:'<span>Hacen falta al menos 2 puntos.</span>'}</div></div>`;
-    drawPlot(R);
-  }else{
-    const R=results(),er=R.err,col=er===undefined?'var(--muted)':R.nsig<=2?'var(--ok)':er<5?'var(--warn)':'var(--no)',f=fP(),fD=1/(1/f-1/(S.D*100));
-    body.innerHTML=`<div class="res"><div class="cmp">
-      <div class="card"><div class="k">f′∞ (cm)</div><div class="v foc">${R.finf?pm(R.finf,R.ufinf):'—'}</div></div>
-      <div class="card"><div class="k">f′ gráfica (cm)</div><div class="v real">${R.fg&&R.fit.n>2?pm(R.fg,R.ufg):'—'}</div></div></div>
-      <div class="card big"><div class="k">%Error = |f′∞ − f′graf| / f′∞ × 100</div><div class="v" style="color:${col}">${er!==undefined?fx(er,2)+' %':'—'}</div>
-        <div class="bar"><i style="width:${er!==undefined?Math.min(100,er*10):0}%;background:${col}"></i></div>
-        <div class="s">${er!==undefined?`A ${fx(R.nsig,1)} incertidumbres: ${R.nsig<=2?'<b style="color:var(--ok)">compatibles</b>':'<b style="color:var(--no)">no compatibles</b>'}. Pendiente ${fx(R.fit.m,3)} (teórica 1).`:'Registra f′∞ y al menos 3 puntos de objeto real.'}</div></div>
-      <details class="card"><summary class="k" style="cursor:pointer">Para el monitor</summary><div class="s mono">f′ del modelo = ${fx(f,2)} cm. Con objeto a ${fx(S.D,1)} m, s′ = ${fx(fD,3)} cm (+${fx((fD/f-1)*100,2)} %).</div></details></div>`;
-  }
-}
 function drawPlot(R){
   const cv=$('plotCv');if(!cv)return;const d=sizeCanvas(cv),c=cv.getContext('2d'),Wc=cv.width,Hc=cv.height;c.clearRect(0,0,Wc,Hc);
-  if(!data.rows.length){c.fillStyle=COL.muted;c.font=`${14*d}px Outfit`;c.fillText('Sin puntos todavía',12*d,24*d);return;}
+  if(!data.rows.length){c.fillStyle=COL.muted;c.font=`${14*d}px ${FB}`;c.fillText('Sin puntos todavía',12*d,24*d);return;}
   const pts=data.rows.map(r=>({x:100/r.s,y:100/r.sp,ux:100*r.us/(r.s*r.s),uy:100*r.usp/(r.sp*r.sp)}));
   const b0=R.fit?R.fit.b:0;
   const xa=Math.min(...pts.map(p=>p.x))-.3,xb=Math.max(...pts.map(p=>p.x),0)+.3,ya=Math.min(...pts.map(p=>p.y),0)-.3,yb=Math.max(...pts.map(p=>p.y),b0)+.3;
   const pl=38*d,pr=10*d,pt=10*d,pb=24*d,X=x=>pl+(x-xa)/(xb-xa)*(Wc-pl-pr),Y=y=>Hc-pb-(y-ya)/(yb-ya)*(Hc-pt-pb);
-  c.strokeStyle=COL.grid;c.lineWidth=1;c.fillStyle=COL.muted;c.font=`${12*d}px "DM Mono", Menlo`;
+  c.strokeStyle=COL.grid;c.lineWidth=1;c.fillStyle=COL.muted;c.font=`${12*d}px ${FM}`;
   const step=r=>{const s=Math.pow(10,Math.floor(Math.log10(r/4)));return r/s>20?5*s:r/s>8?2*s:s;},sx=step(xb-xa),sy=step(yb-ya);
   c.textAlign='center';for(let x=Math.ceil(xa/sx)*sx;x<=xb;x+=sx){c.beginPath();c.moveTo(X(x),pt);c.lineTo(X(x),Hc-pb);c.stroke();c.fillText(fx(x,sx<1?1:0),X(x),Hc-7*d);}
   c.textAlign='right';for(let y=Math.ceil(ya/sy)*sy;y<=yb;y+=sy){c.beginPath();c.moveTo(pl,Y(y));c.lineTo(Wc-pr,Y(y));c.stroke();c.fillText(fx(y,sy<1?1:0),pl-5*d,Y(y)+4*d);}
@@ -1235,106 +717,85 @@ function drawPlot(R){
   c.fillStyle=COL.muted;c.textAlign='left';c.fillText('1/s′ (m⁻¹)',pl+4*d,pt+12*d);c.textAlign='right';c.fillText('1/s (m⁻¹)',Wc-pr-2*d,Y(0)-6*d);
 }
 
-/* ================= acciones ================= */
-function toast(msg,good){const t=$('toast');t.innerHTML=msg;t.classList.toggle('good',!!good);t.classList.add('show');clearTimeout(toast.h);toast.h=setTimeout(()=>t.classList.remove('show'),3200);}
-function syncLabUI(){
-  const o=$('obj');
-  if(S.mode==='virt'){o.min=2;o.max=2*F0-3;o.value=S.sv;$('vObj').textContent=`${sg(S.sv,1)} cm`;$('vObj').className='val virt';}
-  else{o.min=-100;o.max=-2;o.value=S.s;$('vObj').textContent=S.mode==='inf'?'−∞':`${sg(S.s,1)} cm`;$('vObj').className='val obj';}
-  $('cObj').classList.toggle('off',S.mode==='inf');
-  $('scr').value=S.xs;$('vScr').textContent=`${fx(S.xs,1)} cm`;
-}
-function setMode(m){
-  S.mode=m;document.querySelectorAll('#modePills .pill').forEach(b=>b.classList.toggle('on',b.dataset.mode===m));
-  if(m==='virt'&&S.xs>30)S.xs=14;
-  syncLabUI();dirty=true;if(view==='side')goView('side');else if(view==='eye')goView('side');
-}
-function focus(){
-  const im=image(),ar=autoRec;autoRec=false;
-  if(!Number.isFinite(im.sp)){toast('La imagen está en el infinito: el objeto está justo en el foco.');return;}
-  if(!im.real){toast('La imagen es <b>virtual</b>: los rayos no se cruzan, no hay dónde poner la pantalla. Mira por la lente.');goView('eye');return;}
-  if(im.sp>115){toast('La imagen real queda fuera del riel. Aleja el objeto.');return;}
-  focusAnim={from:S.xs,to:Math.min(115,Math.max(2,im.sp+randn()*dof(im.sp)*S.prec*.6)),k:0};autoRec=ar;
-}
-function record(){
-  scrInfo=onScreen();const im=image(),sh=sharpness(scrInfo.blur);
-  if(S.mode==='virt'){toast('La tabla es para objeto real u objeto en ∞.');return;}
-  if(!im.real){toast('No hay imagen en la pantalla: con el objeto dentro de f′ la imagen es virtual.');return;}
-  if(sh<.3){toast('La imagen está borrosa. Enfoca antes de anotar s′.');return;}
-  const sp=Math.round(S.xs*10)/10,u=Math.max(U_S,Math.round(uSp(sp)*10)/10);
-  if(S.mode==='inf'){data.finf={v:sp,u,D:S.D};toast(`Registrado: f′∞ = ${fx(sp,1)} cm.`,true);setTab('tab');return;}
-  const s=Math.round(S.s*10)/10;
-  if(data.rows.some(r=>Math.abs(r.s-s)<2)){toast('Ya hay un dato con casi la misma distancia. Separa los puntos 5 o 10 cm.');return;}
-  data.rows.push({s,us:U_S,sp,usp:u});data.rows.sort((a,b)=>a.s-b.s);
-  toast(`Registrado: s = ${sg(s,1)} cm, s′ = ${fx(sp,1)} cm.`,true);setTab('tab');if(gOn)gGo(gi,true);
-}
-function reset(){S.s=-50;S.sv=12;S.xs=S.mode==='virt'?14:50;focusAnim=null;syncLabUI();dirty=true;}
-let moveAnim=null,sweep=null;
-function stopSweep(){sweep=null;moveAnim=null;$('bSweep').querySelector('span').textContent='Recorrer';}
+/* ================= cámara: CamaraOrbita + vistas con transición ================= */
+const spanX=()=>{const im=image(),xs=[0];if(isLab()){xs.push(S.mode==='inf'?-50:XD(),S.xs);}else{xs.push(S.s);}
+  if(Number.isFinite(im.sp)&&Math.abs(im.sp)<150)xs.push(im.sp);return [Math.min(...xs),Math.max(...xs)];};
+const sideCenter=()=>{const [a,b]=spanX();return (a+b)/2;};
+const sideDist=()=>{const [a,b]=spanX();return Math.max(130,(b-a+50)/(2*Math.tan(16*Math.PI/180)*Math.max(camera.aspect,.5))*1.3);};
+const VIEWS={
+  persp:()=>isLab()?{target:new THREE.Vector3(sideCenter(),Y0-3,0),dist:Math.max(170,sideDist()),az:-.3,pol:1.3}:{target:new THREE.Vector3(2,Y0-3,0),dist:205,az:.26,pol:1.27},
+  side:()=>({target:new THREE.Vector3(sideCenter(),Y0+1,0),dist:sideDist(),az:0,pol:Math.PI/2-.015}),
+  low:()=>({target:new THREE.Vector3(-5,Y0,0),dist:150,az:1.18,pol:1.47}),
+  top:()=>({target:new THREE.Vector3(0,0,4),dist:260,az:0,pol:.06}),
+  screen:()=>({target:new THREE.Vector3(S.xs,Y0,0),dist:30,az:-1.05,pol:1.48}),
+  eye:()=>{const im=image(),xe=Math.max(24,fP()*1.8),tx=Number.isFinite(im.sp)&&im.sp<0?Math.max(-90,im.sp):Math.min(-10,S.mode==='inf'?-10:XD());return {target:new THREE.Vector3(tx,Y0,0),dist:xe-tx,az:Math.PI/2,pol:Math.PI/2};},
+};
+const VNAME={persp:['Vista 3D','3D'],side:['Lateral','Lado'],low:['Rasante','Rasante'],top:['Planta','Arriba'],screen:['Pantalla','Pantalla'],eye:['Ojo tras la lente','Ojo']};
+const viewsFor=()=>isLab()?['persp','side','screen','eye']:['persp','side','low','top'];
+let view='persp',camAnim=null;
+const sph=(t,az,pol,dist)=>{const s=Math.sin(pol);return new THREE.Vector3(t.x+dist*s*Math.sin(az),t.y+dist*Math.cos(pol),t.z+dist*s*Math.cos(az));};
 
-/* ---------- cambio de modo ---------- */
-function setApp(a,instant){
-  stopSweep();focusAnim=null;
-  if(a==='lab'){
-    if(P()<=0){S.c1=1/25;S.c2=-1/25;lensDirty=true;syncLensUI();toast('El laboratorio usa una lente convergente: se puso una biconvexa.');}
-    if(S.s>=0)S.s=-50;
-    const im=(()=>{const inv=P()+1/S.s;return Math.abs(inv)<1e-6?Infinity:1/inv;})();
-    S.xs=Number.isFinite(im)&&im>2&&im<115?Math.min(115,im+8):50;
-  }
-  S.app=a;document.body.classList.toggle('app-lab',a==='lab');
-  $('mExp').classList.toggle('on',a!=='lab');$('mLab').classList.toggle('on',a==='lab');
-  $('secLens').open=a!=='lab';$('secObj').open=false;$('secLab').open=a==='lab';$('secShow').open=false;
-  $('heroSub').textContent=a==='lab'?'PRÁCTICA · LA LENTE CONVERGENTE':'REALES Y VIRTUALES · ¿DÓNDE ESTÁ LA IMAGEN?';
-  if(a!=='lab'&&gOn)setGuide(false);
-  syncLabUI();setTab(a==='lab'?'scr':'map');dirty=true;
-  try{history.replaceState(null,'',a==='lab'?'#laboratorio':'#explorar');}catch(e){}
-  placeAll();layout();goView('persp',instant);
-}
-$('mExp').onclick=()=>setApp('explore');$('mLab').onclick=()=>setApp('lab');
+/* arrastrar el objeto, la pantalla o la flecha. Se registra ANTES que la cámara: si toca una pieza, la cámara no gira. */
+const ray=new THREE.Raycaster(),ndc=new THREE.Vector2();
+function setNdc(e){const r=canvas.getBoundingClientRect();ndc.set((e.clientX-r.left)/r.width*2-1,-(e.clientY-r.top)/r.height*2+1);camera.updateMatrixWorld();ray.setFromCamera(ndc,camera);}
+function pickAt(e){setNdc(e);
+  if(isLab()){const c=[scrFrame,scrPlane];if(S.mode!=='inf')c.push(box,face);const h=ray.intersectObjects(c,false)[0];if(!h)return null;return h.object===scrFrame||h.object===scrPlane?'scr':'obj';}
+  return ray.intersectObjects([objHit,...objA.g.children.filter(c=>c.isMesh),...vObjA.g.children.filter(c=>c.isMesh),objA.ring,vObjA.ring],false).length?'arrow':null;}
+function planePoint(e){setNdc(e);const d=camera.getWorldDirection(new THREE.Vector3());
+  const n=new THREE.Vector3(0,0,1);if(Math.abs(d.z)<.25)n.set(0,1,0);
+  const pl=new THREE.Plane().setFromNormalAndCoplanarPoint(n,n.y?new THREE.Vector3():new THREE.Vector3(0,Y0,0)),p=new THREE.Vector3();
+  return ray.ray.intersectPlane(pl,p)?{p,floor:!!n.y}:null;}
+let drag=null,controls=null;
+canvas.addEventListener('pointerdown',e=>{camAnim=null;
+  if(drag||(e.pointerType==='mouse'&&e.button!==0))return;
+  const what=pickAt(e),q=what&&planePoint(e);if(!q)return;
+  stopSweep();focusAnim=null;controls.enabled=false;
+  if(what==='scr')drag={kind:'scr',dx:S.xs-q.p.x};
+  else if(what==='obj')drag={kind:'obj',dx:XD()-q.p.x};
+  else drag={kind:'arrow',dx:S.s-q.p.x,dy:S.h-(q.p.y-Y0)};
+  drag.id=e.pointerId;canvas.setPointerCapture(e.pointerId);});
+canvas.addEventListener('pointermove',e=>{
+  if(!drag){if(e.pointerType==='mouse'&&!e.buttons)canvas.classList.toggle('can',!!pickAt(e));return;}
+  if(e.pointerId!==drag.id)return;
+  const q=planePoint(e);if(!q)return;const x=q.p.x+drag.dx;
+  if(drag.kind==='scr')setScr(x);
+  else if(drag.kind==='obj')setPos(S.mode==='virt'?x+4*F0:x);
+  else if(q.floor)setPos(x,S.h);else setPos(x,(q.p.y-Y0)+drag.dy);});
+const endDrag=e=>{if(drag&&e.pointerId===drag.id){drag=null;controls.enabled=true;}};
+canvas.addEventListener('pointerup',endDrag);canvas.addEventListener('pointercancel',endDrag);
+canvas.addEventListener('wheel',()=>{camAnim=null;},{capture:true,passive:true});
+controls=new THREE.CamaraOrbita(camera,canvas,{minDistance:8,maxDistance:700,minPolarAngle:.05,maxPolarAngle:1.6});
 
-/* ---------- controles ---------- */
-const lensIcon=l=>{const W_=30,H_=26,cx=15,cy=13,a=10;const s=(c,r)=>{if(!c)return 0;let R=(1/c)/AP*a*.42;if(Math.abs(R)<a*1.08)R=Math.sign(R)*a*1.08;return R-Math.sign(R)*Math.sqrt(Math.max(0,R*R-r*r));};
-  const e=1.4,d=s(l.c2,a)-s(l.c1,a),tc=Math.max(e,e-d);let p='';
-  for(let i=-10;i<=10;i++){const r=a*i/10;p+=(i===-10?'M':'L')+(cx-tc/2+s(l.c1,Math.abs(r))).toFixed(2)+' '+(cy-r).toFixed(2);}
-  for(let i=10;i>=-10;i--){const r=a*i/10;p+='L'+(cx+tc/2+s(l.c2,Math.abs(r))).toFixed(2)+' '+(cy-r).toFixed(2);}
-  return `<svg viewBox="0 0 ${W_} ${H_}" aria-hidden="true"><path d="${p}Z" fill="${l.div?'rgba(196,176,255,.35)':'rgba(127,227,255,.35)'}" stroke="currentColor" stroke-width="1.2"/></svg>`;};
-$('lensPills').innerHTML=LENSES.map(l=>`<button class="pill${l.div?' dv':''}" data-l="${l.id}">${lensIcon(l)}<span>${l.name}</span></button>`).join('');
-function syncLensUI(){
-  const Rs=c=>Math.abs(c)<1e-6?'∞ plana':`${sg(1/c,1)} cm`;
-  $('c1').value=S.c1;$('c2').value=S.c2;$('vR1').textContent=Rs(S.c1);$('vR2').textContent=Rs(S.c2);
-  document.querySelectorAll('#lensPills .pill').forEach(b=>{const l=LENSES.find(x=>x.id===b.dataset.l);b.classList.toggle('on',Math.abs(l.c1-S.c1)<1e-9&&Math.abs(l.c2-S.c2)<1e-9);});
-  document.querySelectorAll('#nPills .pill').forEach(b=>b.classList.toggle('on',+b.dataset.n===S.n));
+function estadoCam(){const o=camera.position.clone().sub(controls.target),d=Math.max(1e-3,o.length());
+  return {target:controls.target.clone(),dist:d,pol:Math.acos(Math.max(-1,Math.min(1,o.y/d))),az:Math.atan2(o.x,o.z)};}
+function goView(v,instant){
+  view=v;const t=VIEWS[v]();
+  if(camera.aspect<.9&&(v==='top'||(v==='persp'&&!isLab()))){t.dist*=1.45;t.az=v==='persp'?.2:t.az;t.target.x-=4;}
+  else if(innerWidth>760&&!UI.clean&&(v==='persp'||v==='side'))t.dist*=(UI.card?1.15:1)*(UI.scope?1.15:1);   // los paneles abiertos dejan menos escena: se aleja un poco
+  const from=estadoCam();let daz=t.az-from.az;daz=Math.atan2(Math.sin(daz),Math.cos(daz));
+  camAnim={from,to:t,daz,k:instant?1:0};pintaVistas();if(instant)pasoCam(0);
 }
-const snap=v=>Math.abs(v)<.006?0:v;
-document.querySelectorAll('#lensPills .pill').forEach(b=>b.onclick=()=>{const l=LENSES.find(x=>x.id===b.dataset.l);S.c1=l.c1;S.c2=l.c2;lensDirty=dirty=true;syncLensUI();});
-$('c1').oninput=e=>{S.c1=snap(+e.target.value);lensDirty=dirty=true;syncLensUI();};
-$('c2').oninput=e=>{S.c2=snap(+e.target.value);lensDirty=dirty=true;syncLensUI();};
-document.querySelectorAll('#nPills .pill').forEach(b=>b.onclick=()=>{S.n=+b.dataset.n;lensDirty=dirty=true;syncLensUI();});
-document.querySelectorAll('#showPills .pill').forEach(b=>b.onclick=()=>{S[b.dataset.k]=!S[b.dataset.k];b.classList.toggle('on',S[b.dataset.k]);dirty=true;});
-document.querySelectorAll('#viewPills .pill').forEach(b=>b.onclick=()=>goView(b.dataset.view));
-document.querySelectorAll('#modePills .pill').forEach(b=>b.onclick=()=>setMode(b.dataset.mode));
-document.querySelectorAll('#casePills .btn').forEach(b=>b.onclick=()=>{stopSweep();const f=Math.abs(fP()),F=Number.isFinite(f)?Math.min(f,40):20;
-  moveAnim={from:S.s,to:{far:-3*F,'2f':-2*F,proj:-1.5*F,lupa:-.55*F,virt:Math.min(.6*F,40)}[b.dataset.case],k:0};});
-$('bSweep').onclick=()=>{if(sweep){stopSweep();return;}sweep={dir:1};if(S.s>40||S.s>-1)setPos(-95,S.h);$('bSweep').querySelector('span').textContent='Pausa';};
-$('bTrail').onclick=()=>{trail.length=0;dirty=true;};
-$('obj').oninput=e=>{focusAnim=null;setPos(+e.target.value);};
-$('scr').oninput=e=>{focusAnim=null;setScr(+e.target.value);};
-$('D').oninput=e=>{S.D=+e.target.value;$('vD').textContent=`${fx(S.D,1)} m`;dirty=true;};
-$('Pr').oninput=e=>{S.prec=+e.target.value;$('vP').textContent=`${fx(S.prec,1)} ×`;};
-$('bFocus').onclick=focus;$('bRec').onclick=record;$('bReset').onclick=reset;
-$('bMore').onclick=()=>{const c=$('caption');c.hidden=!c.hidden;$('bMore').textContent=c.hidden?'+ Por qué':'– Por qué';$('bMore').setAttribute('aria-expanded',String(!c.hidden));placeGuide();};
-$('bHelp').onclick=()=>$('help').classList.add('show');$('bHelpX').onclick=()=>$('help').classList.remove('show');
-$('help').onclick=e=>{if(e.target.id==='help')$('help').classList.remove('show');};
-$('bClear').onclick=()=>{data.rows=[];data.finf=null;if(PANE[tab]==='data')renderData();toast('Datos borrados.',true);};
-$('bFull').onclick=()=>{document.fullscreenElement?document.exitFullscreen():document.documentElement.requestFullscreen&&document.documentElement.requestFullscreen();};
-const ICON={sun:'<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><circle cx="8" cy="8" r="3"/><path d="M8 1.5v1.6M8 12.9v1.6M1.5 8h1.6M12.9 8h1.6M3.4 3.4l1.1 1.1M11.5 11.5l1.1 1.1M3.4 12.6l1.1-1.1M11.5 4.5l1.1-1.1"/></svg>',moon:'<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"><path d="M13.5 9.6A6 6 0 0 1 6.4 2.5a6 6 0 1 0 7.1 7.1Z"/></svg>'};
-function setTheme(d,save){
-  day=d;document.documentElement.classList.toggle('day',d);Object.assign(COL,d?COLD:COLN);
+function pasoCam(dt){
+  const a=camAnim;if(!a)return;a.k=Math.min(1,a.k+dt/1.1);const e=1-Math.pow(1-a.k,3);
+  controls.target.lerpVectors(a.from.target,a.to.target,e);
+  const dist=Math.exp(Math.log(a.from.dist)+(Math.log(a.to.dist)-Math.log(a.from.dist))*e);
+  camera.position.copy(sph(controls.target,a.from.az+a.daz*e,a.from.pol+(a.to.pol-a.from.pol)*e,dist));
+  camera.lookAt(controls.target);
+  if(a.k>=1){camAnim=null;controls.update();}
+}
+function pintaVistas(){
+  const vb=$('viewbtns');vb.innerHTML=viewsFor().map(v=>`<button class="vb" type="button" data-v="${v}" data-s="${VNAME[v][1]}" aria-pressed="${v===view}">${VNAME[v][0]}</button>`).join('');
+  vb.querySelectorAll('.vb').forEach(b=>b.onclick=()=>goView(b.dataset.v));
+}
+
+/* ================= tema: claro / oscuro (Lab.ui.tema) ================= */
+function aplicaTema(t){
+  const d=t==='claro';day=d;leerColores();
   renderer.toneMapping=d?THREE.NoToneMapping:THREE.ACESFilmicToneMapping;
-  const bg=d?0xe9edf3:0x04060c;renderer.setClearColor(bg,1);scene.fog.color.setHex(bg);L0Hole.color.setHex(bg);
+  const bg=new THREE.Color(Lab.escena.paleta(t).fondo);renderer.setClearColor(bg,1);scene.fog.color.copy(bg);L0Hole.color.copy(bg);
   hemi.color.setHex(d?0xffffff:0x9fb8ff);hemi.groundColor.setHex(d?0xd8dde6:0x1a1208);hemi.intensity=d?2.4:.7;
   key.intensity=d?1.4:1;rim.intensity=d?.3:.8;M.alu.metalness=d?.25:.85;
-  // Los materiales fijos guardan su versión de noche; haces y lente se reconstruyen con el tema nuevo.
+  // Los materiales guardan su color de noche; en día se cambian por su versión oscura (DAY3) y sin mezcla aditiva.
   const seen=new Set();
   const apply=m=>{if(!m||seen.has(m))return;seen.add(m);
     const n=m.userData.n||(m.userData.n={c:m.color?m.color.getHex():null,b:m.blending,o:m.opacity});
@@ -1343,18 +804,179 @@ function setTheme(d,save){
     m.blending=d&&n.b===THREE.AdditiveBlending?THREE.NormalBlending:n.b;
     m.opacity=d&&m.isSpriteMaterial?n.o*.35:n.o;m.needsUpdate=true;};
   scene.traverse(o=>{if(o.parent===beamG||o.parent===lensG)return;apply(o.material);});
-  apply(lensMat);
-  thruScene.traverse(o=>apply(o.material));L0Hole.color.setHex(bg);
-  $('bTheme').innerHTML=d?ICON.moon:ICON.sun;
-  const lab=d?'Cambiar a modo noche':'Cambiar a modo día';$('bTheme').title=lab+' (N)';$('bTheme').setAttribute('aria-label',lab);
-  if(save)try{localStorage.setItem('lentes-tema',d?'dia':'noche');}catch(e){}
-  lensDirty=dirty=true;if(PANE[tab]==='data')renderData();
+  apply(lensMat);thruScene.traverse(o=>apply(o.material));L0Hole.color.copy(bg);
+  lensDirty=dirty=true;dibujaPanel();
 }
-$('bTheme').onclick=()=>setTheme(!day,true);
-function setProj(on){document.body.classList.toggle('proj',on);$('bProj').classList.toggle('on',on);renderer.toneMappingExposure=on?1.5:1.2;setTimeout(()=>{layout();placeGuide();},30);}
-$('bProj').onclick=()=>setProj(!document.body.classList.contains('proj'));
-$('bCsv').onclick=()=>{
-  if(!data.rows.length&&!data.finf){toast('No hay datos para exportar.');return;}
+
+/* ================= lecturas sobre la escena ================= */
+const setT=(id,v)=>{const e=$(id);if(e&&e.textContent!==v)e.textContent=v;};
+const setLc=(id,mag)=>{const e=$(id);if(e)e.parentNode.style.setProperty('--lc',`var(--mag-${mag})`);};
+const chico=()=>innerWidth<=760,cm=()=>chico()?'':' cm';
+function pintaVivo(){
+  $('vivo').innerHTML=Lab.ui.lecturas([{id:'lS',etiqueta:chico()?'s (cm)':'s · objeto',color:'var(--mag-obj)'},{id:'lSp',etiqueta:chico()?'s′ (cm)':'s′ · imagen',color:'var(--mag-real)'},
+    isLab()?{id:'l3',etiqueta:'Nitidez',color:'var(--accent)'}:{id:'l3',etiqueta:chico()?'f′ (cm)':'f′ · lente',color:'var(--mag-foc)'},{id:'lB',etiqueta:chico()?'β':'β · aumento'}],'Valores en vivo')+
+    '<div class="clasif" id="clasif" aria-label="Cómo es la imagen"></div>';
+  document.body.classList.add('con-vivo');
+}
+function updateHUD(){
+  const im=image(),o=mainObj(),f=fP(),lab=isLab(),inf=lab&&S.mode==='inf',fin=Number.isFinite(im.sp);
+  setT('lS',inf?'−∞':sg(o.s,1)+cm());setLc('lS',o.s<0?'obj':'virt');
+  setT('lSp',fin?sg(im.sp,1)+cm():'∞');setLc('lSp',im.real||!fin?'real':'virt');
+  const sh=sharpness(scrInfo.blur);
+  if(lab)setT('l3',im.real?fx(sh*100,0)+' %':'—');else setT('l3',Number.isFinite(f)?sg(f,1)+cm():'∞');
+  setT('lB',inf?'≈ 0':Number.isFinite(im.beta)?sg(im.beta,2):'∞');
+  const ch=[];
+  ch.push(o.s<0?['obj',inf?'Objeto real lejano':'Objeto real',0]:['virt','Objeto virtual',1]);
+  if(!fin)ch.push(['foc','Imagen en el infinito',0]);
+  else{ch.push(im.real?['real','Imagen real',0]:['virt','Imagen virtual',1]);
+    ch.push(['',im.beta<0?'Invertida':'Derecha',0]);
+    ch.push(['',Math.abs(im.beta)>1.005?'Mayor':Math.abs(im.beta)<.995?'Menor':'Igual tamaño',0]);}
+  const html=ch.map(([c,t,d])=>`<span class="badge${c?' c-'+c:''}${d?' punteada':''}">${t}</span>`).join('');
+  const cl=$('clasif');if(cl&&cl.innerHTML!==html)cl.innerHTML=html;
+  const w=$('why');if(w){const cap=explain();if(w.innerHTML!==cap)w.innerHTML=cap;}
+  setT('diagRead',lab&&tabV==='lente'?'f′ = ¿?':(fin?`s′ = ${sg(im.sp,1)} cm`:'s′ = ∞')+(lab?'':` · f′ = ${Number.isFinite(f)?sg(f,1)+' cm':'∞'}`));
+  if(lab){setT('lNit',im.real?fx(sh*100,0)+' %':'sin imagen');setT('lLee',fx(S.xs,1)+' cm');
+    const n=$('lNit');if(n)n.parentNode.style.setProperty('--lc',im.real&&sh>.8?'var(--ok)':'var(--bad)');}
+  actualizarBarra();
+}
+
+/* ================= ventana: rayos, mapa, lente por dentro ================= */
+let tabV='rayos';
+const PIE={rayos:()=>'Rayo paralelo, por el centro y por el foco. Discontinuo: prolongaciones (imagen u objeto virtual).',
+  mapa:()=>'Cada punto de la curva es un par (s, s′). Toca o arrastra en el mapa para mover el objeto.',
+  lente:()=>isLab()?'En el laboratorio f′ no se da: la mides tú.':'1/f′ sale de los radios de las dos caras y del material.'};
+$('tabsV').outerHTML=Lab.ui.pestanas({id:'tabV',etiqueta:'Qué ver en la ventana',valor:'rayos',items:[{v:'rayos',texto:'Rayos'},{v:'mapa',texto:'Mapa s′–s'},{v:'lente',texto:'Lente por dentro'}]});
+function setTabV(v){tabV=v;Lab.ui.marcar('tabV',v);$('diagCv').hidden=v!=='rayos';$('mapCv').hidden=v!=='mapa';$('profWrap').hidden=v!=='lente';$('ventPie').textContent=PIE[v]();drawTab();updateHUD();}
+function drawTab(){if(tabV==='rayos')drawDiagram();else if(tabV==='mapa')drawMap();else drawProfile();}
+Lab.ui.montar('#ventana',(id,v)=>{if(id==='tabV')setTabV(v);});
+Lab.ui.ventana('#ventana',{asa:'.ventana-asa',alCerrar:()=>{UI.scope=false;aplicaUI();},alCambiar:()=>{resize();drawTab();}});
+
+/* ================= datos y resultados ================= */
+const {pair,num,decs,cifras}=Lab.fisica;
+const pm=(v,u)=>`(${pair(v,u).join(' ± ')})`;
+const fila=Lab.ui.fila;
+function tablaInner(){
+  let h=Lab.ui.fila('Objeto en ∞ · f′∞ = s′','',data.finf?pm(data.finf.v,data.finf.u)+' cm':'—');
+  if(!data.rows.length)return h+'<p class="small">Sin datos de objeto real todavía. Enfoca la pantalla y registra. La guía pide 5 distancias separadas 5 o 10 cm.</p>';
+  h+='<div class="tablewrap"><table><thead><tr><th>s (cm)</th><th>s′ (cm)</th><th>u<sub>s′</sub> (cm)</th><th>1/s (m⁻¹)</th><th>1/s′ (m⁻¹)</th><th></th></tr></thead><tbody>';
+  data.rows.forEach((r,i)=>{h+=`<tr${r===data.fresh?' class="fresh"':''}><td>${sg(r.s,1)}</td><td>${fx(r.sp,1)}</td><td>${fx(r.usp,1)}</td><td>${sg(100/r.s,2)}</td><td>${fx(100/r.sp,2)}</td><td><button class="btn discreto" type="button" data-del="${i}" aria-label="Quitar la fila ${i+1}">✕</button></td></tr>`;});
+  return h+`</tbody></table></div><p class="small">u<sub>s</sub> = ${fx(U_S,1)} cm (cinta métrica). En s′ se suma la profundidad de foco.${data.rows.length<5?` Llevas ${data.rows.length} de 5.`:''}</p>`;
+}
+const tablaHTML=botones=>`<h3>Datos</h3><div id="tabla">${tablaInner()}</div>`+(botones===false?'':'<div class="row"><button class="btn" type="button" id="bCsv">Descargar CSV</button><button class="btn discreto" type="button" id="bClear">Borrar datos</button></div>');
+const graficaHTML=()=>`<canvas class="grafica" id="plotCv" aria-label="Gráfica 1/s′ contra 1/s con la recta de ajuste"></canvas><div id="fit"></div>`;
+function fitHTML(R){if(!R.fit)return '<p class="small">Hacen falta al menos 2 puntos.</p>';const n=R.fit.n>2;
+  return fila('Pendiente m','teórica 1',n?pm(R.fit.m,R.fit.um):fx(R.fit.m,3))+fila('Corte b = 1/f′','',(n?pm(R.fit.b,R.fit.ub):fx(R.fit.b,3))+' m⁻¹')+fila('R²','',fx(R.fit.r2,5));}
+function resultadosHTML(){
+  const R=results(),er=R.err;
+  return fila('f′ con objeto en ∞','s′ enfocada',R.finf?pm(R.finf,R.ufinf)+' cm':'—')+
+    fila('f′ de la gráfica','f′ = 1/b',R.fg&&R.fit.n>2?pm(R.fg,R.ufg)+' cm':'—')+
+    fila('Porcentaje de error','|f′∞ − f′graf| / f′∞ × 100',er!==undefined?fx(er,2)+' %':'—',true)+
+    (er!==undefined?`<p>Las dos difieren en ${fx(R.nsig,1)} incertidumbres: <span class="badge ${R.nsig<=2?'ok':'bad'}">${R.nsig<=2?'compatibles':'no compatibles'}</span></p>`:'<p class="small">Registra f′∞ y al menos 3 puntos de objeto real.</p>');
+}
+function monitorHTML(){const f=fP(),fD=1/(1/f-1/(S.D*100));return `<details><summary>Para el monitor</summary><p class="small mono">f′ del modelo = ${fx(f,2)} cm. Con el objeto lejano a ${fx(S.D,1)} m, s′ = ${fx(fD,3)} cm (+${fx((fD/f-1)*100,2)} %).</p></details>`;}
+function refreshData(){
+  const t=$('tabla');if(t)t.innerHTML=tablaInner();
+  const R=results();const fi=$('fit');if(fi)fi.innerHTML=fitHTML(R);const rs=$('res');if(rs)rs.innerHTML=resultadosHTML();
+  bindData();dibujaPanel();marcaPasos();
+}
+function bindData(){
+  document.querySelectorAll('#card [data-del]').forEach(b=>b.onclick=()=>{const i=+b.dataset.del,r=data.rows[i];data.rows.splice(i,1);refreshData();
+    Lab.ui.aviso(`Quitaste la fila s = ${sg(r.s,1)} cm.`,{accion:()=>{data.rows.push(r);data.rows.sort((a,b)=>a.s-b.s);refreshData();}});});
+  const c=$('bCsv');if(c)c.onclick=csv;
+  const k=$('bClear');if(k)k.onclick=()=>{if(!data.rows.length&&!data.finf)return;const bak={rows:data.rows.slice(),finf:data.finf};data.rows=[];data.finf=null;refreshData();
+    Lab.ui.aviso('Se borraron los datos.',{accion:()=>{data.rows=bak.rows;data.finf=bak.finf;refreshData();}});};
+}
+function dibujaPanel(){if($('plotCv'))drawPlot(results());drawTab();}
+
+/* ---------- Tus cálculos ---------- */
+const CF=[['b','Corte de la recta','b','m⁻¹','Sale de la regresión de 1/s′ contra 1/s.'],
+  ['fg','Distancia focal (gráfica)','f′','cm','f′ = 100/b (b en m⁻¹) y u_f′ = 100·u_b / b².'],
+  ['finf','Distancia focal (objeto en ∞)','f′∞','cm','Es la s′ que registraste con el objeto lejano.']];
+const answers={},did={calc:false};let showSol=false;
+function refs(){const R=results();return {b:[R.fit.b,R.fit.ub],fg:[R.fg,R.ufg],finf:[R.finf,R.ufinf],err:R.err};}
+const calcListo=()=>data.rows.length>=3&&!!data.finf&&results().fg>0;
+function calcHTML(){
+  const dis=calcListo()?'':'disabled';
+  let h='<div class="calcf"><span class="h">MAGNITUD</span><span class="h">VALOR</span><span></span><span class="h">INCERT.</span><span></span>';
+  CF.forEach(([k,lab,sym,un])=>{const a=answers[k]||{};
+    h+=`<label class="lab" for="cf${k}">${lab} <span class="small">${sym}</span></label><input id="cf${k}" data-k="${k}" data-p="v" inputmode="decimal" value="${a.v||''}" ${dis} aria-label="${lab}"><span class="pm">±</span><input data-k="${k}" data-p="u" inputmode="decimal" value="${a.u||''}" ${dis} aria-label="Incertidumbre de ${lab}"><span class="un">${un}</span><span class="msg" id="cm${k}"></span>`;});
+  const e=answers.err||{};
+  h+=`<label class="lab" for="cferr">Porcentaje de error</label><input id="cferr" data-k="err" data-p="v" inputmode="decimal" value="${e.v||''}" ${dis}><span></span><span></span><span class="un">%</span><span class="msg" id="cmerr"></span></div>`;
+  return `<p>Con tu tabla haz la regresión de 1/s′ contra 1/s (en m⁻¹) y escribe tus resultados. Cada incertidumbre con <b>una cifra significativa</b> y el valor redondeado a esa misma posición decimal; puedes usar coma.</p>${tablaHTML(false)}${h}
+    <div class="row"><button class="btn primary" type="button" data-principal id="verify" ${dis}>Verificar mis cálculos</button><button class="btn" type="button" id="sol" ${dis}>${showSol?'Ocultar':'Ver'} la solución</button></div>
+    <div id="calcOut">${calcListo()?'':'<p class="small">Primero registra f′∞ y al menos 3 distancias (la guía pide 5).</p>'}</div><div id="solOut">${showSol&&calcListo()?solHTML():''}</div>`;
+}
+function verifyCalc(){
+  const R=refs();let ok=0,tot=0;
+  CF.forEach(([k,,,,pista])=>{const a=answers[k]||{},[rv,ru]=R[k],pr=pair(rv,ru),d=decs(pr[1]),unit=Math.pow(10,-d);
+    const iv=document.querySelector(`[data-k="${k}"][data-p="v"]`),iu=document.querySelector(`[data-k="${k}"][data-p="u"]`),m=$('cm'+k);
+    const v=num(a.v),u=num(a.u);let msg='',good=false,gu=false;tot++;
+    if(v==null||u==null)msg='Falta el valor o la incertidumbre.';
+    else if(cifras(a.u)!==1)msg='La incertidumbre va con una sola cifra significativa.';
+    else if(Math.abs(u-num(pr[1]))>unit*1.01)msg='Revisa la incertidumbre. '+pista;
+    else{gu=true;
+      if(decs(a.v)!==decs(a.u))msg='Redondea el valor a la misma posición decimal que su incertidumbre.';
+      else if(Math.abs(v-rv)>Math.max(ru,unit))msg='Revisa el valor. '+pista;
+      else{good=true;msg='Correcto.';}}
+    if(good)ok++;
+    iv.className=v==null?'':(good?'ok':(gu?'bad':''));iu.className=u==null?'':(gu?'ok':'bad');
+    m.className='msg '+(good?'ok':'bad');m.textContent=msg;});
+  const e=num((answers.err||{}).v),me=$('cmerr'),ie=$('cferr');tot++;
+  if(e==null){me.className='msg bad';me.textContent='Falta el porcentaje de error.';ie.className='';}
+  else if(Math.abs(Math.abs(e)-R.err)<=Math.max(.3,.1*R.err)){ok++;me.className='msg ok';me.textContent='Correcto.';ie.className='ok';}
+  else{me.className='msg bad';me.textContent='Revisa: % = |f′∞ − f′graf| / f′∞ × 100.';ie.className='bad';}
+  did.calc=ok===tot;marcaPasos();
+  $('calcOut').innerHTML='<p>'+(ok===tot?`<span class="badge ok">${ok} de ${tot}</span> ¡Todo bien! Tus resultados coinciden con los de la simulación.`:`<span class="badge bad">${ok} de ${tot}</span> Corrige lo marcado en rojo y vuelve a verificar.`)+'</p>';
+}
+function solHTML(){const R=refs();return '<details open><summary>Solución con estos datos</summary>'+
+  CF.map(([k,lab,sym,un])=>fila(lab,sym,pair(R[k][0],R[k][1]).join(' ± ')+' '+un)).join('')+fila('Porcentaje de error','|f′∞ − f′graf| / f′∞',fx(R.err,2)+' %')+'</details>';}
+function mountCalc(){
+  document.querySelectorAll('.calcf input').forEach(i=>i.oninput=()=>{const k=i.dataset.k;(answers[k]=answers[k]||{})[i.dataset.p]=i.value;});
+  const v=$('verify');if(v)v.onclick=verifyCalc;
+  const s=$('sol');if(s)s.onclick=()=>{showSol=!showSol;s.textContent=(showSol?'Ocultar':'Ver')+' la solución';$('solOut').innerHTML=showSol?solHTML():'';};
+}
+
+/* ================= acciones ================= */
+function syncLabUI(){
+  if($('pos'))Lab.ui.ponerDeslizador('pos',S.mode==='virt'?S.sv:S.s);
+  if($('xs'))Lab.ui.ponerDeslizador('xs',S.xs);
+  if($('s'))Lab.ui.ponerDeslizador('s',S.s);
+}
+function setMode(m){
+  S.mode=m;Lab.ui.marcar('modo',m);
+  if(m==='virt'&&S.xs>30)S.xs=14;
+  focusAnim=null;dirty=true;if(view==='side'||view==='eye')goView('side');
+  repinta();
+}
+function focus(){
+  const im=image(),ar=autoRec;autoRec=false;
+  if(!Number.isFinite(im.sp)){Lab.ui.aviso('La imagen está en el infinito: el objeto está justo en el foco.');return;}
+  if(!im.real){Lab.ui.aviso('La imagen es <b>virtual</b>: los rayos no se cruzan y no hay dónde poner la pantalla. Mira por la lente.');goView('eye');return;}
+  if(im.sp>115){Lab.ui.aviso('La imagen real queda fuera del riel. Aleja el objeto.');return;}
+  focusAnim={from:S.xs,to:Math.min(115,Math.max(2,im.sp+randn()*dof(im.sp)*S.prec*.6)),k:0};autoRec=ar;
+}
+function record(){
+  scrInfo=onScreen();const im=image(),sh=sharpness(scrInfo.blur);
+  if(S.mode==='virt'){Lab.ui.aviso('La tabla es para objeto real u objeto en ∞.');return;}
+  if(!im.real){Lab.ui.aviso('No hay imagen en la pantalla: con el objeto dentro de f′ la imagen es virtual.');return;}
+  if(sh<.8){Lab.ui.aviso('La imagen está borrosa (nitidez menor que 80 %). Mueve la pantalla hasta verla nítida antes de anotar s′.');return;}
+  const sp=Math.round(S.xs*10)/10,u=Math.max(U_S,Math.round(uSp(sp)*10)/10);
+  if(S.mode==='inf'){const prev=data.finf;data.finf={v:sp,u,D:S.D};refreshData();repinta();
+    Lab.ui.aviso(`Registrado: f′∞ = ${fx(sp,1)} cm.`,prev?{accion:()=>{data.finf=prev;refreshData();repinta();}}:{});return;}
+  const s=Math.round(S.s*10)/10;
+  if(data.rows.some(r=>Math.abs(r.s-s)<2)){Lab.ui.aviso('Ya hay un dato con casi la misma distancia. Separa los puntos 5 o 10 cm.');return;}
+  const r={s,us:U_S,sp,usp:u};data.rows.push(r);data.rows.sort((a,b)=>a.s-b.s);data.fresh=r;
+  refreshData();if(app()==='lab'&&guide)repinta();
+  Lab.ui.aviso(`Registrado: s = ${sg(s,1)} cm, s′ = ${fx(sp,1)} cm.`,{accion:()=>{data.rows.splice(data.rows.indexOf(r),1);refreshData();repinta();}});
+}
+function reset(){S.s=-50;S.sv=12;S.xs=S.mode==='virt'?14:50;focusAnim=null;syncLabUI();dirty=true;}
+let moveAnim=null,sweep=null;
+function stopSweep(){sweep=null;moveAnim=null;const g=$('go');if(g&&app()==='explore')g.textContent='Recorrer';}
+function recorrer(){if(sweep){stopSweep();return;}sweep={dir:1};if(S.s>40||S.s>-1)setPos(-95,S.h);const g=$('go');if(g)g.textContent='Pausa';}
+function moverObj(d){stopSweep();focusAnim=null;if(isLab()&&S.mode==='inf')return;setPos((isLab()&&S.mode==='virt'?S.sv:S.s)+d,S.h);}
+function moverPantalla(d){if(!isLab())return;focusAnim=null;setScr(S.xs+d);}
+function csv(){
+  if(!data.rows.length&&!data.finf){Lab.ui.aviso('No hay datos para exportar.');return;}
   const dec=s=>String(s).replace('.',','),R=results();
   let out=`Práctica: La lente convergente\nDiámetro lente (cm);${DL}\nR1 (cm);${Math.abs(S.c1)<1e-6?'plana':dec((1/S.c1).toFixed(2))}\nR2 (cm);${Math.abs(S.c2)<1e-6?'plana':dec((1/S.c2).toFixed(2))}\nn;${dec(S.n)}\n\n`;
   if(data.finf)out+=`Objeto en el infinito\nD (m);${dec(data.finf.D)}\nf′∞ (cm);${dec(data.finf.v)};u;${dec(data.finf.u)}\n\n`;
@@ -1364,100 +986,233 @@ $('bCsv').onclick=()=>{
   if(R.fg)out+=`f′ gráfica (cm);${dec(R.fg.toFixed(3))};u;${dec(R.ufg.toFixed(3))}\n`;
   if(R.err!==undefined)out+=`%Error;${dec(R.err.toFixed(3))}\n`;
   const a=document.createElement('a');a.href=URL.createObjectURL(new Blob(['﻿'+out],{type:'text/csv'}));a.download='lente_convergente.csv';a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000);
-};
+}
 
-/* ================= paso a paso ================= */
+/* ---------- lente ---------- */
+const lensIcon=l=>{const W_=30,H_=26,cx=15,cy=13,a=10;const s=(c,r)=>{if(!c)return 0;let R=(1/c)/AP*a*.42;if(Math.abs(R)<a*1.08)R=Math.sign(R)*a*1.08;return R-Math.sign(R)*Math.sqrt(Math.max(0,R*R-r*r));};
+  const e=1.4,d=s(l.c2,a)-s(l.c1,a),tc=Math.max(e,e-d);let p='';
+  for(let i=-10;i<=10;i++){const r=a*i/10;p+=(i===-10?'M':'L')+(cx-tc/2+s(l.c1,Math.abs(r))).toFixed(2)+' '+(cy-r).toFixed(2);}
+  for(let i=10;i>=-10;i--){const r=a*i/10;p+='L'+(cx+tc/2+s(l.c2,Math.abs(r))).toFixed(2)+' '+(cy-r).toFixed(2);}
+  return `<svg class="${l.div?'c-virt':'c-real'}" viewBox="0 0 ${W_} ${H_}" aria-hidden="true"><path d="${p}Z"/></svg>`;};
+const lensId=()=>{const l=LENSES.find(x=>Math.abs(x.c1-S.c1)<1e-9&&Math.abs(x.c2-S.c2)<1e-9);return l?l.id:'';};
+const NS=[['1.33','Agua 1,33'],['1.49','Acrílico 1,49'],['1.52','Vidrio 1,52'],['1.62','Flint 1,62'],['2.42','Diamante 2,42']];
+const Rtxt=c=>Math.abs(c)<1e-6?'cara plana (R = ∞)':`R = ${sg(1/c,1)} cm`;
+const lenteHTML=()=>Lab.ui.opciones({id:'lente',etiqueta:'Tipo de lente',valor:lensId(),items:LENSES.map(l=>({v:l.id,texto:lensIcon(l)+l.name}))})+
+  Lab.ui.deslizador({id:'c1',etiqueta:'Curvatura de la cara 1',simbolo:'1/R₁',valor:S.c1*100,min:-19,max:19,paso:.2,dec:1,unidad:'m⁻¹',nota:'<span id="nR1"></span>'})+
+  Lab.ui.deslizador({id:'c2',etiqueta:'Curvatura de la cara 2',simbolo:'1/R₂',valor:S.c2*100,min:-19,max:19,paso:.2,dec:1,unidad:'m⁻¹',nota:'<span id="nR2"></span>'})+
+  '<span class="small">Material · índice n</span>'+Lab.ui.opciones({id:'n',etiqueta:'Material de la lente',valor:String(S.n),items:NS.map(([v,t])=>({v,texto:t}))});
+function syncLensUI(){
+  if($('c1')){Lab.ui.ponerDeslizador('c1',S.c1*100);Lab.ui.ponerDeslizador('c2',S.c2*100);}
+  setT('nR1',Rtxt(S.c1));setT('nR2',Rtxt(S.c2));Lab.ui.marcar('lente',lensId());Lab.ui.marcar('n',String(S.n));
+}
+/* cambiar la lente invalida los datos tomados: se avisa y se puede deshacer */
+function cambiaLente(fn){
+  const antes={c1:S.c1,c2:S.c2,n:S.n},hay=data.rows.length||data.finf,bak={rows:data.rows.slice(),finf:data.finf};
+  fn();lensDirty=dirty=true;syncLensUI();
+  if(hay){data.rows=[];data.finf=null;did.calc=false;refreshData();
+    Lab.ui.aviso('Cambiaste la lente: se borraron los datos del laboratorio.',{accion:()=>{Object.assign(S,antes);data.rows=bak.rows;data.finf=bak.finf;lensDirty=dirty=true;syncLensUI();refreshData();}});}
+}
+
+/* ================= páginas: Explorar, Laboratorio y pasos ================= */
+const SIGNOS=`<div class="eq">1/s′ − 1/s = 1/f′ &nbsp;&nbsp; β = s′/s<br>1/f′ = (n − 1)·(1/R₁ − 1/R₂)</div>
+  <p class="small">Distancias desde la lente, positivas hacia donde va la luz. R &gt; 0 si el centro de curvatura queda a la derecha de la cara.</p>
+  <div class="tablewrap"><table><tr><th>Caso</th><th>Signo</th><th>Qué significa</th></tr>
+  <tr><td class="c-obj">Objeto real</td><td class="mono">s &lt; 0</td><td>De él salen rayos de verdad.</td></tr>
+  <tr><td class="c-virt">Objeto virtual</td><td class="mono">s &gt; 0</td><td>Llegan rayos que iban a juntarse allí; la lente los desvía antes.</td></tr>
+  <tr><td class="c-real">Imagen real</td><td class="mono">s′ &gt; 0</td><td>Los rayos se cruzan de verdad: una pantalla la recoge.</td></tr>
+  <tr><td class="c-virt">Imagen virtual</td><td class="mono">s′ &lt; 0</td><td>Solo se cruzan las prolongaciones: se ve a través de la lente.</td></tr></table></div>`;
+const CASES=[['far','Lejos'],['2f','En 2F'],['proj','Entre F y 2F'],['lupa','Dentro de F'],['virt','Detrás (virtual)']];
+const MOSTRAR=[['beam','Haz de luz'],['pr','Rayos principales'],['ext','Prolongaciones'],['trail','Estela','T']];
+const whyHTML=()=>'<div class="mini"><b>Qué está pasando</b><span id="why"></span></div>';
+const EXPLORE={title:'¿Dónde se forma la imagen?',render:()=>`<p>Arrastra la flecha del objeto, también detrás de la lente, y mira a dónde se va la imagen. Nada se califica.</p>${whyHTML()}
+  <fieldset class="params"><legend>Objeto</legend>${Lab.ui.deslizador({id:'s',etiqueta:'Posición del objeto',simbolo:'s',valor:S.s,min:-100,max:70,paso:.5,dec:1,unidad:'cm',teclas:'← →',nota:'Negativa: delante de la lente (real). Positiva: detrás (virtual).'})}
+    <div class="row">${CASES.map(([k,t])=>`<button class="btn" type="button" data-case="${k}">${t}</button>`).join('')}</div>
+    <div class="row"><button class="btn primary" type="button" data-principal id="go">${sweep?'Pausa':'Recorrer'}</button><button class="btn discreto" type="button" id="bTrail">Borrar estela</button></div></fieldset>
+  <fieldset class="params"><legend>Lente</legend>${lenteHTML()}</fieldset>
+  <fieldset class="params"><legend>Qué dibujar</legend><div class="row">${MOSTRAR.map(([k,t,tec])=>Lab.ui.casilla({id:k,texto:t,marcado:S[k],tecla:tec})).join('')}</div></fieldset>
+  <details><summary>Ideas para probar</summary><ul class="tight">
+    <li>Acerca el objeto a F desde lejos: ¿qué le pasa a la imagen justo al cruzar F?</li>
+    <li>Pon el objeto en 2F: ¿de qué tamaño sale la imagen?</li>
+    <li>Cambia a una lente divergente: ¿puedes lograr una imagen real con un objeto real?</li>
+    <li>Pasa el objeto detrás de la lente (virtual) y mira el mapa s′–s.</li>
+    <li>Cambia el material: ¿por qué el diamante enfoca tan cerca?</li></ul></details>
+  <details><summary>Convención de signos (DIN 1335)</summary>${SIGNOS}</details>`,
+  mount(){$('go').onclick=recorrer;$('bTrail').onclick=()=>{trail.length=0;dirty=true;};
+    document.querySelectorAll('#card [data-case]').forEach(b=>b.onclick=()=>{stopSweep();const f=Math.abs(fP()),F=Number.isFinite(f)?Math.min(f,40):20;
+      moveAnim={from:S.s,to:{far:-3*F,'2f':-2*F,proj:-1.5*F,lupa:-.55*F,virt:Math.min(.6*F,40)}[b.dataset.case],k:0};});}};
+
+/* medir: qué ve y qué puede hacer el estudiante. tipo: 'libre' | 'ejemplo' | 'estudiante' | 'virt' */
+function medirHTML(tipo){
+  const virt=S.mode==='virt',inf=S.mode==='inf',enfocar=tipo!=='estudiante';
+  const pos=inf?'':virt?Lab.ui.deslizador({id:'pos',etiqueta:'Objeto virtual (lo pone L₀)',simbolo:'s',valor:S.sv,min:2,max:2*F0-3,paso:.1,dec:1,unidad:'cm',teclas:'← →'}):
+    Lab.ui.deslizador({id:'pos',etiqueta:'Objeto luminoso',simbolo:'s',valor:S.s,min:-100,max:-2,paso:.1,dec:1,unidad:'cm',teclas:'← →'});
+  const principal=virt||tipo==='ejemplo'?(tipo==='ejemplo'?'Enfocar y registrar':'Enfocar'):'Registrar';
+  return `<fieldset class="params"><legend>${inf?'Objeto lejano y pantalla':'Objeto y pantalla'}</legend>${pos}
+    ${Lab.ui.deslizador({id:'xs',etiqueta:'Pantalla',simbolo:'x',valor:S.xs,min:2,max:115,paso:.1,dec:1,unidad:'cm',teclas:'↑ ↓',nota:'Arrástrala en la escena o muévela aquí.'})}
+    <div class="pantalla"><canvas id="scrCv" aria-label="Lo que se ve en la pantalla"></canvas>${Lab.ui.lecturas([{id:'lNit',etiqueta:'Nitidez'},{id:'lLee',etiqueta:'Pantalla en la cinta'}],'Pantalla')}</div>
+    <div class="row"><button class="btn primary" type="button" data-principal id="${principal==='Registrar'?'rec':'foc'}">${principal}</button>${principal==='Registrar'&&enfocar?'<button class="btn" type="button" id="foc">Enfocar · F</button>':''}<button class="btn discreto" type="button" id="rst">Reiniciar · R</button></div></fieldset>`;
+}
+function mountMedir(tipo){
+  const r=$('rec'),f=$('foc');if(r)r.onclick=record;
+  if(f)f.onclick=tipo==='ejemplo'?()=>{autoRec=true;focus();}:focus;
+  const z=$('rst');if(z)z.onclick=reset;
+}
+const objetoHTML=()=>Lab.ui.opciones({id:'modo',etiqueta:'Qué objeto',valor:S.mode,items:[{v:'real',texto:'Objeto real',tecla:'1'},{v:'inf',texto:'Objeto en ∞',tecla:'3'},{v:'virt',texto:'Objeto virtual',tecla:'2'}]});
+const avanzadoHTML=()=>`<details><summary>Objeto lejano y enfoque</summary>${Lab.ui.deslizador({id:'D',etiqueta:'Distancia del objeto lejano',valor:S.D,min:2,max:40,paso:.5,dec:1,unidad:'m'})}
+  ${Lab.ui.deslizador({id:'Pr',etiqueta:'Error al enfocar',valor:S.prec,min:0,max:4,paso:.1,dec:1,unidad:'×'})}<p class="small">El "infinito" del laboratorio está a pocos metros, así que la imagen queda un poco más lejos que f′.</p></details>`;
+const LABFREE={title:'La lente convergente',render:()=>`<p>Mide la distancia focal de dos formas: con un objeto lejano y con la gráfica 1/s′ contra 1/s. La f′ de la lente no se da: es lo que mides.</p>
+  ${objetoHTML()}${whyHTML()}${medirHTML('libre')}${tablaHTML()}<h3>Gráfica 1/s′ vs 1/s</h3>${graficaHTML()}<h3>Resultados</h3><div id="res">${resultadosHTML()}</div>${avanzadoHTML()}${monitorHTML()}`,
+  mount(){mountMedir('libre');}};
+const visto=new Set();
 const STEPS=[
-  {t:'El montaje y los signos',b:()=>`Objeto luminoso (una <b class="obj">F</b>), lente y pantalla sobre el riel. Todo se mide <b>desde la lente</b>, positivo hacia donde va la luz. Arrastra el objeto o la pantalla sobre el riel.`,
-   do:['Ver de lado',()=>goView('side')],ok:()=>false,enter:()=>setMode('real')},
-  {t:'Objeto en el infinito',b:()=>`Un objeto muy lejano manda rayos casi paralelos: la imagen se forma cerca del foco y <b>s′ ≈ f′</b>. Enfoca la pantalla y registra.`,
-   do:['Enfocar y registrar',()=>{autoRec=true;focus();}],ok:()=>!!data.finf,enter:()=>{setMode('inf');goView('persp');setTab('scr');}},
-  {t:'Imagen real de un objeto real',b:()=>`Con el objeto más allá de F, la imagen <b class="real">real</b> se recoge en la pantalla, invertida. Mueve el objeto y registra <b>5 distancias</b> separadas 5 o 10 cm. Llevas <b class="mono">${data.rows.length}</b>.`,
-   do:['Enfocar y registrar',()=>{autoRec=true;focus();}],ok:()=>data.rows.length>=5,enter:()=>{setMode('real');if(S.s>-fP()*1.3)setPos(-fP()*2.2);}},
-  {t:'Gráfica 1/s′ vs 1/s',b:()=>`De 1/s′ − 1/s = 1/f′ sale una recta de <b>pendiente 1</b> y corte <b class="foc">b = 1/f′</b>.`,
-   do:['Ver gráfica',()=>setTab('plot')],ok:()=>data.rows.length>=3,enter:()=>setTab('plot')},
-  {t:'Comparar f′',b:()=>`Compara f′ de la gráfica con f′∞. Si el objeto lejano no está suficientemente lejos, f′∞ sale un poco mayor.`,
-   do:['Ver resultados',()=>setTab('res')],ok:()=>results().err!==undefined,enter:()=>setTab('res')},
-  {t:'Imagen virtual (lupa)',b:()=>`Mirando <b>a través de la lente</b> se ve la <b class="obj">F</b> derecha y mayor: es la imagen <b class="virt">virtual</b>. Por la lente cambia todo lo que está detrás de ella: panel, riel y piso. Gira la escena y mira desde arriba: el panel y la F se mueven juntos. Aleja el objeto: todo se voltea cuando la imagen real se forma delante del ojo.`,
-   do:['Ver de lado',()=>goView(view==='eye'?'side':'eye')],ok:()=>S.mode==='real'&&image().sp<0,enter:()=>{setMode('real');setPos(-fP()*.6);goView('eye');setTab('scr');}},
-  {t:'Objeto virtual',b:()=>`L₀ forma un haz que iba a juntarse detrás de la lente: ese punto es un <b class="virt">objeto virtual</b> (s &gt; 0). La lente adelanta el cruce y la imagen sale <b class="real">real</b>.`,
-   do:['Enfocar',()=>focus()],ok:()=>S.mode==='virt'&&sharpness(scrInfo.blur)>.8,enter:()=>{setMode('virt');goView('side');setTab('scr');}},
+  {label:'Montaje',title:'El montaje y los signos',enter:()=>setMode('real'),
+   render:()=>`<p>Objeto luminoso (una <b class="c-obj">F</b>), lente y pantalla sobre un riel con cinta métrica. Todo se mide <b>desde la lente</b>, positivo hacia donde va la luz.</p>${SIGNOS}<p class="small">Arrastra el objeto o la pantalla sobre el riel, o usa los deslizadores del siguiente paso.</p><div class="row"><button class="btn primary" type="button" data-principal id="sv">Ver de lado</button></div>`,
+   mount(){$('sv').onclick=()=>goView(view==='side'?'persp':'side');},hecho:()=>visto.has(0)},
+  {label:'Objeto en ∞',title:'f′ con un objeto lejano',enter:()=>{setMode('inf');goView('persp');},
+   render:()=>`<p>Un objeto muy lejano manda rayos casi paralelos: la imagen se forma cerca del foco y <b>s′ ≈ f′</b>. Este es el ejemplo resuelto: la simulación enfoca la pantalla y anota s′.</p>${medirHTML('ejemplo')}${data.finf?fila('Distancia focal f′∞','s′ leída en la cinta',pm(data.finf.v,data.finf.u)+' cm',true):''}`,
+   mount(){mountMedir('ejemplo');},hecho:()=>!!data.finf},
+  {label:'Tomar datos',title:'Imagen real de un objeto real',enter:()=>{setMode('real');if(S.s>-fP()*1.3)setPos(-fP()*2.2);},
+   render:()=>`<p>Ahora mides tú. Pon el objeto, mueve la pantalla hasta que la <b class="c-obj">F</b> se vea nítida (nitidez de 80 % o más) y registra. Haz <b>5 distancias</b> separadas 5 o 10 cm.</p>${medirHTML('estudiante')}${tablaHTML()}`,
+   mount(){mountMedir('estudiante');},hecho:()=>data.rows.length>=5},
+  {label:'Gráfica',title:'Gráfica 1/s′ vs 1/s',
+   render:()=>`<p>De 1/s′ − 1/s = 1/f′ sale una recta de <b>pendiente 1</b> y corte <b class="c-foc">b = 1/f′</b>. Las barras son las incertidumbres de cada punto.</p>${graficaHTML()}`,hecho:()=>data.rows.length>=3},
+  {label:'Tus cálculos',title:'Tus cálculos',render:()=>calcHTML(),mount:mountCalc,hecho:()=>did.calc},
+  {label:'Resultados',title:'Comparar las dos f′',
+   render:()=>`<p>Compara la f′ de la gráfica con f′∞. Si el objeto lejano no está suficientemente lejos, f′∞ sale un poco mayor.</p><div id="res">${resultadosHTML()}</div>${avanzadoHTML()}${monitorHTML()}`,hecho:()=>results().err!==undefined},
+  {label:'Imagen virtual',title:'Imagen virtual (lupa)',enter:()=>{setMode('real');setPos(-fP()*.6);goView('eye');},
+   render:()=>`<p>Con el objeto dentro de F la imagen es <b class="c-virt">virtual</b>: la pantalla no la recoge, pero mirando <b>a través de la lente</b> se ve la <b class="c-obj">F</b> derecha y mayor.</p><p>Por la lente cambia todo lo que está detrás de ella: panel, riel y piso. Aleja el objeto: todo se voltea cuando la imagen real se forma delante del ojo.</p>${whyHTML()}
+     ${Lab.ui.deslizador({id:'pos',etiqueta:'Objeto luminoso',simbolo:'s',valor:S.s,min:-100,max:-2,paso:.1,dec:1,unidad:'cm',teclas:'← →'})}
+     <div class="row"><button class="btn primary" type="button" data-principal id="ojo">${view==='eye'?'Ver de lado':'Mirar por la lente'}</button></div>`,
+   mount(){$('ojo').onclick=()=>{goView(view==='eye'?'side':'eye');$('ojo').textContent=view==='eye'?'Ver de lado':'Mirar por la lente';};},hecho:()=>visto.has(6)&&S.mode==='real'&&image().sp<0},
+  {label:'Objeto virtual',title:'Objeto virtual',enter:()=>{setMode('virt');goView('side');},
+   render:()=>`<p>La lente auxiliar L₀ forma un haz que iba a juntarse detrás de la lente: ese punto es un <b class="c-virt">objeto virtual</b> (s &gt; 0). La lente adelanta el cruce y la imagen sale <b class="c-real">real</b>.</p>${whyHTML()}${medirHTML('virt')}`,
+   mount(){mountMedir('virt');},hecho:()=>S.mode==='virt'&&sharpness(scrInfo.blur)>.8},
 ];
-let gOn=false,gi=0;
-function setGuide(on){gOn=on;$('guide').hidden=!on;$('bGuide').classList.toggle('on',on);if(on){if(!$('caption').hidden)$('bMore').click();gGo(gi);placeGuide();}}
-function gGo(i,keep){gi=Math.max(0,Math.min(STEPS.length-1,i));const st=STEPS[gi];if(!keep)st.enter&&st.enter();
-  $('gStep').textContent=`${gi+1} / ${STEPS.length}`;$('gTitle').textContent=st.t;$('gBody').innerHTML=st.b();
-  $('gDo').textContent=st.do[0];$('gDo').onclick=()=>st.do[1]();
-  $('gDots').innerHTML=STEPS.map((_,k)=>`<i class="${k<gi?'done':k===gi?'cur':''}"></i>`).join('');
-  $('gPrev').disabled=gi===0;$('gNext').disabled=gi===STEPS.length-1;gTick();placeGuide();}
-function gTick(){if(!gOn)return;$('gOk').textContent=STEPS[gi].ok()?'✓ listo':'';if(gi===5){const t=view==='eye'?'Ver de lado':'Mirar por la lente';if($('gDo').textContent!==t)$('gDo').textContent=t;}}
-$('gNext').onclick=()=>gGo(gi+1);$('gPrev').onclick=()=>gGo(gi-1);$('gClose').onclick=()=>setGuide(false);$('bGuide').onclick=()=>setGuide(!gOn);
-const isWide=()=>innerWidth>1100&&innerHeight>720;
-function placeGuide(){if(!gOn)return;if(!isWide()){$('guide').style.top='';return;}$('guide').style.top=Math.round(document.querySelector('.hero').getBoundingClientRect().bottom+10)+'px';}
-
-addEventListener('keydown',e=>{
-  if(['Enter',' '].includes(e.key)&&e.target.tagName==='BUTTON')return;
-  if(e.key==='l'||e.key==='L')setApp(isLab()?'explore':'lab');
-  else if(e.key==='v'||e.key==='V'){const ks=[...document.querySelectorAll('#viewPills .pill')].filter(b=>getComputedStyle(b).display!=='none').map(b=>b.dataset.view);goView(ks[(ks.indexOf(view)+1)%ks.length]);}
-  else if(e.key==='p'||e.key==='P')setProj(!document.body.classList.contains('proj'));
-  else if(e.key==='n'||e.key==='N')setTheme(!day,true);
-  else if(e.key==='?'||e.key==='h'||e.key==='H')$('help').classList.toggle('show');
-  else if(e.key==='Escape')$('help').classList.remove('show');
-  else if(isLab()){
-    if(e.key==='1')setMode('real');else if(e.key==='2')setMode('virt');else if(e.key==='3')setMode('inf');
-    else if(e.key==='e'||e.key==='E')focus();
-    else if(e.key==='Enter'){e.preventDefault();record();}
-    else if(e.key==='r'||e.key==='R')reset();
-    else if(e.key==='g'||e.key==='G')setGuide(!gOn);
-  }else{
-    if(e.code==='Space'){e.preventDefault();$('bSweep').click();}
-    else if(e.key==='ArrowLeft'){stopSweep();setPos(S.s-1);}
-    else if(e.key==='ArrowRight'){stopSweep();setPos(S.s+1);}
-    else if(e.key==='t'||e.key==='T')document.querySelector('#showPills [data-k=trail]').click();
+let guide=true,cur=0;
+const app=()=>S.app;
+function pinta(st,kicker,pager){
+  $('card').innerHTML=`<p class="kicker">${kicker}</p><h2>${st.title}</h2>${st.render()}`+(pager?`<div class="pager"><button class="btn" type="button" id="prev" ${cur===0?'disabled':''}>← Anterior</button><button class="btn" type="button" id="next" ${cur===STEPS.length-1?'disabled':''}>Siguiente →</button></div>`:'');
+  if(pager){$('prev').onclick=()=>go(cur-1);$('next').onclick=()=>go(cur+1);}
+  if(st.mount)st.mount();Lab.ui.montar('#card',alCambiar);bindData();
+  syncLensUI();const fi=$('fit');if(fi)fi.innerHTML=fitHTML(results());
+  dirty=true;updateHUD();requestAnimationFrame(dibujaPanel);
+}
+function go(i){cur=Math.max(0,Math.min(STEPS.length-1,i));visto.add(cur);const st=STEPS[cur];enPaso=true;if(st.enter)st.enter();enPaso=false;
+  pinta(st,`Paso ${cur+1} de ${STEPS.length}`,true);
+  document.querySelectorAll('#steps button').forEach((b,j)=>j===cur?b.setAttribute('aria-current','step'):b.removeAttribute('aria-current'));marcaPasos();}
+let enPaso=false;
+/* vuelve a pintar la página actual (sin volver a entrar al paso) */
+function repinta(){if(enPaso)return;if(app()==='explore')pinta(EXPLORE,'Modo explorar');else if(guide)pinta(STEPS[cur],`Paso ${cur+1} de ${STEPS.length}`,true);else pinta(LABFREE,'Modo laboratorio');}
+function marcaPasos(){document.querySelectorAll('#steps button').forEach((b,j)=>{const h=STEPS[j].hecho();b.classList.toggle('done',visto.has(j)&&h);b.classList.toggle('seen',visto.has(j)&&!h&&j!==cur);});}
+function setApp(a,instant){
+  stopSweep();focusAnim=null;
+  if(a==='lab'){
+    if(P()<=0){S.c1=1/25;S.c2=-1/25;lensDirty=true;Lab.ui.aviso('El laboratorio usa una lente convergente: se puso una biconvexa.');}
+    if(S.s>=0)S.s=-50;
+    const im=(()=>{const inv=P()+1/S.s;return Math.abs(inv)<1e-6?Infinity:1/inv;})();
+    S.xs=Number.isFinite(im)&&im>2&&im<115?Math.min(115,im+8):50;
   }
-});
+  S.app=a;
+  document.querySelectorAll('.mode[data-app]').forEach(b=>b.classList.toggle('on',b.dataset.app===a));
+  $('bGuide').hidden=a!=='lab';$('bGuide').setAttribute('aria-checked',String(guide));
+  const nav=a==='lab'&&guide;document.body.classList.toggle('navon',nav);$('steps').closest('nav').hidden=!nav;
+  pintaVivo();pintaVistas();
+  try{history.replaceState(null,'',a==='lab'?'#laboratorio':'#explorar');}catch(e){}
+  if(a==='explore')pinta(EXPLORE,'Modo explorar');else if(guide)go(cur);else pinta(LABFREE,'Modo laboratorio');
+  setTabV(tabV);placeAll();Lab.ui.ubicarBarras();resize();goView('persp',instant);
+}
+
+/* Todo control del panel llega aquí (Lab.ui.montar). */
+function alCambiar(id,v){
+  if(id==='s'){stopSweep();setPos(v,S.h);}
+  else if(id==='pos'){focusAnim=null;setPos(v);}
+  else if(id==='xs'){focusAnim=null;setScr(v);}
+  else if(id==='modo')setMode(v);
+  else if(id==='lente'){const l=LENSES.find(x=>x.id===v);cambiaLente(()=>{S.c1=l.c1;S.c2=l.c2;});}
+  else if(id==='c1'||id==='c2'){const c=Math.abs(v)<.6?0:v/100;cambiaLente(()=>{S[id]=c;});}
+  else if(id==='n')cambiaLente(()=>{S.n=+v;});
+  else if(id==='D'){S.D=v;dirty=true;}
+  else if(id==='Pr')S.prec=v;
+  else if(id in S&&typeof v==='boolean'){S[id]=v;dirty=true;}
+}
+
+/* ================= qué mostrar, teclado y barra táctil ================= */
+function aplicaUI(){
+  Lab.ui.aplicarClases(UI);Lab.ui.guardarPreferencias(CLAVE,UI);
+  document.body.classList.toggle('no-labels',!UI.labels);renderer.toneMappingExposure=UI.proyector?1.5:1.2;
+  Lab.ui.ubicarBarras();resize();actualizarBarra();
+}
+function alterna(k){if(k==='tema'){Lab.ui.alternarTema(UI);aplicaUI();return;}UI[k]=!UI[k];if(k!=='clean')UI.clean=false;aplicaUI();if(['card','scope','clean'].includes(k)&&(view==='persp'||view==='side'))goView(view);}
+Lab.ui.alCambiarTema(t=>aplicaTema(t));
+const principal=()=>{const b=Lab.ui.principal();if(!b||b.disabled)return false;b.click();};
+const barra=Lab.ui.barraAccion({pad:'#pad',hud:'#hud',accion:a=>{
+  if(a==='principal')principal();else if(a==='s-')moverObj(-1);else if(a==='s+')moverObj(1);else if(a==='x-')moverPantalla(-.5);else if(a==='x+')moverPantalla(.5);}});
+function actualizarBarra(){
+  const sinPanel=UI.clean||!UI.card,tac=Lab.ui.esTactil(),lab=isLab(),b=Lab.ui.principal(),im=image();
+  const g=[];if(!(lab&&S.mode==='inf'))g.push({id:'s',menos:'s−',mas:'s+',nombre:'la posición del objeto'});if(lab)g.push({id:'x',menos:'P−',mas:'P+',nombre:'la pantalla'});
+  barra.pintar({pad:tac&&sinPanel,hud:!tac&&sinPanel,
+    valores:[lab&&S.mode==='inf'?'s = −∞':'s = '+sg(lab&&S.mode==='virt'?S.sv:S.s,1)+' cm'].concat(lab?['pantalla '+fx(S.xs,1)+' cm','nitidez '+(im.real?fx(sharpness(scrInfo.blur)*100,0)+' %':'—')]:['s′ = '+(Number.isFinite(im.sp)?sg(im.sp,1)+' cm':'∞')]),
+    grupos:g,principal:{texto:b?b.textContent:'—',inactivo:!b||b.disabled},
+    teclas:[['Espacio',b?b.textContent.toLowerCase():'—'],['← →','objeto']].concat(lab?[['↑ ↓','pantalla'],['F','enfocar']]:[['↑ ↓','altura']],[['H','paneles']])});
+}
+const enLab=f=>()=>{if(!isLab())return false;f();};
+const pasoEstudiante=()=>isLab()&&guide&&cur===2;
+Lab.ui.teclas({h:()=>alterna('clean'),p:()=>alterna('card'),s:()=>alterna('scope'),e:()=>alterna('labels'),l:()=>alterna('proyector'),o:()=>alterna('tema'),
+  Escape:()=>{if(!UI.clean)return false;alterna('clean');},' ':principal,Enter:principal,
+  ArrowLeft:()=>moverObj(-1),ArrowRight:()=>moverObj(1),
+  ArrowUp:()=>{if(isLab())moverPantalla(.5);else{stopSweep();setPos(S.s,S.h+.5);}},ArrowDown:()=>{if(isLab())moverPantalla(-.5);else{stopSweep();setPos(S.s,S.h-.5);}},
+  f:enLab(()=>{if(pasoEstudiante()){Lab.ui.aviso('En este paso enfocas tú: mueve la pantalla hasta ver la F nítida.');return;}focus();}),
+  r:enLab(reset),'1':enLab(()=>setMode('real')),'2':enLab(()=>setMode('virt')),'3':enLab(()=>setMode('inf')),
+  g:enLab(()=>{guide=!guide;setApp('lab');}),
+  t:()=>{if(isLab())return false;S.trail=!S.trail;Lab.ui.marcar('trail',S.trail);dirty=true;},
+  v:()=>{const ks=viewsFor();goView(ks[(ks.indexOf(view)+1)%ks.length]);}});
 
 /* ================= distribución y bucle ================= */
-function layout(){
-  const wide=isWide(),dp=$('dataPanel');
-  if(wide){const b=$('controls').getBoundingClientRect().bottom,cs=getComputedStyle(dp);dp.style.height=Math.max(170,Math.min(430,innerHeight-b-parseFloat(cs.bottom)-12))+'px';}else dp.style.height='';
-  resize();
-}
+const viewEl=$('view');
 function resize(){
-  const w=canvas.clientWidth,h=canvas.clientHeight;renderer.setSize(w,h,false);camera.aspect=w/h;
-  const wide=isWide();
-  camera.setViewOffset(w,h,wide?Math.round(w*.1):0,wide?-Math.round(h*.04):-Math.round(h*.04),w,h);camera.updateProjectionMatrix();
-  diagD=sizeCanvas($('diagCv'));drawDiagram();drawTab();if(tab==='plot')drawPlot(results());
+  const w=viewEl.clientWidth,h=viewEl.clientHeight;if(!w||!h)return;
+  renderer.setSize(w,h,false);camera.aspect=w/h;
+  const wide=innerWidth>760,card=$('card'),side=wide&&UI.card&&!UI.clean?card.offsetWidth+24:0;let left=wide&&!UI.clean?84:0;
+  let topH=0,botH=0;
+  if(!UI.clean){const vv=$('vivo').getBoundingClientRect();topH=wide?vv.bottom:Math.max(vv.bottom,$('viewbtns').getBoundingClientRect().bottom);
+    const ve=$('ventana');if(wide&&UI.scope&&ve.getClientRects().length){botH=innerHeight-ve.getBoundingClientRect().top;left+=ve.offsetWidth*.4;}}
+  const pd=$('pad');if(pd&&!pd.hidden)botH=Math.max(botH,pd.offsetHeight+12);
+  const oy=Math.round((Math.min(botH,h*.6)-Math.min(topH,h*.3))/2);
+  if(side||left||oy)camera.setViewOffset(w,h,(side-left)/2,oy,w,h);else camera.clearViewOffset();
+  camera.updateProjectionMatrix();dirty=true;dibujaPanel();
 }
-document.querySelectorAll('details.sec').forEach(d=>d.addEventListener('toggle',()=>{layout();}));
-document.querySelector('details.adv').addEventListener('toggle',()=>layout());
-addEventListener('resize',()=>{const was=camera.aspect<.9;layout();placeGuide();if((camera.aspect<.9)!==was)goView(view);});
-let last=performance.now(),tt=0;
+new ResizeObserver(resize).observe(viewEl);
+addEventListener('resize',()=>{const was=camera.aspect<.9;Lab.ui.ubicarBarras();resize();if((camera.aspect<.9)!==was)goView(view);});
+let last=performance.now(),tt=0,nf=0;
 function frame(now){
   const dt=Math.min(.05,(now-last)/1000);last=now;tt+=dt;
   if(sweep){const f=fP();let x=S.s+sweep.dir*dt*14*(Number.isFinite(f)&&Math.abs(S.s+f)<6?.45:1);if(x>45){x=45;sweep.dir=-1;}if(x<-95){x=-95;sweep.dir=1;}if(Math.abs(x)<1.3)x=sweep.dir>0?1.3:-1.3;setPos(x,S.h);}
   if(moveAnim){const a=moveAnim;a.k=Math.min(1,a.k+dt/1.2);const e=a.k<.5?2*a.k*a.k:1-Math.pow(-2*a.k+2,2)/2;setPos(a.from+(a.to-a.from)*e,S.h);if(a.k>=1)moveAnim=null;}
-  if(focusAnim){const a=focusAnim;a.k=Math.min(1,a.k+dt/.9);const e=a.k<.5?2*a.k*a.k:1-Math.pow(-2*a.k+2,2)/2;setScr(a.from+(a.to-a.from)*e);if(a.k>=1){focusAnim=null;if(autoRec){autoRec=false;record();}else toast('Imagen enfocada: lee s′ en la cinta y registra.',true);}}
-  if(dirty)placeAll();
+  if(focusAnim){const a=focusAnim;a.k=Math.min(1,a.k+dt/.9);const e=a.k<.5?2*a.k*a.k:1-Math.pow(-2*a.k+2,2)/2;setScr(a.from+(a.to-a.from)*e);
+    if(a.k>=1){focusAnim=null;if(autoRec){autoRec=false;scrInfo=onScreen();record();}else Lab.ui.aviso('Imagen enfocada: lee s′ en la cinta y registra.');}}
+  if(dirty){placeAll();syncLabUI();}
   const br=.5+.5*Math.sin(tt*2.4);
   virtA.mat.opacity=.5+.3*br;vObjA.mat.opacity=.5+.3*br;virtA.aMat.opacity=vObjA.aMat.opacity=.14+.14*br;virtA.gl.material.opacity=vObjA.gl.material.opacity=(.4+.3*br)*(day?.35:1);
   objGlow.material.opacity=.5+.05*Math.sin(tt*3.1);
-  if(isLab()){
-    const eye=view==='eye'&&!cam.anim;
-    beamG.visible=!eye;scrG.visible=!eye;vObjF.visible=S.mode==='virt'&&S.ext&&!eye;
-  }else{beamG.visible=true;}
-  drawTrail();updateCam(dt);renderAll();updateTags();gTick();
+  if(isLab()){const eye=view==='eye'&&!camAnim;beamG.visible=!eye;scrG.visible=!eye;vObjF.visible=S.mode==='virt'&&S.ext&&!eye;}else beamG.visible=true;
+  drawTrail();pasoCam(dt);renderAll();updateTags();if(++nf%15===0)marcaPasos();
   requestAnimationFrame(frame);
 }
 
-/* ================= inicio ================= */
-syncLensUI();syncLabUI();
-setTheme(document.documentElement.classList.contains('day'));
-setApp(location.hash==='#laboratorio'?'lab':'explore',true);
-document.fonts&&document.fonts.ready.then(()=>{layout();dirty=true;});
+/* ================= arranque ================= */
+STEPS.forEach((s,i)=>{const li=document.createElement('li'),b=document.createElement('button');b.type='button';b.innerHTML=`<span class="n">${i+1}</span><span>${s.label}</span>`;b.onclick=()=>go(i);li.appendChild(b);$('steps').appendChild(li);});
+document.querySelectorAll('.mode[data-app]').forEach(b=>b.onclick=()=>setApp(b.dataset.app));
+$('bGuide').onclick=()=>{guide=!guide;setApp('lab');};
+document.querySelectorAll('[data-ui]').forEach(b=>b.onclick=()=>alterna(b.dataset.ui));
+$('unclean').onclick=()=>alterna('clean');
+if(innerWidth<=760)UI.scope=false;   // en celular la ventana empieza cerrada: la escena es pequeña
+aplicaTema(Lab.ui.tema());aplicaUI();
+camera.position.set(0,Y0+60,200);controls.target.set(0,Y0,0);
+setApp(/laboratorio/.test(location.hash)?'lab':'explore',true);
+setTabV('rayos');
+document.fonts&&document.fonts.ready.then(()=>{resize();dirty=true;});
 requestAnimationFrame(frame);
-window.__lens={setTheme,DAY3,scene,renderAll,lensCam,tObjG,elemMat,cam,camera,canvas,layout,S,data,image,results,setApp,setMode,setPos,setScr,focus,record,goView,setTab,setProj,P,fP,trail,onScreen:()=>scrInfo,sharpness};
+window.__lens={S,data,image,results,setApp,setMode,setPos,setScr,focus,record,goView,setTabV,P,fP,trail,onScreen:()=>scrInfo,sharpness,camera,controls,UI,go};
 })();
 </script>
-</body>
-</html>
+</body></html>

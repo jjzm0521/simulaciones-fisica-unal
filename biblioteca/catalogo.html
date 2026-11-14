@@ -168,6 +168,16 @@ Lab.ui.alCambiarTema(t =&gt; { Lab.escena.ambiente(scene, t); dirty = true; });<
   </section>
 
   <section>
+    <h2>Ventana de la práctica y pestañas <code>.ventana · Lab.ui.pestanas · Lab.ui.marcar</code></h2>
+    <p class="uso">Para lo que dibuja la práctica y no es un instrumento real (diagrama de rayos, mapa, gráfica): usa los tokens y cambia con el tema. Las pestañas cambian <b>qué se ve</b> en la ventana, nunca un parámetro de la física (para eso, opción única). <code>Lab.ui.marcar(id, v)</code> cambia la pestaña, opción, casilla o interruptor marcado desde el código, sin disparar <code>alCambiar</code>. Ejemplo vivo: lente convergente (F3).</p>
+    <div class="muestra"><div class="ventana" id="dVen">
+      <div class="ventana-cab ventana-asa"><span class="ventana-titulo">Diagrama</span><span id="dVenTabs"></span><span class="ventana-dato">s′ = +60,0 cm</span><button class="ventana-btn" data-ven="plegar" aria-label="Plegar">–</button></div>
+      <div class="ventana-cuerpo"><p class="ventana-pie" id="dVenPie">Aquí va el lienzo de la pestaña <b>rayos</b>.</p></div>
+    </div></div>
+    <pre>'&lt;div class="ventana-cab ventana-asa"&gt;…' + Lab.ui.pestanas({id:'vista', etiqueta:'Qué ver', valor:'rayos', items:[{v:'rayos', texto:'Rayos'}, {v:'mapa', texto:'Mapa'}]}) + '…&lt;/div&gt;'</pre>
+  </section>
+
+  <section>
     <h2>Instrumento: PhysicsSensor <code>Lab.instrumentos.physicsSensor</code></h2>
     <p class="uso">Los instrumentos imitan al programa o equipo real, con su propia tipografía y colores: es lo único que no usa los tokens ni cambia con el tema. La práctica decide qué señal y qué cursores mostrar; el instrumento dibuja. Aquí: arrastra los cursores azules. Ficha: <code>instrumentos/README.md</code>.</p>
     <div class="muestra ancha"><div id="pzSensor" style="position:static;width:min(520px,100%)"></div>
@@ -238,7 +248,8 @@ ps.cursores(c.a, c.b, {mover:true});             // el estudiante mide;  ps.inte
     new ResizeObserver(mide).observe(vista); mide(); pinta();
     (function b(){ requestAnimationFrame(b); if(sucio){ sucio=false; rd.render(esc,cam); } })();
   } else vista.textContent='No se pudo cargar el motor 3D.';
-  U.montar('.cat',(id,v)=>{ if(id==='pz'){ PZ.cual=v; pinta(); } else if(id==='pzAb'){ PZ.ab=v/100; pinta(); } eco(id,v); });
+  $('#dVenTabs').outerHTML=U.pestanas({id:'vista',etiqueta:'Qué ver en la ventana',valor:'rayos',items:[{v:'rayos',texto:'Rayos'},{v:'mapa',texto:'Mapa'},{v:'lente',texto:'Lente por dentro'}]});
+  U.montar('.cat',(id,v)=>{ if(id==='vista') $('#dVenPie').innerHTML='Aquí va el lienzo de la pestaña <b>'+v+'</b>.'; if(id==='pz'){ PZ.cual=v; pinta(); } else if(id==='pzAb'){ PZ.ab=v/100; pinta(); } eco(id,v); });
   const b1=U.barraAccion({pad:'#dPad',hud:null,accion:a=>eco('barra',a)}), b2=U.barraAccion({pad:null,hud:'#dHud',accion:()=>{}});
   const e={titulo:'Oblicuo',tituloCambia:true,valores:['θ = 35°','V₀ = 2,0 m/s'],grupos:[{id:'th',menos:'θ−',mas:'θ+',nombre:'el ángulo'},{id:'v',menos:'V−',mas:'V+',nombre:'la rapidez'}],principal:{texto:'Lanzar'},teclas:[['Espacio','lanzar'],['← →','ángulo'],['↑ ↓','rapidez']]};
   b1.pintar(Object.assign({pad:true},e)); b2.pintar(Object.assign({hud:true},e));

@@ -21,8 +21,10 @@ Los equipos reales, modelados **una sola vez**. Toda simulación que necesite un
 | Soporte universal | [`soporte.js`](soporte.js) | Borrador · medidas estimadas de foto | Movimiento parabólico |
 | Fotocompuerta | [`fotocompuerta.js`](fotocompuerta.js) | Borrador · medidas estimadas de foto | Movimiento parabólico |
 | Polea con prensa | [`polea.js`](polea.js) | Borrador · rueda con medidas reales; prensa estimada de foto | (Atwood, Segunda ley, Movimiento circular) |
+| Carrito PAScar | [`carrito.js`](carrito.js) | Borrador · medidas estimadas (PASCO no las publica) | (Colisiones, Segunda ley) |
+| Regla cebra | [`regla-cebra.js`](regla-cebra.js) | Borrador · paso y número de franjas reales; resto estimado de foto | (Caída libre, Movimiento circular) |
 
-Pendientes (salen de parabólico o de fotos por llegar): mesa, rampa, esfera, cinta métrica, computador con PhysicsSensor, regla-cebra.
+Pendientes (salen de parabólico o de fotos por llegar): mesa, rampa, esfera, cinta métrica, computador con PhysicsSensor, pista del carrito.
 
 ## Soporte universal
 
@@ -67,6 +69,30 @@ po.girarPorLongitud(x);           // la cuerda avanzó x
 const c = po.cuerda(carrito, pesa); escena.add(c.linea);
 c.actualizar(carrito, pesa);      // en cada cuadro: sigue tangente aunque se muevan
 ```
+
+## Carrito PAScar
+
+El carrito de baja fricción para colisiones: **PASCO PAScar (ME-6950, uno rojo y uno azul)**.
+
+- **Cómo es:** cuerpo de policarbonato rojo o azul con esquinas redondeadas y una bandeja arriba para barras de masa, con tres agujeros para accesorios. Cuatro ruedas de filo con rodamientos y suspensión. En un extremo, **imanes** (choques elásticos); en el otro, **émbolo de resorte** de 3 posiciones (explosiones e impulsos) y **velcro** (choques inelásticos).
+- **Medidas:** masa 250 g (fabricante). Largo 17,5 cm, ancho 7,7 cm, alto 4,5 cm, rueda Ø 2,4 cm y distancia entre ejes 11,9 cm: **estimados**, PASCO no publica dimensiones.
+- **Origen:** centro del carrito sobre la pista (y = 0, donde apoyan las ruedas). Imanes hacia +X; émbolo y velcro hacia −X.
+- **Parámetros:** `color` ('rojo' | 'azul'), `largo`, `ancho`, `alto`, `masas` (0 a 2 barras, visual), `embolo` (0 a 3).
+- **Anclajes:** `frenteImanes`, `frenteEmbolo`, `enganche` (para la cuerda), `arriba` (bandeja).
+- **Acciones:** `rodar(dx)` (las ruedas giran dx / radio), `embolo(n)`, `posicionEmbolo()`.
+- **Por medir:** todas las medidas; cuánto sale el émbolo en cada posición; masa de las barras; qué extremo lleva el velcro.
+
+## Regla cebra
+
+Dos tipos, casi del mismo largo, con **15 franjas separadas 1 cm** (dato de los monitores):
+
+- **Acrílico con cauchitos:** placa transparente en escalerita con 15 ligas de colores atravesadas. Cada **cauchito tapa** el haz; el acrílico lo deja pasar.
+- **Metal ranurado:** lámina de acero un poco más ancha con 15 ranuras. El **metal tapa** el haz; cada **ranura** lo deja pasar.
+- **Medidas:** paso 1 cm y 15 franjas (dato). Ancho 2,5 cm (acrílico) y 3,0 cm (metal), largo 18,5 cm, primera franja a 2,5 cm del agujero, cauchito de 1,8 mm, ranura de 3 mm: **estimados**.
+- **Origen:** agujero de la cuerda. La regla baja a lo largo de −Y; el haz la cruza a lo largo de Z.
+- **Parámetros:** `tipo` ('acrilico' | 'metal'), `n`, `paso`, `primera`, `ancho`, `largo`, `franja`, `ranura`.
+- **Para el sensor:** `franjas` (distancias de cada franja bajo el agujero), `tapaEn(d)` e `intervalosTapados()`: con la caída x(t) se obtienen los instantes exactos de cada interrupción, igual que con los radios de la polea.
+- **Por medir:** ancho y largo reales, distancia del agujero a la primera franja, ancho de las ranuras del metal y de los cauchitos.
 
 ## Montaje típico: fotocompuerta en su soporte
 

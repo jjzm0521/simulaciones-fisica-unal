@@ -195,6 +195,8 @@ ps.cursores(c.a, c.b, {mover:true});             // el estudiante mide;  ps.inte
 <script src="piezas/soporte.js"></script>
 <script src="piezas/fotocompuerta.js"></script>
 <script src="piezas/polea.js"></script>
+<script src="piezas/carrito.js"></script>
+<script src="piezas/regla-cebra.js"></script>
 <script src="instrumentos/physics-sensor.js"></script>
 <script src="interfaz/interfaz.js"></script>
 <script>
@@ -224,9 +226,9 @@ ps.cursores(c.a, c.b, {mover:true});             // el estudiante mide;  ps.inte
     $('#psMed').onclick=()=>{ sen(); const c=ps.cursoresIniciales(); ps.cursores(c.a,c.b,{mover:true}); ps.nota('Arrastra los dos cursores azules.'); };
     ej(); }
   /* visor de piezas */
-  const PZ={ab:0.07,cual:'montaje',giro:0}, vista=$('#pzVista');
-  $('#pzSel').innerHTML=U.opciones({id:'pz',etiqueta:'Pieza',valor:PZ.cual,items:[{v:'montaje',texto:'Fotocompuerta en su soporte'},{v:'fotocompuerta',texto:'Fotocompuerta'},{v:'soporte',texto:'Soporte universal'},{v:'polea',texto:'Polea con prensa'}]});
-  const ctlPz=()=>{ $('#pzCtl').innerHTML=PZ.cual==='polea'?U.deslizador({id:'pzGiro',etiqueta:'Cuerda recorrida',valor:PZ.giro*100,min:0,max:16,paso:0.5,dec:1,unidad:'cm',nota:'po.girarPorLongitud(x) gira la rueda x / r. Un radio pasa por el haz cada 1,55 cm de cuerda.'}):U.deslizador({id:'pzAb',etiqueta:'Abertura de la fotocompuerta',valor:PZ.ab*100,min:5,max:12,paso:0.2,dec:1,unidad:'cm',nota:'la pieza real: 7 cm (estimado)',nominal:7}); U.montar('#pzCtl',alPz); };
+  const PZ={ab:0.07,cual:'montaje',giro:0,emb:2}, vista=$('#pzVista');
+  $('#pzSel').innerHTML=U.opciones({id:'pz',etiqueta:'Pieza',valor:PZ.cual,items:[{v:'montaje',texto:'Fotocompuerta en su soporte'},{v:'fotocompuerta',texto:'Fotocompuerta'},{v:'soporte',texto:'Soporte universal'},{v:'polea',texto:'Polea con prensa'},{v:'carrito',texto:'Carritos PAScar'},{v:'cebra',texto:'Reglas cebra'}]});
+  const ctlPz=()=>{ $('#pzCtl').innerHTML=PZ.cual==='carrito'?U.deslizador({id:'pzEmb',etiqueta:'Émbolo del carrito rojo',valor:PZ.emb,min:0,max:3,paso:1,dec:0,unidad:'',nota:'ca.embolo(n): posición 0 (adentro) a 3'}):PZ.cual==='cebra'?'':PZ.cual==='polea'?U.deslizador({id:'pzGiro',etiqueta:'Cuerda recorrida',valor:PZ.giro*100,min:0,max:16,paso:0.5,dec:1,unidad:'cm',nota:'po.girarPorLongitud(x) gira la rueda x / r. Un radio pasa por el haz cada 1,55 cm de cuerda.'}):U.deslizador({id:'pzAb',etiqueta:'Abertura de la fotocompuerta',valor:PZ.ab*100,min:5,max:12,paso:0.2,dec:1,unidad:'cm',nota:'la pieza real: 7 cm (estimado)',nominal:7}); U.montar('#pzCtl',alPz); };
   let pinta=()=>{};
   if(window.THREE){
     THREE.ColorManagement.enabled=false; const rd=new THREE.WebGLRenderer({antialias:true}); rd.outputColorSpace=THREE.LinearSRGBColorSpace; rd.setPixelRatio(Math.min(devicePixelRatio||1,2)); rd.shadowMap.enabled=true; vista.appendChild(rd.domElement);
@@ -236,6 +238,16 @@ ps.cursores(c.a, c.b, {mover:true});             // el estudiante mide;  ps.inte
     const mesa=new THREE.Mesh(new THREE.BoxGeometry(0.9,0.02,0.6),new THREE.MeshStandardMaterial({color:0xd9c39a,roughness:0.8})); mesa.position.y=-0.01; mesa.receiveShadow=true; esc.add(mesa);
     const cont=new THREE.Group(); esc.add(cont); let sucio=true; U.alCambiarTema(t=>{ Lab.escena.ambiente(esc,t); sucio=true; }); ctl.addEventListener('change',()=>sucio=true);
     pinta=()=>{ while(cont.children.length) cont.remove(cont.children[0]);
+      if(PZ.cual==='carrito'){ const r=Lab.piezas.carrito({color:'rojo',embolo:PZ.emb}), a=Lab.piezas.carrito({color:'azul',masas:1});
+        r.grupo.position.set(-0.11,0,0.05); a.grupo.position.set(0.11,0,0.05); a.grupo.rotation.y=Math.PI; cont.add(r.grupo,a.grupo);   // imanes frente a imanes: choque elástico
+        $('#pzCod').textContent="const ca = Lab.piezas.carrito({color:'rojo'});\nca.grupo.position.set(x, yPista, 0);\nca.rodar(dx);  ca.embolo(2);   // anclajes: frenteImanes, frenteEmbolo, enganche, arriba";
+        $('#pzInfo').textContent='PAScar (PASCO ME-6950) · 250 g · largo '+(r.medidas.largo*100).toFixed(1).replace('.',',')+' cm, ancho '+(r.medidas.ancho*100).toFixed(1).replace('.',',')+' cm · imanes en +X, émbolo y velcro en −X · el azul lleva una barra de masa · BORRADOR (medidas estimadas: medir).';
+        cam.position.set(0.25,0.22,0.42); ctl.target.set(0,0.02,0.05); ctl.update(); sucio=true; return; }
+      if(PZ.cual==='cebra'){ const ac=Lab.piezas.reglaCebra({tipo:'acrilico'}), me=Lab.piezas.reglaCebra({tipo:'metal'});
+        ac.grupo.position.set(-0.025,0.2,0.05); me.grupo.position.set(0.025,0.2,0.05); cont.add(ac.grupo,me.grupo);
+        $('#pzCod').textContent="const rc = Lab.piezas.reglaCebra({tipo:'acrilico'});   // o 'metal'\nrc.franjas;  rc.tapaEn(d);  rc.intervalosTapados();   // origen: agujero de la cuerda";
+        $('#pzInfo').textContent='Reglas cebra · 15 franjas cada 1 cm (dato) · acrílico con cauchitos (los cauchitos tapan el haz) y metal ranurado (el metal tapa; las ranuras dejan pasar) · ancho, largo y ranura estimados · BORRADOR.';
+        cam.position.set(0.07,0.15,0.46); ctl.target.set(0,0.115,0.05); ctl.update(); sucio=true; return; }
       if(PZ.cual==='polea'){ const po=Lab.piezas.polea({mesaGrosor:0.02}), borde=new THREE.Vector3(0.45,0,0);
         po.grupo.position.copy(borde).sub(po.anclajes.mesa); po.girarPorLongitud(PZ.giro); cont.add(po.grupo);
         const tapado=po.radioEnHaz(), hz=new THREE.Mesh(new THREE.CylinderGeometry(0.0009,0.0009,0.05,8),new THREE.MeshBasicMaterial({color:tapado?0x6b7a88:0xe11d2e}));
@@ -260,8 +272,8 @@ ps.cursores(c.a, c.b, {mover:true});             // el estudiante mide;  ps.inte
     (function b(){ requestAnimationFrame(b); if(sucio){ sucio=false; rd.render(esc,cam); } })();
   } else vista.textContent='No se pudo cargar el motor 3D.';
   $('#dVenTabs').outerHTML=U.pestanas({id:'vista',etiqueta:'Qué ver en la ventana',valor:'rayos',items:[{v:'rayos',texto:'Rayos'},{v:'mapa',texto:'Mapa'},{v:'lente',texto:'Lente por dentro'}]});
-  function alPz(id,v){ if(id==='pzAb'){ PZ.ab=v/100; pinta(); } else if(id==='pzGiro'){ PZ.giro=v/100; pinta(); } eco(id,v); }
-  U.montar('.cat',(id,v)=>{ if(id==='vista') $('#dVenPie').innerHTML='Aquí va el lienzo de la pestaña <b>'+v+'</b>.'; if(id==='pz'){ PZ.cual=v; ctlPz(); pinta(); } else if(id==='pzAb'||id==='pzGiro') return; eco(id,v); });
+  function alPz(id,v){ if(id==='pzAb'){ PZ.ab=v/100; pinta(); } else if(id==='pzGiro'){ PZ.giro=v/100; pinta(); } else if(id==='pzEmb'){ PZ.emb=v; pinta(); } eco(id,v); }
+  U.montar('.cat',(id,v)=>{ if(id==='vista') $('#dVenPie').innerHTML='Aquí va el lienzo de la pestaña <b>'+v+'</b>.'; if(id==='pz'){ PZ.cual=v; ctlPz(); pinta(); } else if(id==='pzAb'||id==='pzGiro'||id==='pzEmb') return; eco(id,v); });
   ctlPz();   // después de montar '.cat': sus controles se activan una sola vez, en ctlPz
   const b1=U.barraAccion({pad:'#dPad',hud:null,accion:a=>eco('barra',a)}), b2=U.barraAccion({pad:null,hud:'#dHud',accion:()=>{}});
   const e={titulo:'Oblicuo',tituloCambia:true,valores:['θ = 35°','V₀ = 2,0 m/s'],grupos:[{id:'th',menos:'θ−',mas:'θ+',nombre:'el ángulo'},{id:'v',menos:'V−',mas:'V+',nombre:'la rapidez'}],principal:{texto:'Lanzar'},teclas:[['Espacio','lanzar'],['← →','ángulo'],['↑ ↓','rapidez']]};

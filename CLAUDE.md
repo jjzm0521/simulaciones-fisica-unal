@@ -35,7 +35,7 @@ biblioteca/               lo compartido (ver biblioteca/README.md)
   ├── interfaz/           tokens.css, interfaz.css, interfaz.js  ← sistema de diseño
   ├── catalogo.html       todos los elementos, con su uso (referencia del equipo y del agente)
   ├── fisica/             incertidumbre.js
-  ├── piezas/             equipos del laboratorio: soporte.js, fotocompuerta.js, polea.js (fichas y reglas en piezas/README.md)
+  ├── piezas/             equipos del laboratorio: soporte.js, fotocompuerta.js, polea.js, carrito.js, regla-cebra.js (fichas y reglas en piezas/README.md)
   └── instrumentos/       lo que el estudiante lee o maneja: physics-sensor.js (ficha en instrumentos/README.md)
 plantilla/practica/       punto de partida para cualquier práctica nueva
 herramientas/             empaquetar.py, empaquetar-todo.py
@@ -91,7 +91,7 @@ El empaquetador avisa si quedan recursos externos: ese aviso es un error que hay
 - **Hecho de la biblioteca:** núcleo, fuentes, incertidumbre, plantilla, empaquetar-todo; sistema de diseño v2 (tokens, elementos `Lab.ui`, catálogo, modo proyector, rótulos legibles) con parabólico y la plantilla ya migrados.
 - **Instrumentos hechos:** PhysicsSensor (sonograma) con la señal de esfera en el haz; parabólico ya lo usa.
 - **Falta pasar a la biblioteca:** tabla de datos, verificación de "Tus cálculos", armazón declarativo (modos y pasos). Tema claro/oscuro hecho: `html.oscuro` en tokens.css, `Lab.ui.tema`, botón Tema (O) y `Lab.escena.ambiente`; toda práctica nueva debe llamar a `ambiente` y repintar sus rótulos en `Lab.ui.alCambiarTema`. PhysicsSensor y piezas no cambian de color. Lente-convergente lo usa con su propia paleta de escena (DAY3).
-- **Piezas hechas (borrador, medidas estimadas de foto):** soporte universal (base, varilla, nuez, brazo) y fotocompuerta en C, que parabólico ya usa; polea con prensa (PASCO Super Pulley, rueda con medidas reales, r = 2,465 cm).
+- **Piezas hechas (borrador, medidas estimadas de foto):** soporte universal (base, varilla, nuez, brazo) y fotocompuerta en C, que parabólico ya usa; polea con prensa (PASCO Super Pulley, rueda con medidas reales, r = 2,465 cm); carrito PAScar; reglas cebra de acrílico y de metal (15 franjas cada 1 cm).
 - **Siguiente:** medir en el laboratorio soporte y fotocompuerta; medir brazo y prensa de la polea; sacar de parabólico mesa, rampa, esfera, cinta y computador.
 - **Pendiente del equipo:** lista de prácticas de Física 3, número oficial de cada práctica de F1, fotos y medidas de equipos, quién aprueba piezas.
 - **Skill:** una sola copia en `skills/simulacion-practica-lab/` (`.gemini/skills/` solo remite a ella). Si cambian las reglas de este archivo, revisa que la skill no las contradiga. El monitor la tiene instalada aparte en `~/.claude/skills/`: hay que volver a copiarla cuando cambie.

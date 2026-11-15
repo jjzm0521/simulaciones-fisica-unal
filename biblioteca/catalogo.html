@@ -228,7 +228,7 @@ ps.cursores(c.a, c.b, {mover:true});             // el estudiante mide;  ps.inte
   /* visor de piezas */
   const PZ={ab:0.07,cual:'montaje',giro:0,emb:2}, vista=$('#pzVista');
   $('#pzSel').innerHTML=U.opciones({id:'pz',etiqueta:'Pieza',valor:PZ.cual,items:[{v:'montaje',texto:'Fotocompuerta en su soporte'},{v:'fotocompuerta',texto:'Fotocompuerta'},{v:'soporte',texto:'Soporte universal'},{v:'polea',texto:'Polea con prensa'},{v:'carrito',texto:'Carritos PAScar'},{v:'cebra',texto:'Reglas cebra'}]});
-  const ctlPz=()=>{ $('#pzCtl').innerHTML=PZ.cual==='carrito'?U.deslizador({id:'pzEmb',etiqueta:'Émbolo del carrito rojo',valor:PZ.emb,min:0,max:3,paso:1,dec:0,unidad:'',nota:'ca.embolo(n): posición 0 (adentro) a 3'}):PZ.cual==='cebra'?'':PZ.cual==='polea'?U.deslizador({id:'pzGiro',etiqueta:'Cuerda recorrida',valor:PZ.giro*100,min:0,max:16,paso:0.5,dec:1,unidad:'cm',nota:'po.girarPorLongitud(x) gira la rueda x / r. Un radio pasa por el haz cada 1,55 cm de cuerda.'}):U.deslizador({id:'pzAb',etiqueta:'Abertura de la fotocompuerta',valor:PZ.ab*100,min:5,max:12,paso:0.2,dec:1,unidad:'cm',nota:'la pieza real: 7 cm (estimado)',nominal:7}); U.montar('#pzCtl',alPz); };
+  const ctlPz=()=>{ $('#pzCtl').innerHTML=PZ.cual==='carrito'||PZ.cual==='cebra'?'':PZ.cual==='polea'?U.deslizador({id:'pzGiro',etiqueta:'Cuerda recorrida',valor:PZ.giro*100,min:0,max:16,paso:0.5,dec:1,unidad:'cm',nota:'po.girarPorLongitud(x) gira la rueda x / r. Un radio pasa por el haz cada 1,55 cm de cuerda.'}):U.deslizador({id:'pzAb',etiqueta:'Abertura de la fotocompuerta',valor:PZ.ab*100,min:5,max:12,paso:0.2,dec:1,unidad:'cm',nota:'la pieza real: 7 cm (estimado)',nominal:7}); U.montar('#pzCtl',alPz); };
   let pinta=()=>{};
   if(window.THREE){
     THREE.ColorManagement.enabled=false; const rd=new THREE.WebGLRenderer({antialias:true}); rd.outputColorSpace=THREE.LinearSRGBColorSpace; rd.setPixelRatio(Math.min(devicePixelRatio||1,2)); rd.shadowMap.enabled=true; vista.appendChild(rd.domElement);
@@ -238,10 +238,10 @@ ps.cursores(c.a, c.b, {mover:true});             // el estudiante mide;  ps.inte
     const mesa=new THREE.Mesh(new THREE.BoxGeometry(0.9,0.02,0.6),new THREE.MeshStandardMaterial({color:0xd9c39a,roughness:0.8})); mesa.position.y=-0.01; mesa.receiveShadow=true; esc.add(mesa);
     const cont=new THREE.Group(); esc.add(cont); let sucio=true; U.alCambiarTema(t=>{ Lab.escena.ambiente(esc,t); sucio=true; }); ctl.addEventListener('change',()=>sucio=true);
     pinta=()=>{ while(cont.children.length) cont.remove(cont.children[0]);
-      if(PZ.cual==='carrito'){ const r=Lab.piezas.carrito({color:'rojo',embolo:PZ.emb}), a=Lab.piezas.carrito({color:'azul',masas:1});
+      if(PZ.cual==='carrito'){ const r=Lab.piezas.carrito(), a=Lab.piezas.carrito({masas:1});
         r.grupo.position.set(-0.11,0,0.05); a.grupo.position.set(0.11,0,0.05); a.grupo.rotation.y=Math.PI; cont.add(r.grupo,a.grupo);   // imanes frente a imanes: choque elástico
-        $('#pzCod').textContent="const ca = Lab.piezas.carrito({color:'rojo'});\nca.grupo.position.set(x, yPista, 0);\nca.rodar(dx);  ca.embolo(2);   // anclajes: frenteImanes, frenteEmbolo, enganche, arriba";
-        $('#pzInfo').textContent='PAScar (PASCO ME-6950) · 250 g · largo '+(r.medidas.largo*100).toFixed(1).replace('.',',')+' cm, ancho '+(r.medidas.ancho*100).toFixed(1).replace('.',',')+' cm · imanes en +X, émbolo y velcro en −X · el azul lleva una barra de masa · BORRADOR (medidas estimadas: medir).';
+        $('#pzCod').textContent="const ca = Lab.piezas.carrito();          // gris, topes negros; {color:'rojo', conEmbolo:true} si es el PAScar\nca.grupo.position.set(x, yPista, 0);\nca.rodar(dx);   // anclajes: frenteImanes, frenteVelcro, enganche, arriba";
+        $('#pzInfo').textContent='Carrito de colisiones · gris con topes negros: imanes y resorte en +X, velcro en −X · largo '+(r.medidas.largo*100).toFixed(1).replace('.',',')+' cm, ancho '+(r.medidas.ancho*100).toFixed(1).replace('.',',')+' cm · el de la derecha lleva una barra de masa · BORRADOR: modelo por confirmar con foto, medidas estimadas.';
         cam.position.set(0.25,0.22,0.42); ctl.target.set(0,0.02,0.05); ctl.update(); sucio=true; return; }
       if(PZ.cual==='cebra'){ const ac=Lab.piezas.reglaCebra({tipo:'acrilico'}), me=Lab.piezas.reglaCebra({tipo:'metal'});
         ac.grupo.position.set(-0.025,0.2,0.05); me.grupo.position.set(0.025,0.2,0.05); cont.add(ac.grupo,me.grupo);

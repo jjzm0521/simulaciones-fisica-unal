@@ -21,7 +21,7 @@ Los equipos reales, modelados **una sola vez**. Toda simulación que necesite un
 | Soporte universal | [`soporte.js`](soporte.js) | Borrador · medidas estimadas de foto | Movimiento parabólico |
 | Fotocompuerta | [`fotocompuerta.js`](fotocompuerta.js) | Borrador · medidas estimadas de foto | Movimiento parabólico |
 | Polea con prensa | [`polea.js`](polea.js) | Borrador · rueda con medidas reales; prensa estimada de foto | (Atwood, Segunda ley, Movimiento circular) |
-| Carrito de colisiones | [`carrito.js`](carrito.js) | Borrador · modelo por confirmar con foto; medidas estimadas | (Colisiones, Segunda ley) |
+| Carrito con émbolo (PASCO ME-9430) | [`carrito.js`](carrito.js) | Borrador · forma del manual; medidas estimadas | (Colisiones, Segunda ley) |
 | Regla cebra | [`regla-cebra.js`](regla-cebra.js) | Borrador · paso y número de franjas reales; resto estimado de foto | (Caída libre, Movimiento circular) |
 
 Pendientes (salen de parabólico o de fotos por llegar): mesa, rampa, esfera, cinta métrica, computador con PhysicsSensor, pista del carrito.
@@ -70,17 +70,17 @@ const c = po.cuerda(carrito, pesa); escena.add(c.linea);
 c.actualizar(carrito, pesa);      // en cada cuadro: sigue tangente aunque se muevan
 ```
 
-## Carrito de colisiones
+## Carrito con émbolo
 
-**Modelo por confirmar (falta foto).** Según el monitor: el de baja fricción para colisiones, de cuerpo **gris** con los **extremos negros**.
+**PASCO Plunger Cart (ME-9430)**, el carrito de baja fricción de las pistas PASCO (dato del monitor). Forma según el manual de PASCO (012-14781C).
 
-- **Cómo es:** cuerpo gris con bandeja arriba para barras de masa. Cuatro ruedas de filo. En un extremo, un **tope negro con resorte e imanes** adentro (choques elásticos); en el otro, **velcro** para que un carro se pegue al de atrás (choques inelásticos). Si resulta ser el PASCO PAScar (rojo o azul, con émbolo de 3 posiciones), se usa `color:'rojo'` y `conEmbolo:true`.
-- **Medidas:** largo 17,5 cm, ancho 7,7 cm, alto 4,5 cm, rueda Ø 2,4 cm: **estimadas**.
-- **Origen:** centro del carrito sobre la pista (y = 0). Tope con imanes hacia +X; velcro hacia −X.
-- **Parámetros:** `color` ('gris' | 'rojo' | 'azul'), `largo`, `ancho`, `alto`, `masas` (0 a 2 barras, visual), `conEmbolo`, `embolo` (0 a 3).
-- **Anclajes:** `frenteImanes`, `frenteVelcro`, `frenteEmbolo`, `enganche` (para la cuerda), `arriba` (bandeja).
-- **Acciones:** `rodar(dx)` (las ruedas giran dx / radio), `embolo(n)`.
-- **Por medir:** foto del carrito real, todas las medidas, masa del carrito y de las barras.
+- **Cómo es:** cuerpo de **aluminio en forma de bandeja** (gris en el laboratorio; los nuevos son azules) con **tapas de ABS negro** en los extremos. Ruedas con rodamientos **metidas en el cuerpo**: solo asoma la parte de abajo y encajan en las ranuras de la pista. Extremo +X: **imanes** (choques elásticos). Extremo −X: **émbolo de resorte de 3 posiciones** con su **gatillo** arriba, dos parches de **velcro** (choques inelásticos) y el punto de amarre de abajo. Arriba de cada tapa, un punto de amarre; en la bandeja, ranura para la cerca (picket fence) y dos agujeros roscados. Su pareja sin émbolo es el Collision Cart (ME-9454, rojo): `conEmbolo:false`.
+- **Medidas:** masa 500 g (manual). Largo 17,5 cm, ancho 10 cm, alto 5 cm, rueda Ø 2,5 cm y salida del émbolo en cada posición: **estimados** de las proporciones de la foto; PASCO no publica dimensiones.
+- **Origen:** centro del carrito sobre la pista (y = 0). Imanes hacia +X; émbolo y velcro hacia −X.
+- **Parámetros:** `color` ('gris' | 'azul' | 'rojo'), `largo`, `ancho`, `alto`, `conEmbolo`, `embolo` (0 a 3), `masas` (0 a 2 barras de 500 g, visual).
+- **Anclajes:** `frenteImanes`, `frenteEmbolo()` (cambia con la posición), `frenteVelcro`, `amarreArriba`, `amarreAbajo`, `arriba` (bandeja).
+- **Acciones:** `rodar(dx)` (las ruedas giran dx / radio), `embolo(n)`, `posicionEmbolo()`.
+- **Por medir:** largo, ancho, alto, diámetro de rueda y distancia entre ejes; cuánto sale el émbolo en cada posición.
 
 ## Regla cebra
 

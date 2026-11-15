@@ -20,8 +20,11 @@ Los equipos reales, modelados **una sola vez**. Toda simulación que necesite un
 |---|---|---|---|
 | Soporte universal | [`soporte.js`](soporte.js) | Borrador · medidas estimadas de foto | Movimiento parabólico |
 | Fotocompuerta | [`fotocompuerta.js`](fotocompuerta.js) | Borrador · medidas estimadas de foto | Movimiento parabólico |
+| Polea con prensa | [`polea.js`](polea.js) | Borrador · rueda con medidas reales; prensa estimada de foto | (Atwood, Segunda ley, Movimiento circular) |
+| Carrito con émbolo (PASCO ME-9430) | [`carrito.js`](carrito.js) | Borrador · forma del manual; medidas estimadas | (Colisiones, Segunda ley) |
+| Regla cebra | [`regla-cebra.js`](regla-cebra.js) | Borrador · paso y número de franjas reales; resto estimado de foto | (Caída libre, Movimiento circular) |
 
-Pendientes (salen de parabólico o de fotos por llegar): polea con radios, mesa, rampa, esfera, cinta métrica, computador con PhysicsSensor, prensa de mesa, regla-cebra.
+Pendientes (salen de parabólico o de fotos por llegar): mesa, rampa, esfera, cinta métrica, computador con PhysicsSensor, pista del carrito.
 
 ## Soporte universal
 
@@ -44,6 +47,52 @@ Lo que sostiene casi todo: fotocompuerta, péndulo, resorte, polea.
 - **Acciones:** `bloquear(true|false)` atenúa el haz y cambia el LED.
 - **Por medir:** todas las medidas; posición real del emisor; si tiene LED visible.
 - **Nota de uso:** en movimiento parabólico la rampa se dibuja más ancha que la real, así que se pide `abertura: 0.108` para que la abrace. Con la rampa a escala real se usaría la abertura por defecto.
+
+## Polea con prensa
+
+La de las prácticas de Segunda ley, Movimiento circular y Atwood: **PASCO Super Pulley con prensa (ME-9448B)**.
+
+- **Cómo es:** rueda negra de plástico con **10 radios** (los que corta el haz de la fotocompuerta en Movimiento circular) y garganta para la cuerda. Gira en un eje de acero **sostenido por los dos lados**: el brazo es una horquilla en U que abraza la rueda (un brazo delante y otro detrás, unidos del lado de la prensa). La horquilla atraviesa una **prensa en C** que muerde el borde de la mesa: mordaza arriba, tornillo de perilla por debajo; una perilla lateral fija el brazo.
+- **Medidas:** diámetro exterior 5,1 cm (fabricante) · **radio por donde pasa la cuerda r = 2,465 cm** (dato de los monitores; es el "radio externo r" de las guías) · garganta de 15 cm de circunferencia según el fabricante (r ≈ 2,39 cm) · masa de la rueda ≈ 5 g (fabricante). Brazo, prensa y ancho de la rueda: estimados de foto.
+- **Origen:** eje de la rueda. La rueda gira en el plano XY; la mesa queda hacia −X; la horquilla y la prensa quedan centradas en la rueda (Z = 0).
+- **Parámetros:** `diametro`, `radio` (de la cuerda), `radios`, `grosor`, `brazo`, `mesaY` (superficie de la mesa sobre el eje), `mesaGrosor`, `color`.
+- **Anclajes:** `eje`, `arriba` (donde llega la cuerda horizontal), `bajada` (donde sale la vertical), `mesa` (esquina del borde que muerde la prensa).
+- **Acciones:** `girar(ángulo)`, `girarPorLongitud(x)` (= x / r), `angulo()`, `cuerda(desde, hasta)` (línea que siempre llega y sale tangente a la garganta, con el arco sobre la rueda; `actualizar(desde, hasta)` en cada cuadro) y `trayectoriaCuerda(desde, hasta)` (solo los puntos). Puntos en coordenadas del mundo.
+- **Radios y fotocompuerta:** el radio k está en el ángulo 2πk/10 de la rueda; pasa un radio por el haz cada 2π·r/10 = 1,549 cm de cuerda. `instantesHaz({a, v0, ang0, rb, beta, tMax})` da los instantes **exactos** (sin muestrear) en que cada radio entra y sale del haz cuando la cuerda acelera con a (x = v0·t + ½·a·t² → θ = x / r): con eso se arma la señal del PhysicsSensor de Movimiento circular y de Segunda ley. `angulosHaz(haz, a0, a1)` da los mismos intervalos en ángulo y `radioEnHaz(haz)` si está tapado ahora. El haz se describe con `rb` (distancia al eje, entre `medidas.radioHazMin` y `radioHazMax`) y `beta` (ángulo; por defecto debajo del eje, anclaje `haz`). Ancho del radio: 3,2 mm (estimado: medir).
+- **Por medir:** ancho de los radios (cambia cuánto dura cada interrupción del haz), largo del brazo, altura del eje sobre la mesa, ancho de la rueda, abertura máxima de la prensa; contar los radios en la polea real.
+
+```js
+const po = Lab.piezas.polea();
+escena.add(po.grupo);
+po.grupo.position.copy(bordeDeLaMesa).sub(po.anclajes.mesa);
+po.girarPorLongitud(x);           // la cuerda avanzó x
+const c = po.cuerda(carrito, pesa); escena.add(c.linea);
+c.actualizar(carrito, pesa);      // en cada cuadro: sigue tangente aunque se muevan
+```
+
+## Carrito con émbolo
+
+**PASCO Plunger Cart (ME-9430)**, el carrito de baja fricción de las pistas PASCO (dato del monitor). Forma según el manual de PASCO (012-14781C).
+
+- **Cómo es:** cuerpo de **aluminio en forma de bandeja** (gris en el laboratorio; los nuevos son azules) con **tapas de ABS negro** en los extremos. Ruedas con rodamientos **metidas en el cuerpo**: solo asoma la parte de abajo y encajan en las ranuras de la pista. Extremo +X: **imanes** (choques elásticos). Extremo −X: **émbolo de resorte de 3 posiciones** con su **gatillo** arriba, dos parches de **velcro** (choques inelásticos) y el punto de amarre de abajo. Arriba de cada tapa, un punto de amarre; en la bandeja, ranura para la cerca (picket fence) y dos agujeros roscados. Su pareja sin émbolo es el Collision Cart (ME-9454, rojo): `conEmbolo:false`.
+- **Medidas:** masa 500 g (manual). Largo 17,5 cm, ancho 10 cm, alto 5 cm, rueda Ø 2,5 cm y salida del émbolo en cada posición: **estimados** de las proporciones de la foto; PASCO no publica dimensiones.
+- **Origen:** centro del carrito sobre la pista (y = 0). Imanes hacia +X; émbolo y velcro hacia −X.
+- **Parámetros:** `color` ('gris' | 'azul' | 'rojo'), `largo`, `ancho`, `alto`, `conEmbolo`, `embolo` (0 a 3), `masas` (0 a 2 barras de 500 g, visual).
+- **Anclajes:** `frenteImanes`, `frenteEmbolo()` (cambia con la posición), `frenteVelcro`, `amarreArriba`, `amarreAbajo`, `arriba` (bandeja).
+- **Acciones:** `rodar(dx)` (las ruedas giran dx / radio), `embolo(n)`, `posicionEmbolo()`.
+- **Por medir:** largo, ancho, alto, diámetro de rueda y distancia entre ejes; cuánto sale el émbolo en cada posición.
+
+## Regla cebra
+
+Dos tipos, casi del mismo largo, con **15 franjas separadas 1 cm** (dato de los monitores):
+
+- **Acrílico con cauchitos:** placa transparente **entera** (solo el agujero de la cuerda), con muescas en los bordes donde van 15 ligas de colores. Cada **cauchito tapa** el haz; el acrílico lo deja pasar.
+- **Metal ranurado:** lámina de acero un poco más ancha con 15 ranuras. El **metal tapa** el haz; cada **ranura** lo deja pasar.
+- **Medidas:** paso 1 cm y 15 franjas (dato). Ancho 2,5 cm (acrílico) y 3,2 cm (metal), largo 18,5 cm, primera franja a 2,5 cm del agujero, cauchito de 1,8 mm, ranura de 3 mm: **estimados**.
+- **Origen:** agujero de la cuerda. La regla baja a lo largo de −Y; el haz la cruza a lo largo de Z.
+- **Parámetros:** `tipo` ('acrilico' | 'metal'), `n`, `paso`, `primera`, `ancho`, `largo`, `franja`, `ranura`.
+- **Para el sensor:** `franjas` (distancias de cada franja bajo el agujero), `tapaEn(d)` e `intervalosTapados()`: con la caída x(t) se obtienen los instantes exactos de cada interrupción, igual que con los radios de la polea.
+- **Por medir:** ancho y largo reales, distancia del agujero a la primera franja, ancho de las ranuras del metal y de los cauchitos.
 
 ## Montaje típico: fotocompuerta en su soporte
 

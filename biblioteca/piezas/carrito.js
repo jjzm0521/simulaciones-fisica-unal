@@ -20,7 +20,7 @@
    Parámetros (por defecto = estimado):
      color 'gris' | 'rojo' | 'azul'
      conEmbolo false  émbolo de resorte en el extremo −X (el del PAScar)
-     largo 0.175, ancho 0.077 (entre caras exteriores de las ruedas), alto 0.045
+     largo 0.175, ancho 0.077 (del cuerpo; las ruedas van por debajo, metidas), alto 0.045
      masas 0          barras de masa sobre la bandeja (0, 1 o 2), solo visual
      embolo 0         posición inicial del émbolo (0 a 3)
    ===================================================================== */
@@ -37,7 +37,7 @@
     const acero = new THREE.MeshStandardMaterial({color:0xc4cad1, roughness:0.28, metalness:0.85});
     const gris = new THREE.MeshStandardMaterial({color:0x8a9099, roughness:0.6});
     const L = o.largo, W = o.ancho, RR = 0.012, RE = 0.003,                 // radio y grosor de rueda
-          BW = W - 2 * RE - 0.004, y0 = 0.009, y1 = o.alto;                  // ancho del cuerpo, base y techo del cuerpo
+          BW = W - 0.003, y0 = 0.006, y1 = o.alto;                          // ancho del cuerpo (las ruedas van DEBAJO, metidas), base y techo
 
     /* cuerpo: perfil lateral con esquinas redondeadas, extruido a lo ancho */
     const TP = 0.012, s = new THREE.Shape(), rC = 0.006, xa = -L / 2 + TP, xb = L / 2 - TP;   // TP: largo de cada tope negro
@@ -53,7 +53,7 @@
     /* ruedas de filo, con su eje (giran juntas) */
     const ruedas = [], ejeX = L / 2 - 0.028;
     [-ejeX, ejeX].forEach(x => [-1, 1].forEach(sz => {
-      const r = new THREE.Group(); r.position.set(x, RR, sz * (W / 2 - RE / 2));
+      const r = new THREE.Group(); r.position.set(x, RR, sz * (W / 2 - 0.011));   // ruedas por dentro del cuerpo: solo asoma la parte de abajo
       const llanta = new THREE.Mesh(new THREE.CylinderGeometry(RR, RR, RE, 28), negro); llanta.rotation.x = Math.PI / 2; r.add(llanta);
       const cubo = new THREE.Mesh(new THREE.CylinderGeometry(0.004, 0.004, RE + 0.0008, 14), gris); cubo.rotation.x = Math.PI / 2; r.add(cubo);
       const marca = new THREE.Mesh(new THREE.BoxGeometry(0.0015, RR * 0.9, 0.0004), gris); marca.position.set(0, RR * 0.5, sz * (RE / 2 + 0.0002)); r.add(marca);
